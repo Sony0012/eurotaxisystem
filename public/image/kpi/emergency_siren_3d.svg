@@ -1,0 +1,99 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <defs>
+    <!-- Emergency Pulse Radial Glow -->
+    <radialGradient id="sosRadial" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff0000" stop-opacity="0.85"/>
+      <stop offset="60%" stop-color="#dc2626" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#991b1b" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Glass Beacon Dome Gradient -->
+    <linearGradient id="domeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fca5a5"/>
+      <stop offset="30%" stop-color="#ef4444"/>
+      <stop offset="70%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+
+    <!-- Internal Siren Reflector Gradient -->
+    <linearGradient id="reflGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <!-- Base Chrome/Metallic Gradient -->
+    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="25%" stop-color="#cbd5e1"/>
+      <stop offset="50%" stop-color="#334155"/>
+      <stop offset="75%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Base Stand Dark Gradient -->
+    <linearGradient id="standGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="sosShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#7f1d1d" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Specular Highlight Filter -->
+    <filter id="glowFilt" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Pulsing Glow Circle -->
+  <circle cx="120" cy="120" r="105" fill="url(#sosRadial)" opacity="0.85"/>
+
+  <!-- Light Beam Flashes Left & Right -->
+  <path d="M40 70 L15 50 L25 90 Z" fill="#fee2e2" opacity="0.6" filter="url(#glowFilt)"/>
+  <path d="M200 70 L225 50 L215 90 Z" fill="#fee2e2" opacity="0.6" filter="url(#glowFilt)"/>
+  <path d="M120 20 L105 5 L135 5 Z" fill="#fee2e2" opacity="0.7" filter="url(#glowFilt)"/>
+
+  <!-- Siren Body with Shadow -->
+  <g filter="url(#sosShadow)">
+    <!-- Base Platform Ring -->
+    <ellipse cx="120" cy="180" rx="68" ry="24" fill="url(#standGrad)"/>
+    <ellipse cx="120" cy="176" rx="64" ry="20" fill="url(#chromeGrad)"/>
+    <ellipse cx="120" cy="172" rx="56" ry="16" fill="#1e293b"/>
+
+    <!-- Siren Chrome Collar -->
+    <path d="M68 152 C68 152 75 168 120 168 C165 168 172 152 172 152 L164 144 C164 144 150 154 120 154 C90 154 76 144 76 144 Z" fill="url(#chromeGrad)"/>
+
+    <!-- Glass Dome Red Shell -->
+    <path d="M72 148 C66 110 75 60 120 58 C165 60 174 110 168 148 C158 160 82 160 72 148 Z" fill="url(#domeGrad)"/>
+
+    <!-- Inner Reflector & Bulb -->
+    <g transform="translate(120, 115)">
+      <!-- Yellow rotating reflector -->
+      <path d="M-22 18 C-30 -5 -15 -35 0 -40 C15 -35 30 -5 22 18 Z" fill="url(#reflGrad)"/>
+      <ellipse cx="0" cy="5" rx="14" ry="16" fill="#fef08a" filter="url(#glowFilt)"/>
+      <circle cx="0" cy="5" r="7" fill="#ffffff"/>
+    </g>
+
+    <!-- Glass Highlight Reflection Curves -->
+    <!-- Left Specular Reflection -->
+    <path d="M85 138 C80 110 86 76 112 68 C104 78 100 110 102 138 C96 140 90 140 85 138 Z" fill="#ffffff" opacity="0.55"/>
+    
+    <!-- Top Highlight Curve -->
+    <ellipse cx="120" cy="70" rx="28" ry="8" fill="#ffffff" opacity="0.35"/>
+
+    <!-- Right Subtle Gloss -->
+    <path d="M155 135 C158 115 156 90 145 78 C148 88 150 112 148 135 Z" fill="#ffffff" opacity="0.25"/>
+
+    <!-- Emergency Shield Emblem on Base -->
+    <g transform="translate(120, 158)">
+      <polygon points="0,-10 10,-4 8,8 0,14 -8,8 -10,-4" fill="#ffffff"/>
+      <polygon points="0,-8 8,-3 6,6 0,11 -6,6 -8,-3" fill="#dc2626"/>
+      <path d="M0 -4 L0 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="0" cy="5" r="1" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

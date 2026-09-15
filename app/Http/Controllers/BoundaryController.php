@@ -38,6 +38,7 @@ class BoundaryController extends Controller
                 'b.*',
                 'u.plate_number',
                 'u.year as unit_year',
+                'u.unit_type',
                 'u.coding_day as unit_coding_day',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
                 'creator.full_name as creator_name',
@@ -126,7 +127,7 @@ class BoundaryController extends Controller
             ->whereNull('deleted_at')
             ->where('status', '!=', 'retired')
             ->where('status', '!=', 'missing')
-            ->select('id', 'plate_number', 'make', 'model', 'year', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id', 'current_turn_driver_id', 'last_swapping_at', 'shift_deadline_at')
+            ->select('id', 'plate_number', 'make', 'model', 'year', 'unit_type', 'boundary_rate', 'coding_day', 'driver_id', 'secondary_driver_id', 'current_turn_driver_id', 'last_swapping_at', 'shift_deadline_at')
             ->orderBy('plate_number')
             ->get()
             ->map(function ($unit) use ($absentDriversToday) {
@@ -240,29 +241,10 @@ class BoundaryController extends Controller
             $pricing = $this->getCurrentPricing([
                 'year' => $b->unit_year,
                 'plate_number' => $b->plate_number,
-                'boundary_rate' => $b->boundary_amount, // Use the target recorded
-                'coding_day' => $b->unit_coding_day
-            ], $boundary_rules);
-
-            // Re-calculate specifically for the record's day if it's not today
-            if ($dayOfWeek === 'Saturday') {
-                $rule = $boundary_rules->where('start_year', '<=', $b->unit_year)->where('end_year', '>=', $b->unit_year)->first();
-                $pricing['label'] = 'Saturday Discount';
-                $pricing['type'] = 'discount';
-            } elseif ($dayOfWeek === 'Sunday') {
-                $pricing['label'] = 'Sunday Discount';
-                $pricing['type'] = 'discount';
-            } else {
-                // Coding check for that day
-                $cDay = $pricing['coding_day'] ?? null;
-                if ($cDay && strtolower($dayOfWeek) === strtolower($cDay)) {
-                    $pricing['label'] = 'Coding Rate';
-                    $pricing['type'] = 'coding';
-                } else {
-                    $pricing['label'] = 'Regular Rate';
-                    $pricing['type'] = 'regular';
-                }
-            }
+                'boundary_rate' => $b->boundary_amount,
+                'coding_day' => $b->unit_coding_day,
+                'unit_type' => $b->unit_type ?? ''
+            ], $boundary_rules, $b->date);
 
             $item = (array) $b;
             $item['rate_label'] = $pricing['label'];
@@ -311,6 +293,63 @@ class BoundaryController extends Controller
     public function store(Request $request)
     {
         $action = $request->input('action', '');
+
+        if ($action === 'remove_liability') {
+            $liability_id = (int) $request->input('liability_id', 0);
+            $driver_id    = (int) $request->input('driver_id', 0);
+
+            if (!$liability_id) {
+                return response()->json(['success' => false, 'message' => 'Invalid liability ID.'], 422);
+            }
+
+            $liability = \App\Models\DriverBehavior::find($liability_id);
+            if (!$liability) {
+                return response()->json(['success' => false, 'message' => 'Liability record not found.'], 404);
+            }
+
+            if ($driver_id > 0 && $liability->driver_id != $driver_id) {
+                return response()->json(['success' => false, 'message' => 'Driver liability mismatch.'], 403);
+            }
+
+            $targetDriverId = $liability->driver_id;
+
+            // Soft-delete / cancel the liability
+            $liability->update([
+                'charge_status'     => 'cancelled',
+                'remaining_balance' => 0,
+                'deleted_at'        => now(),
+            ]);
+
+            // If linked to a boundary, clean up notes
+            if ($liability->boundary_id) {
+                $linkedBoundary = Boundary::find($liability->boundary_id);
+                if ($linkedBoundary && str_contains($linkedBoundary->notes, '[Automatic Violation: Short Boundary]')) {
+                    $linkedBoundary->update([
+                        'notes' => trim(str_replace('[Automatic Violation: Short Boundary]', '', $linkedBoundary->notes)),
+                    ]);
+                }
+            }
+
+            // Re-fetch remaining active pending debts for this driver
+            $remainingDebts = DB::table('driver_behavior')
+                ->where('driver_id', $targetDriverId)
+                ->where('charge_status', 'pending')
+                ->where('remaining_balance', '>', 0)
+                ->whereNull('deleted_at')
+                ->select('id', 'driver_id', 'incident_type', 'incident_date', 'description', 'remaining_balance')
+                ->orderBy('incident_date', 'asc')
+                ->get();
+
+            $total_debt = (float) $remainingDebts->sum('remaining_balance');
+
+            return response()->json([
+                'success'             => true,
+                'message'             => 'Liability record removed successfully.',
+                'driver_id'           => $targetDriverId,
+                'total_accident_debt' => $total_debt,
+                'debts'               => $remainingDebts,
+            ]);
+        }
         
         if ($action === 'add_boundary') {
             $unit_id         = (int) $request->input('unit_id', 0);
@@ -318,6 +357,18 @@ class BoundaryController extends Controller
             $date            = $request->input('date', date('Y-m-d'));
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
+            $raw_fund = $request->input('driver_fund');
+            if ($raw_fund === null || trim($raw_fund) === '') {
+                $driver_fund = 0.00;
+            } else {
+                if (!is_numeric($raw_fund) || (float) $raw_fund < 0) {
+                    return back()->with('error', 'Driver Fund (Pondo) must be a valid positive number without letters or symbols.');
+                }
+                $driver_fund = round((float) $raw_fund, 2);
+                if ($driver_fund > 10000) {
+                    return back()->with('error', 'Driver Fund (Pondo) cannot exceed ₱10,000.00.');
+                }
+            }
             $notes           = $request->input('notes', '');
             $vehicle_damaged = $request->has('vehicle_damaged');
             $needs_maintenance_half = $request->has('needs_maintenance_half');
@@ -350,18 +401,31 @@ class BoundaryController extends Controller
                 if ($existing) {
                     return back()->with('error', 'Boundary record already exists for this driver, unit, and date');
                 } else {
+                    $unit = \App\Models\Unit::find($unit_id);
+                    $boundary_rules = DB::table('boundary_rules')->get();
+                    $datePricing = $this->getCurrentPricing([
+                        'year' => $unit ? $unit->year : 0,
+                        'plate_number' => $unit ? $unit->plate_number : '',
+                        'boundary_rate' => $unit ? $unit->boundary_rate : 0,
+                        'coding_day' => $unit ? $unit->coding_day : null,
+                        'unit_type' => $unit ? $unit->unit_type : ''
+                    ], $boundary_rules, $date);
+
+                    if ($boundary_amount <= 0 || !$request->has('boundary_amount')) {
+                        $boundary_amount = (float) $datePricing['rate'];
+                    }
+
                     $shortage = max(0, $boundary_amount - $actual_boundary);
                     $excess   = max(0, $actual_boundary - $boundary_amount);
                     $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
                     $has_incentive = true;
 
-
-
                     $is_absent = $request->has('is_absent');
 
                     if ($shortage > 0) {
                         $has_incentive = false;
+                        $rateTag = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
                         
                         if ($is_absent) {
                             $notes = trim($notes . " [Automatic Violation: Driver Absent/No Show]");
@@ -378,15 +442,14 @@ class BoundaryController extends Controller
                                 'remaining_balance'       => $shortage,
                                 'charge_status'           => 'pending',
                             ]);
-                            \App\Services\NotificationService::sendMissingBoundaryNotification($driver_id, $date);
                         } else {
                             $notes = trim($notes . " [Automatic Violation: Short Boundary]");
-                            \App\Models\DriverBehavior::create([
+                            $shortageIncident = \App\Models\DriverBehavior::create([
                                 'unit_id'                 => $unit_id,
                                 'driver_id'               => $driver_id,
                                 'incident_type'           => 'Short Boundary',
                                 'severity'                => 'medium',
-                                'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
+                                'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2) . $rateTag,
                                 'incident_date'           => $date,
                                 'timestamp'               => now(),
                                 'total_charge_to_driver'  => $shortage,
@@ -394,7 +457,6 @@ class BoundaryController extends Controller
                                 'remaining_balance'       => $shortage,
                                 'charge_status'           => 'pending',
                             ]);
-                            \App\Services\NotificationService::sendBoundaryShortageNotification($driver_id, $date, $shortage);
                         }
                     } elseif ($is_absent) {
                         $has_incentive = false;
@@ -407,12 +469,7 @@ class BoundaryController extends Controller
                             'description'             => "Auto-logged [Absent]: Driver failed to report. Manually recorded by dispatcher.",
                             'incident_date'           => $date,
                             'timestamp'               => now(),
-                            'total_charge_to_driver'  => 0,
-                            'total_paid'              => 0,
-                            'remaining_balance'       => 0,
-                            'charge_status'           => 'resolved',
                         ]);
-                        \App\Services\NotificationService::sendMissingBoundaryNotification($driver_id, $date);
                     }
 
                     // --- Check for ANY pre-existing violations today ---
@@ -429,7 +486,13 @@ class BoundaryController extends Controller
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
                         $has_incentive = false;
-                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past 10:00 AM)]");
+                        $late_cutoff_raw = $request->input('late_cutoff_time', '10:00');
+                        try {
+                            $formatted_cutoff = Carbon::createFromFormat('H:i', $late_cutoff_raw)->format('h:i A');
+                        } catch (\Exception $e) {
+                            $formatted_cutoff = '10:00 AM';
+                        }
+                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past " . $formatted_cutoff . ")]");
                         
                         // Auto-log to Driver Performance
                         \App\Models\DriverBehavior::create([
@@ -437,7 +500,7 @@ class BoundaryController extends Controller
                             'driver_id'     => $driver_id,
                             'incident_type' => 'Late Remittance',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Late Remittance]: Driver remitted boundary after the 10:00 AM cutoff.',
+                            'description'   => "Auto-logged [Late Remittance]: Driver remitted boundary after the {$formatted_cutoff} cutoff.",
                             'incident_date' => $date,
                             'timestamp'     => $now,
                         ]);
@@ -519,25 +582,38 @@ class BoundaryController extends Controller
                             $hourly_rate = 0;
                             $comp_note = "";
                             
-                            if ($unit->last_swapping_at) {
+                            if ($request->filled('breakdown_time_out')) {
+                                $swap_time = Carbon::parse($request->input('breakdown_time_out'));
+                            } elseif ($unit->last_swapping_at) {
                                 $swap_time = Carbon::parse($unit->last_swapping_at);
                             } else {
-                                // Fallback: Assume start was 10:00 AM of the record date (or yesterday if currently past 10AM)
-                                $swap_time = Carbon::parse($date . ' 10:00:00');
-                                if ($swap_time->isFuture()) {
-                                    $swap_time->subDay();
-                                }
+                                // Fallback: Assume start was 06:00 AM of the record date
+                                $swap_time = Carbon::parse($date . ' 06:00:00');
                             }
-                            $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
-                            $hourly_rate = $unit->boundary_rate / 24;
-                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr", $hours_driven, $hourly_rate);
+
+                            if ($request->filled('breakdown_time_in')) {
+                                $now = Carbon::parse($request->input('breakdown_time_in'));
+                            }
+
+                            if ($request->filled('hours_driven')) {
+                                $hours_driven = max(0, (float) $request->input('hours_driven'));
+                            } else {
+                                $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
+                            }
+
+                            $base_rate = (float) $datePricing['rate'];
+                            $hourly_rate = $base_rate / 24;
+                            $rate_label = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
+                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr (Base: ₱%.2f%s)", $hours_driven, $hourly_rate, $base_rate, $rate_label);
+
+                            $early_failure_threshold = max(0.5, (float) $request->input('early_failure_max_hours', 2));
 
                             $repair_desc = $needs_maintenance_half 
                                 ? "Automatic entry: Reported broken down during boundary turnover (Half Boundary).\nComputation: " . $comp_note
-                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary).";
+                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary - {$early_failure_threshold}hr threshold).";
                             
-                            if ($needs_maintenance_zero && $hours_driven > 2) {
-                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs.";
+                            if ($needs_maintenance_zero && $hours_driven > $early_failure_threshold) {
+                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs (Early shift threshold: {$early_failure_threshold} hrs).";
                             }
                             
                             $dispatcher_notes = trim($request->input('notes', ''));
@@ -562,7 +638,7 @@ class BoundaryController extends Controller
                             // Auto-log to Driver Performance
                             $behavior_desc = $needs_maintenance_half
                                 ? "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs on shift."
-                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= 2 hrs).";
+                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= {$early_failure_threshold} hrs).";
                                 
                             if ($needs_maintenance_zero && $hours_driven > 2) {
                                 $behavior_desc = "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs. No boundary collected.";
@@ -585,12 +661,6 @@ class BoundaryController extends Controller
 
                     $damage_payment = (float) $request->input('damage_payment', 0);
 
-                    // Clean up auto-generated 'Missed Boundary' since the driver remitted
-                    \App\Models\DriverBehavior::where('driver_id', $driver_id)
-                        ->where('incident_date', $date)
-                        ->where('incident_type', 'Missed Boundary')
-                        ->delete();
-
                     $boundary = Boundary::create([
                         'unit_id'         => $unit_id,
                         'driver_id'       => $driver_id,
@@ -598,6 +668,7 @@ class BoundaryController extends Controller
                         'date'            => $date,
                         'boundary_amount' => $boundary_amount,
                         'actual_boundary' => $actual_boundary,
+                        'driver_fund'     => $driver_fund,
                         'damage_payment'  => $damage_payment,
                         'shortage'        => $shortage,
                         'excess'          => $excess,
@@ -609,6 +680,31 @@ class BoundaryController extends Controller
                         'has_incentive'   => $has_incentive,
                         'created_by'      => Auth::id(),
                     ]);
+
+                    if (isset($shortageIncident) && $shortageIncident) {
+                        $shortageIncident->update(['boundary_id' => $boundary->id]);
+                    }
+
+                    // --- DRIVER SAVINGS / MAINTENANCE FUND (PONDO) RECORDING ---
+                    if ($driver_fund > 0) {
+                        $plateNo = DB::table('units')->where('id', $unit_id)->value('plate_number');
+                        $currentBal = (float) DB::table('driver_funds')
+                            ->where('driver_id', $driver_id)
+                            ->whereNull('deleted_at')
+                            ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as bal")
+                            ->value('bal');
+
+                        \App\Models\DriverFund::create([
+                            'driver_id'     => $driver_id,
+                            'boundary_id'   => $boundary->id,
+                            'type'          => 'deposit',
+                            'amount'        => $driver_fund,
+                            'balance_after' => $currentBal + $driver_fund,
+                            'description'   => "Daily boundary savings (Unit " . ($plateNo ?: 'N/A') . ")",
+                            'date'          => $date,
+                            'created_by'    => Auth::id(),
+                        ]);
+                    }
 
                     // --- AUTOMATIC DEBT DEDUCTION LOGIC ---
                     if ($damage_payment > 0) {
@@ -675,7 +771,18 @@ class BoundaryController extends Controller
                         );
                     } catch (\Exception $e) {}
 
-                    return back()->with('success', 'Boundary record added successfully');
+                    $targetDate = $request->input('filter_date_state') 
+                        ?: ($date ?: date('Y-m-d'));
+
+                    $redirectParams = ['date' => $targetDate];
+                    if ($request->filled('filter_search_state')) {
+                        $redirectParams['search'] = $request->input('filter_search_state');
+                    }
+                    if ($request->filled('filter_status_state')) {
+                        $redirectParams['status'] = $request->input('filter_status_state');
+                    }
+
+                    return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record added successfully');
                 }
             } else {
                 $missing = [];
@@ -691,6 +798,18 @@ class BoundaryController extends Controller
             $id              = (int) $request->input('id', 0);
             $boundary_amount = (float) $request->input('boundary_amount', 0);
             $actual_boundary = (float) $request->input('actual_boundary', 0);
+            $raw_fund = $request->input('driver_fund');
+            if ($raw_fund === null || trim($raw_fund) === '') {
+                $driver_fund = 0.00;
+            } else {
+                if (!is_numeric($raw_fund) || (float) $raw_fund < 0) {
+                    return back()->with('error', 'Driver Fund (Pondo) must be a valid positive number without letters or symbols.');
+                }
+                $driver_fund = round((float) $raw_fund, 2);
+                if ($driver_fund > 10000) {
+                    return back()->with('error', 'Driver Fund (Pondo) cannot exceed ₱10,000.00.');
+                }
+            }
             $notes           = $request->input('notes', '');
             
             $is_absent = $request->has('is_absent');
@@ -811,14 +930,115 @@ class BoundaryController extends Controller
                 $excess   = max(0, $actual_boundary - $boundary_amount);
                 $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
 
+                // --- Sync Short Boundary Liabilities in driver_behavior ---
+                $existingShortageIncidents = \App\Models\DriverBehavior::where('incident_type', 'Short Boundary')
+                    ->where(function($q) use ($boundary) {
+                        $q->where('boundary_id', $boundary->id)
+                          ->orWhere(function($sub) use ($boundary) {
+                              $sub->where('driver_id', $boundary->driver_id)
+                                  ->where('unit_id', $boundary->unit_id)
+                                  ->where('incident_date', $boundary->date);
+                          });
+                    })
+                    ->whereNull('deleted_at')
+                    ->get();
+
                 if ($shortage > 0) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Short Boundary]";
+                    $desc = "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2);
+
+                    if ($existingShortageIncidents->isNotEmpty()) {
+                        $primary = $existingShortageIncidents->first();
+                        $paid = (float) ($primary->total_paid ?? 0);
+                        $newRemaining = max(0, $shortage - $paid);
+                        $primary->update([
+                            'boundary_id'            => $boundary->id,
+                            'total_charge_to_driver' => $shortage,
+                            'remaining_balance'      => $newRemaining,
+                            'charge_status'          => $newRemaining <= 0 ? 'paid' : 'pending',
+                            'description'            => $desc,
+                        ]);
+                        // If multiple duplicates exist, cancel them
+                        foreach ($existingShortageIncidents->slice(1) as $dup) {
+                            $dup->update([
+                                'charge_status'     => 'cancelled',
+                                'remaining_balance' => 0,
+                                'deleted_at'        => now(),
+                            ]);
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'unit_id'                => $boundary->unit_id,
+                            'driver_id'              => $boundary->driver_id,
+                            'boundary_id'            => $boundary->id,
+                            'incident_type'          => 'Short Boundary',
+                            'severity'               => 'medium',
+                            'description'            => $desc,
+                            'incident_date'          => $boundary->date,
+                            'timestamp'              => $now_ts,
+                            'total_charge_to_driver' => $shortage,
+                            'total_paid'             => 0,
+                            'remaining_balance'      => $shortage,
+                            'charge_status'          => 'pending',
+                        ]);
+                    }
+                } else {
+                    // Shortage is 0 or excess: Cancel / soft-delete any existing Short Boundary incidents for this boundary
+                    foreach ($existingShortageIncidents as $inc) {
+                        $inc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
+                        ]);
+                    }
+                }
+
+                $damage_payment = (float) $request->input('damage_payment', 0);
+                $old_damage_payment = (float) ($boundary->damage_payment ?? 0);
+                $diff_damage_payment = $damage_payment - $old_damage_payment;
+
+                if ($diff_damage_payment > 0) {
+                    $remaining_to_pay = $diff_damage_payment;
+                    $pending_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                        ->where('charge_status', 'pending')
+                        ->where('remaining_balance', '>', 0)
+                        ->orderBy('timestamp', 'asc')
+                        ->get();
+                        
+                    foreach ($pending_debts as $debt) {
+                        if ($remaining_to_pay <= 0) break;
+                        $to_deduct = min($remaining_to_pay, $debt->remaining_balance);
+                        $debt->total_paid += $to_deduct;
+                        $debt->remaining_balance -= $to_deduct;
+                        if ($debt->remaining_balance <= 0) {
+                            $debt->charge_status = 'paid';
+                        }
+                        $debt->save();
+                        $remaining_to_pay -= $to_deduct;
+                    }
+                } elseif ($diff_damage_payment < 0) {
+                    $to_restore = abs($diff_damage_payment);
+                    $paid_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                        ->where('total_paid', '>', 0)
+                        ->orderBy('timestamp', 'desc')
+                        ->get();
+                    foreach ($paid_debts as $debt) {
+                        if ($to_restore <= 0) break;
+                        $can_revert = min($to_restore, $debt->total_paid);
+                        $debt->total_paid -= $can_revert;
+                        $debt->remaining_balance += $can_revert;
+                        $debt->charge_status = 'pending';
+                        $debt->save();
+                        $to_restore -= $can_revert;
+                    }
                 }
 
                 $boundary->update([
                     'boundary_amount' => $boundary_amount,
                     'actual_boundary' => $actual_boundary,
+                    'driver_fund'     => $driver_fund,
+                    'damage_payment'  => $damage_payment,
                     'shortage'        => $shortage,
                     'excess'          => $excess,
                     'status'          => $status,
@@ -828,52 +1048,53 @@ class BoundaryController extends Controller
                     'is_absent'       => $is_absent ? 1 : 0,
                 ]);
 
-                // --- Auto-log Shortage to Driver Performance for UPDATES ---
-                $existingDebt = \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
-                    ->where('incident_date', $boundary->date)
-                    ->where('incident_type', 'Short Boundary')
-                    ->first();
-
-                if ($shortage > 0) {
-                    if ($existingDebt) {
-                        $remaining = max(0, round($shortage - $existingDebt->total_paid, 2));
-                        $existingDebt->update([
-                            'driver_id'              => $boundary->driver_id,
-                            'description'            => "Auto-logged [Shortage/Update]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
-                            'total_charge_to_driver' => $shortage,
-                            'remaining_balance'      => $remaining,
-                            'charge_status'          => $remaining > 0 ? 'pending' : 'paid',
+                // --- Sync Driver Savings Fund (Pondo) in Ledger ---
+                $fundEntry = \App\Models\DriverFund::where('boundary_id', $boundary->id)->first();
+                if ($fundEntry) {
+                    if ($driver_fund > 0) {
+                        $fundEntry->update([
+                            'amount' => $driver_fund,
+                            'date'   => $boundary->date,
                         ]);
                     } else {
-                        \App\Models\DriverBehavior::create([
-                            'unit_id'                 => $boundary->unit_id,
-                            'driver_id'               => $boundary->driver_id,
-                            'incident_type'           => 'Short Boundary',
-                            'severity'                => 'medium',
-                            'description'             => "Auto-logged [Shortage/Update]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
-                            'incident_date'           => $boundary->date,
-                            'timestamp'               => $now_ts,
-                            'total_charge_to_driver'  => $shortage,
-                            'total_paid'              => 0,
-                            'remaining_balance'       => $shortage,
-                            'charge_status'           => 'pending',
-                        ]);
+                        $fundEntry->delete();
                     }
-                } else {
-                    if ($existingDebt) {
-                        $existingDebt->update([
-                            'driver_id'         => $boundary->driver_id,
-                            'remaining_balance' => 0,
-                            'charge_status'     => 'paid',
-                        ]);
-                    }
+                } elseif ($driver_fund > 0) {
+                    $plateNo = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
+                    $currentBal = (float) DB::table('driver_funds')
+                        ->where('driver_id', $boundary->driver_id)
+                        ->whereNull('deleted_at')
+                        ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as bal")
+                        ->value('bal');
+
+                    \App\Models\DriverFund::create([
+                        'driver_id'     => $boundary->driver_id,
+                        'boundary_id'   => $boundary->id,
+                        'type'          => 'deposit',
+                        'amount'        => $driver_fund,
+                        'balance_after' => $currentBal + $driver_fund,
+                        'description'   => "Daily boundary savings (Unit " . ($plateNo ?: 'N/A') . ")",
+                        'date'          => $boundary->date,
+                        'created_by'    => Auth::id(),
+                    ]);
                 }
 
                 $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
                 $driverName = DB::table('drivers')->where('id', $boundary->driver_id)->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->value('name');
                 ActivityLogController::log('Updated Boundary Record', "Unit: {$plate}\nDriver: {$driverName}\nNew Amount: ₱" . number_format($actual_boundary, 2) . " (" . ucfirst($status) . ")");
 
-                return back()->with('success', 'Boundary record updated successfully');
+                $targetDate = $request->input('filter_date_state') 
+                    ?: ($boundary->date ?: $request->input('date', date('Y-m-d')));
+
+                $redirectParams = ['date' => $targetDate];
+                if ($request->filled('filter_search_state')) {
+                    $redirectParams['search'] = $request->input('filter_search_state');
+                }
+                if ($request->filled('filter_status_state')) {
+                    $redirectParams['status'] = $request->input('filter_status_state');
+                }
+
+                return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record updated successfully');
             } else {
                 return back()->with('error', 'Please fill in all required fields (Target amount must be valid)');
             }
@@ -889,11 +1110,48 @@ class BoundaryController extends Controller
         $boundary = Boundary::where('id', $id)->firstOrFail();
         $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
         $date = $boundary->date;
+
+        // Restore any damage payment credited towards driver debts
+        if (!empty($boundary->damage_payment) && $boundary->damage_payment > 0) {
+            $to_restore = (float) $boundary->damage_payment;
+            $paid_debts = \App\Models\DriverBehavior::where('driver_id', $boundary->driver_id)
+                ->where('total_paid', '>', 0)
+                ->orderBy('timestamp', 'desc')
+                ->get();
+            foreach ($paid_debts as $debt) {
+                if ($to_restore <= 0) break;
+                $can_revert = min($to_restore, $debt->total_paid);
+                $debt->total_paid -= $can_revert;
+                $debt->remaining_balance += $can_revert;
+                $debt->charge_status = 'pending';
+                $debt->save();
+                $to_restore -= $can_revert;
+            }
+        }
+
+        // Clean up any auto-logged Short Boundary or Absent incident for this boundary to prevent orphaned debt
+        \App\Models\DriverBehavior::where('unit_id', $boundary->unit_id)
+            ->where('incident_date', $boundary->date)
+            ->whereIn('incident_type', ['Short Boundary', 'Absent / No Show'])
+            ->delete();
+
+        // Clean up linked DriverFund transaction
+        \App\Models\DriverFund::where('boundary_id', $boundary->id)->delete();
+
         $boundary->delete();
 
         ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");
 
-        return back()->with('success', 'Boundary record archived.');
+        $targetDate = $request->input('filter_date_state') ?: ($date ?: date('Y-m-d'));
+        $redirectParams = ['date' => $targetDate];
+        if ($request->filled('filter_search_state')) {
+            $redirectParams['search'] = $request->input('filter_search_state');
+        }
+        if ($request->filled('filter_status_state')) {
+            $redirectParams['status'] = $request->input('filter_status_state');
+        }
+
+        return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record archived.');
     }
     public function show($id) { return back(); }
     public function create() { return back(); }

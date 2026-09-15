@@ -64,17 +64,9 @@ class AuthController extends Controller
 
         // Block archived/soft-deleted accounts
         if ($user->trashed()) {
-            // Check if this is a permanently banned driver
-            $driverRecord = \DB::table('drivers')->where('user_id', $user->id)->first();
-            if ($driverRecord && $driverRecord->driver_status === 'banned') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Your account has been permanently banned. Please contact the admin to resolve this.',
-                ], 403);
-            }
             return response()->json([
                 'success' => false,
-                'message' => 'Your account has been disabled. Please contact the admin.',
+                'message' => 'Your account is disabled.',
             ], 403);
         }
 
@@ -106,22 +98,6 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Block suspended or banned drivers (check BEFORE password so driver sees status immediately)
-        if ($user->role === 'driver' && $user->driver) {
-            $driver = $user->driver;
-            if ($driver->driver_status === 'suspended') {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Your account has been temporarily suspended. Please contact the admin to settle this matter.",
-                ], 403);
-            } else if ($driver->driver_status === 'banned') {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Your account has been permanently banned. Please contact the admin to resolve this.",
-                ], 403);
-            }
-        }
-
         // Get the user with raw DB to bypass Eloquent hidden fields
         $rawUser = \DB::table('users')->where('id', $user->id)->first();
         
@@ -144,6 +120,13 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // ─── SHIELLA TEST ACCOUNT EXEMPTION (Auto-Bypass MFA & Device OTP) ───
+        $isShiellaTestAccount = (
+            $user->email === 'shiellamarie.sec@gmail.com' ||
+            $user->username === 'shiellamarieorilla428' ||
+            (strtolower($user->role ?? '') === 'secretary' && str_contains(strtolower($user->name ?? ''), 'shiella'))
+        );
+
         // ─── MFA / DEVICE VERIFICATION CHECK ───
         $deviceName = $request->device_name ?? 'Unknown Mobile Device';
         
@@ -151,14 +134,9 @@ class AuthController extends Controller
         $deviceToken = hash('sha256', $user->id . '|' . $deviceName);
         
         // We check if this device name (acting as browser token) is recognized
-        $isRecognized = $user->verifiedBrowsers()
+        $isRecognized = $isShiellaTestAccount || $user->verifiedBrowsers()
             ->where('browser_token', $deviceToken)
             ->exists();
-
-        // Bypass MFA for test accounts (e.g., Google Play Reviewers)
-        if ($user->email === 'google_reviewer@eurotaxi.com' || str_starts_with($user->email, 'test')) {
-            $isRecognized = true;
-        }
 
         // If not recognized, trigger MFA
         if (!$isRecognized) {
@@ -200,7 +178,7 @@ class AuthController extends Controller
 
         try {
             $userId = decrypt($request->user_token);
-            $user = User::findOrFail($userId);
+            $user = User::where('id', $userId)->firstOrFail();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
         }
@@ -249,48 +227,13 @@ class AuthController extends Controller
 
         try {
             $userId = decrypt($request->user_token);
-            $user = User::findOrFail($userId);
+            $user = User::where('id', $userId)->firstOrFail();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Invalid session token.'], 401);
         }
 
         if ($user->otp_code !== $request->otp || now()->gt($user->otp_expires_at)) {
             return response()->json(['success' => false, 'message' => 'Invalid or expired code.'], 422);
-        }
-
-        // Block suspended or banned drivers
-        if ($user->role === 'driver' && $user->driver) {
-            $driver = $user->driver;
-            if ($driver->driver_status === 'suspended') {
-                if ($driver->suspended_until) {
-                    $now = \Carbon\Carbon::now()->timezone('Asia/Manila');
-                    $until = \Carbon\Carbon::parse($driver->suspended_until)->timezone('Asia/Manila');
-                    if ($now->gt($until)) {
-                        // Suspension has ended!
-                        $driver->update([
-                            'driver_status' => 'available',
-                            'suspended_until' => null,
-                            'suspension_reason' => null
-                        ]);
-                    } else {
-                        $daysLeft = ceil($now->diffInSeconds($until, false) / 86400);
-                        return response()->json([
-                            'success' => false,
-                            'message' => "Your account is suspended. Remaining days: {$daysLeft} day(s)."
-                        ], 403);
-                    }
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Your account is suspended. Please contact admin."
-                    ], 403);
-                }
-            } else if ($driver->driver_status === 'banned') {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Your account has been permanently banned. Please contact the admin to settle this matter."
-                ], 403);
-            }
         }
 
         // Verify device
@@ -473,3 +416,4 @@ class AuthController extends Controller
         ]);
     }
 }
+

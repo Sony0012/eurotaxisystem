@@ -39,24 +39,24 @@
     </div>
 
     {{-- ── Advanced Navigation Tabs ─────────────────────────────────────────── --}}
-    <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl mb-8 w-fit mx-auto shadow-inner border border-slate-200/60">
+    <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/5 backdrop-blur-md rounded-2xl mb-8 w-fit mx-auto shadow-inner border border-slate-200/60" id="tabs-bar">
         <button onclick="switchTab('pulse')" id="tab-pulse"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 bg-white text-indigo-700 shadow-sm border border-indigo-100 ring-1 ring-indigo-500/20">
             <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
             <span>Real-time Pulse</span>
         </button>
         <button onclick="switchTab('performance')" id="tab-performance"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
             <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
             <span>Descriptive Analytics</span>
         </button>
         <button onclick="switchTab('forecast')" id="tab-forecast"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
             <i data-lucide="trending-up" class="w-4 h-4"></i>
             <span>Predictive Forecasting</span>
         </button>
         <button onclick="switchTab('strategy')" id="tab-strategy"
-            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-200 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
+            class="tab-btn px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 text-slate-500 hover:bg-white hover:text-slate-800 hover:shadow-sm">
             <i data-lucide="brain-circuit" class="w-4 h-4"></i>
             <span>AI Strategic Insights</span>
         </button>
@@ -67,89 +67,97 @@
          ══════════════════════════════════════════════════════════════════════ --}}
     <div id="section-pulse" class="space-y-8">
         {{-- High Level Pulse Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Health --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="car" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-widest mb-1">Fleet Utilization</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('utilizationModal').classList.remove('hidden')">
+                            @php $total_fleet = array_sum($fleet_pulse); @endphp
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_pulse['active_units'] ?? 0 }}" data-is-int="true">0</span>
+                            <span class="text-xl font-bold text-slate-400 leading-none pb-0.5">/ <span class="animate-number" data-value="{{ $total_fleet }}" data-is-int="true">0</span></span>
+                            <span class="text-[10px] font-bold text-indigo-600 pb-0.5 ml-1 bg-indigo-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Real-time</span>
+                    <span class="text-[10px] font-black text-indigo-600 bg-indigo-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Real-time</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet Utilization</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('utilizationModal').classList.remove('hidden')">
-                    @php $total_fleet = array_sum($fleet_pulse); @endphp
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $fleet_pulse['active_units'] ?? 0 }}" data-is-int="true">0</span>
-                    <span class="text-xl font-bold text-slate-400 leading-none pb-0.5">/ <span class="animate-number" data-value="{{ $total_fleet }}" data-is-int="true">0</span></span>
-                    <span class="text-[10px] font-bold text-indigo-500 pb-0.5 ml-1 bg-indigo-50 px-2 rounded-md group-hover/modal:bg-indigo-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <div class="h-2 bg-white/80 rounded-full overflow-hidden p-0.5 border border-indigo-100 mb-2">
+                        <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Percentage of units currently generating revenue versus idle or in maintenance.
+                    </p>
                 </div>
-                <div class="h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/30">
-                    <div class="animate-width h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_8px_rgba(99,102,241,0.5)]" data-width="{{ $fleet_utilization }}%" style="width: 0%"></div>
-                </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Percentage of units currently generating revenue versus idle or in maintenance.
-                </p>
+                <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Fleet 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Financial Pulse --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="wallet" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-1">Net Margin</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('netMarginModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
+                            <span class="text-[10px] font-bold text-emerald-600 pb-0.5 ml-1 bg-emerald-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Net Pulse</span>
+                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Net Pulse</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Margin</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('netMarginModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $net_income }}" data-is-currency="true">₱0.00</span>
-                    <span class="text-[10px] font-bold text-emerald-500 pb-0.5 ml-1 bg-emerald-50 px-2 rounded-md group-hover/modal:bg-emerald-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Total boundary collections minus all operating expenses for the selected period.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Total boundary collections minus all operating expenses for the selected period.
-                </p>
+                <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Net Margin 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Revenue Leakage --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-rose-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-rose-50 rounded-2xl text-rose-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="trending-down" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 to-red-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-rose-500 uppercase tracking-widest mb-1">Revenue Leakage</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('leakageModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $total_shortage }}" data-is-currency="true">₱0.00</span>
+                            <span class="text-xs font-bold text-slate-500 pb-0.5">Shortage</span>
+                            <span class="text-[10px] font-bold text-rose-600 pb-0.5 ml-1 bg-rose-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Risk Factor</span>
+                    <span class="text-[10px] font-black text-rose-600 bg-rose-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">Risk Factor</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Revenue Leakage</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('leakageModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $total_shortage }}" data-is-currency="true">₱0.00</span>
-                    <span class="text-xs font-bold text-slate-500 pb-0.5">Shortage</span>
-                    <span class="text-[10px] font-bold text-rose-500 pb-0.5 ml-1 bg-rose-50 px-2 rounded-md group-hover/modal:bg-rose-100 transition-colors flex items-center gap-1" title="Click to view percentage breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Uncollected boundary revenue (shortages) relative to total expected revenue.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Uncollected boundary revenue (shortages) relative to total expected revenue.
-                </p>
+                <img src="{{ asset('image/kpi/leakage_3d.svg') }}" alt="Leakage 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
 
             {{-- Break-even Analysis --}}
-            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="p-3 bg-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                        <i data-lucide="target" class="w-6 h-6"></i>
+            <div class="relative overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/70 p-6 shadow-sm flex flex-col justify-between">
+                <div class="flex items-start justify-between mb-3 relative z-10">
+                    <div>
+                        <h3 class="text-[11px] font-black text-amber-600 uppercase tracking-widest mb-1">Break-even Cycle</h3>
+                        <div class="flex items-end gap-2 cursor-pointer group/modal" onclick="document.getElementById('breakEvenModal').classList.remove('hidden')">
+                            <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
+                            <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
+                            <span class="text-[10px] font-bold text-amber-600 pb-0.5 ml-1 bg-amber-100/80 px-2 rounded-md transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-widest">KPI Target</span>
+                    <span class="text-[10px] font-black text-amber-600 bg-amber-100/80 px-2.5 py-1 rounded-full uppercase tracking-widest flex-shrink-0">KPI Target</span>
                 </div>
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Break-even Cycle</h3>
-                <div class="flex items-end gap-2 mb-2 cursor-pointer group/modal" onclick="document.getElementById('breakEvenModal').classList.remove('hidden')">
-                    <span class="text-3xl font-black text-slate-800 leading-none animate-number" data-value="{{ $break_even_days }}" data-is-int="true">0</span>
-                    <span class="text-xs font-bold text-slate-500 pb-0.5">Oper. Days</span>
-                    <span class="text-[10px] font-bold text-amber-500 pb-0.5 ml-1 bg-amber-50 px-2 rounded-md group-hover/modal:bg-amber-100 transition-colors flex items-center gap-1" title="Click to view breakdown"><i data-lucide="info" class="w-3 h-3"></i> Details</span>
+                <div class="relative z-10">
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Estimated number of full-revenue days needed each month to cover all fixed expenses.
+                    </p>
                 </div>
-                <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-                    Estimated number of full-revenue days needed each month to cover all fixed expenses.
-                </p>
+                <img src="{{ asset('image/kpi/target_3d.svg') }}" alt="Target 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
             </div>
         </div>
 
         {{-- Detailed Pulse Breakdown --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Fleet Status Distribution --}}
             <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                 <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -314,7 +322,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" data-salubong-group="true" style="transform-style: preserve-3d;">
             {{-- Revenue vs Expenses --}}
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
                 <div class="flex items-center justify-between mb-8">
@@ -437,18 +445,120 @@
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  1. HERO BANNER – Hulaan ng Kita sa Susunod na Buwan               │
              └─────────────────────────────────────────────────────────────────────┘ --}}
-        <div class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl">
-            {{-- Decorative elements --}}
-            <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-                <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
-                <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                <div class="absolute right-8 top-8 w-20 h-20 bg-white/5 rounded-full blur-xl animate-pulse"></div>
+        <div id="prediction-hero-card" class="relative z-20 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl overflow-hidden text-white shadow-2xl" style="min-height: 320px;">
+
+            {{-- ── Spline 3D Robot Background ───────────────────────────────────── --}}
+            <div class="absolute inset-0 select-none overflow-hidden rounded-3xl" style="pointer-events:none;" aria-hidden="true">
+                {{-- Left-to-right gradient so text stays readable over the robot --}}
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/95 via-indigo-900/70 to-transparent" style="z-index:5; pointer-events:none;"></div>
+
+                {{-- Spline viewer on the right half; pointer-events:none so page scroll is 100% smooth --}}
+                <div class="absolute right-0 top-0 h-full w-[60%]" style="z-index:1; pointer-events:none;">
+                    <spline-viewer
+                        id="spline-robot"
+                        url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                        style="width:100%;height:100%;display:block;pointer-events:none;"
+                        loading-anim-type="none">
+                    </spline-viewer>
+                </div>
             </div>
 
-            <div class="relative z-10">
+            {{-- Spline Web Component loader --}}
+            <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
+
+            {{-- ── Cursor Relay & Safe Watermark Removal ────────────────────────── --}}
+            <script>
+            (function() {
+                var _canvas = null;
+
+                function hideLogo(shadow) {
+                    if (!shadow) return;
+                    try {
+                        var logo = shadow.querySelector('#logo');
+                        if (logo) {
+                            logo.style.display = 'none';
+                            logo.style.visibility = 'hidden';
+                            logo.style.opacity = '0';
+                            logo.style.pointerEvents = 'none';
+                        }
+                    } catch(e) {}
+                }
+
+                function attachRelay(canvas) {
+                    _canvas = canvas;
+
+                    document.addEventListener('mousemove', function(e) {
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new MouseEvent('mousemove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                movementX: e.movementX || 0,
+                                movementY: e.movementY || 0,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window
+                            }));
+                        } catch(err) {}
+                    }, { passive: true });
+
+                    document.addEventListener('pointermove', function(e) {
+                        if (!_canvas) return;
+                        try {
+                            _canvas.dispatchEvent(new PointerEvent('pointermove', {
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                                bubbles: false,
+                                cancelable: true,
+                                view: window,
+                                isPrimary: true
+                            }));
+                        } catch(err) {}
+                    }, { passive: true });
+                }
+
+                function poll() {
+                    var viewer = document.getElementById('spline-robot');
+                    if (!viewer) return;
+
+                    var shadow = viewer.shadowRoot;
+                    if (shadow) {
+                        hideLogo(shadow);
+                    }
+
+                    var c = shadow ? shadow.querySelector('canvas') : null;
+                    if (!c) c = viewer.querySelector('canvas');
+
+                    if (c) {
+                        clearInterval(timer);
+                        attachRelay(c);
+                        if (shadow) hideLogo(shadow);
+                        setTimeout(function() {
+                            if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                        }, 1000);
+                        setTimeout(function() {
+                            if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                        }, 2500);
+                    }
+                }
+
+                var viewer = document.getElementById('spline-robot');
+                if (viewer) {
+                    viewer.addEventListener('load', function() {
+                        if (viewer.shadowRoot) hideLogo(viewer.shadowRoot);
+                    });
+                }
+
+                // Poll every 300ms, stop after 30s
+                var timer = setInterval(poll, 300);
+                setTimeout(function() { clearInterval(timer); }, 30000);
+            })();
+            </script>
+
+            <div class="relative z-20 p-8 md:p-12">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
                     {{-- Left side – Title & Net Income --}}
-                    <div>
+                    <div class="lg:max-w-[55%]">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="p-2.5 bg-white/10 backdrop-blur-sm rounded-xl">
                                 <i data-lucide="trending-up" class="w-6 h-6 text-emerald-400"></i>
@@ -608,6 +718,8 @@
             </div>
         </div>
 
+
+
         {{-- ┌─────────────────────────────────────────────────────────────────────┐
              │  2. INCOME BREAKDOWN CARDS (4 columns)                             │
              └─────────────────────────────────────────────────────────────────────┘ --}}
@@ -618,32 +730,32 @@
                         'label' => 'Expected Collections',
                         'sublabel' => 'Expected Collections',
                         'key' => 'boundary',
-                        'icon' => 'wallet',
                         'color' => 'emerald',
+                        'svg' => 'revenue_3d.svg',
                         'source' => 'Derived from the average boundary collected across active taxi units over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Expenses',
                         'sublabel' => 'Expected Expenses',
                         'key' => 'expenses',
-                        'icon' => 'receipt',
                         'color' => 'rose',
+                        'svg' => 'expenses_3d.svg',
                         'source' => 'Derived from the average office expenses (utilities, office supplies, etc.) over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Repairs',
                         'sublabel' => 'Expected Repairs',
                         'key' => 'maintenance',
-                        'icon' => 'wrench',
                         'color' => 'amber',
+                        'svg' => 'maintenance_3d.svg',
                         'source' => 'Derived from vehicle maintenance records — average repair costs of all units over the past 6 months.',
                     ],
                     [
                         'label' => 'Expected Salaries',
                         'sublabel' => 'Expected Salaries',
                         'key' => 'salaries',
-                        'icon' => 'users',
                         'color' => 'indigo',
+                        'svg' => 'salary_3d.svg',
                         'source' => 'Derived from employee payroll records — average salary payouts over the past 6 months.',
                     ],
                 ];
@@ -658,39 +770,46 @@
                     $lastVal = $lastMonth[$card['key']] ?? 0;
                     $trendAmt = $val - $lastVal;
                     $trendUp = $trendAmt >= 0;
-                @endphp
-                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
-                    {{-- Decorative bg --}}
-                    <div class="absolute -right-6 -top-6 w-28 h-28 bg-{{ $c }}-50 rounded-full opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
 
+                    $colorClasses = [
+                        'emerald' => 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70',
+                        'rose' => 'border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50/70',
+                        'amber' => 'border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/70',
+                        'indigo' => 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50/70',
+                    ];
+                    $cardClass = $colorClasses[$c] ?? 'border-slate-200 bg-white';
+                    $titleColor = [
+                        'emerald' => 'text-emerald-600',
+                        'rose' => 'text-rose-500',
+                        'amber' => 'text-amber-600',
+                        'indigo' => 'text-indigo-600',
+                    ][$c] ?? 'text-slate-500';
+                @endphp
+                <div class="relative overflow-hidden rounded-3xl border {{ $cardClass }} p-6 shadow-sm flex flex-col justify-between">
                     <div class="relative z-10">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="p-3 bg-{{ $c }}-50 rounded-2xl text-{{ $c }}-600 group-hover:scale-110 transition-transform">
-                                <i data-lucide="{{ $card['icon'] }}" class="w-6 h-6"></i>
-                            </div>
-                            <div class="flex flex-col items-end">
-                                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black
-                                    {{ $card['key'] === 'boundary' ? ($trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600') : ($trendUp ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600') }}">
-                                    <i data-lucide="{{ $trendUp ? 'arrow-up-right' : 'arrow-down-right' }}" class="w-3 h-3"></i>
-                                    {{ $trendUp ? '+' : '' }}{{ formatCurrency($trendAmt) }}
-                                </div>
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="text-[11px] font-black {{ $titleColor }} uppercase tracking-widest">{{ $card['label'] }}</h3>
+                            <div class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black
+                                {{ $card['key'] === 'boundary' ? ($trendUp ? 'bg-emerald-100/90 text-emerald-700' : 'bg-rose-100/90 text-rose-700') : ($trendUp ? 'bg-rose-100/90 text-rose-700' : 'bg-emerald-100/90 text-emerald-700') }}">
+                                <i data-lucide="{{ $trendUp ? 'arrow-up-right' : 'arrow-down-right' }}" class="w-3 h-3"></i>
+                                {{ $trendUp ? '+' : '' }}{{ formatCurrency($trendAmt) }}
                             </div>
                         </div>
 
-                        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ $card['label'] }}</h3>
-                        <p class="text-[9px] font-bold text-slate-400 mb-3 border-b border-slate-100 pb-2">
+                        <p class="text-[9px] font-bold text-slate-400 mb-3 pb-2 border-b border-black/5">
                             Compute: ({{ formatCurrency($val) }} Expected - {{ formatCurrency($lastVal) }} Last Month)
                         </p>
 
                         <p class="text-3xl font-black text-slate-800 mb-4">{{ formatCurrency($val) }}</p>
 
-                        <div class="pt-4 border-t border-slate-100">
+                        <div class="pt-3 border-t border-black/5">
                             <div class="flex items-start gap-2">
                                 <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5"></i>
                                 <p class="text-[10px] text-slate-500 leading-relaxed">{{ $card['source'] }}</p>
                             </div>
                         </div>
                     </div>
+                    <img src="{{ asset('image/kpi/'.$card['svg']) }}" alt="{{ $card['label'] }} 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
                 </div>
             @endforeach
         </div>
@@ -1168,8 +1287,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
+    </div>{{-- end section-strategy --}}
 @endsection
 
 @push('scripts')
@@ -1299,9 +1417,8 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ── Tab Switching Logic ──────────────────────────────────────────────────
+    // ── Tab Switching Logic: Show ONLY Selected Tab ──────────────────────────
     function switchTab(tab) {
-        // Sections
         const sections = {
             pulse: document.getElementById('section-pulse'),
             performance: document.getElementById('section-performance'),
@@ -1309,7 +1426,6 @@
             strategy: document.getElementById('section-strategy')
         };
 
-        // Buttons
         const buttons = {
             pulse: document.getElementById('tab-pulse'),
             performance: document.getElementById('tab-performance'),
@@ -1317,27 +1433,112 @@
             strategy: document.getElementById('tab-strategy')
         };
 
-        // Active and Inactive classes
         const activeClasses   = ['bg-white', 'text-indigo-700', 'shadow-sm', 'border', 'border-indigo-100', 'ring-1', 'ring-indigo-500/20'];
         const inactiveClasses = ['text-slate-500', 'hover:bg-white', 'hover:text-slate-800', 'hover:shadow-sm'];
 
-        // Reset All
-        Object.values(sections).forEach(s => s.classList.add('hidden'));
-        Object.entries(buttons).forEach(([key, btn]) => {
-            btn.classList.remove(...activeClasses);
-            btn.classList.add(...inactiveClasses);
+        // Hide all sections
+        Object.values(sections).forEach(s => {
+            if (s) {
+                s.classList.add('hidden');
+                s.classList.remove('animate-fadeIn');
+            }
         });
 
-        // Activate Selected
-        sections[tab].classList.remove('hidden');
-        buttons[tab].classList.remove(...inactiveClasses);
-        buttons[tab].classList.add(...activeClasses);
+        // Reset all buttons
+        Object.values(buttons).forEach(btn => {
+            if (btn) {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            }
+        });
 
-        // Handle Chart Resizing if needed
-        if (tab === 'performance' || tab === 'forecast') {
-            window.dispatchEvent(new Event('resize'));
+        // Show active section with smooth animation
+        if (sections[tab]) {
+            sections[tab].classList.remove('hidden');
+            sections[tab].classList.add('animate-fadeIn');
+        }
+
+        // Highlight active button
+        if (buttons[tab]) {
+            buttons[tab].classList.remove(...inactiveClasses);
+            buttons[tab].classList.add(...activeClasses);
+        }
+
+        // Scroll smoothly to top
+        const container = document.getElementById('appContentArea');
+        if (container) {
+            container.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Trigger chart resizes, wave drawings & number counters
+        window.dispatchEvent(new Event('resize'));
+        if (typeof initWaveObserver === 'function') {
+            setTimeout(initWaveObserver, 60);
         }
     }
+
+    // ── 3D Card "Mag-Salubong" Scroll Animation Engine ────────────────────────
+    // Replicates the Framer Motion CharacterV1/V2/V3 converging transforms on the actual cards
+    (function initSalubongScrollEngine() {
+        const groups = document.querySelectorAll('[data-salubong-group="true"]');
+        const windowH = () => window.innerHeight || 800;
+
+        function updateSalubong() {
+            const h = windowH();
+
+            groups.forEach(group => {
+                const rect = group.getBoundingClientRect();
+                // If group is far off screen, skip
+                if (rect.bottom < -150 || rect.top > h + 150) return;
+
+                // progress: 0 when top enters bottom of screen (rect.top == h) -> 0.5 when centered/upper view
+                const totalDist = h * 0.75;
+                const currentDist = h - rect.top;
+                const rawP = Math.max(0, Math.min(1, currentDist / totalDist));
+                // f goes 1.0 (scattered outside) -> 0.0 (salubong converged!)
+                const f = Math.max(0, 1 - (rawP / 0.5));
+
+                const children = Array.from(group.children).filter(c => !c.classList.contains('hidden'));
+                const count = children.length;
+                if (count === 0) return;
+
+                children.forEach((child, idx) => {
+                    const centerIdx = (count - 1) / 2;
+                    const dir = count === 1 ? 0 : (idx - centerIdx) / (centerIdx || 1); // normalized -1 to +1
+
+                    const x = dir * 70 * f;               // Left cards from -70px, right cards from +70px
+                    const rotY = dir * 8 * f;             // Inward 3D angle
+                    const rotX = 5 * f;                  // Subtle top perspective
+                    const y = Math.abs(dir) * 15 * f + (20 * f); // Fly up
+                    const scale = 0.94 + (0.06 * (1 - f));
+                    const opacity = 0.75 + (0.25 * (1 - f));
+
+                    child.style.transform = `translate3d(${x}px, ${y}px, 0) rotateY(${rotY}deg) rotateX(${rotX}deg) scale(${scale})`;
+                    child.style.opacity = opacity;
+                    child.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s ease-out';
+                    child.style.transformStyle = 'preserve-3d';
+                    child.style.willChange = 'transform, opacity';
+                });
+            });
+        }
+
+        const targets = [
+            window,
+            document,
+            document.body,
+            document.documentElement,
+            document.getElementById('appContentArea')
+        ].filter(Boolean);
+
+        targets.forEach(t => t.addEventListener('scroll', updateSalubong, { passive: true }));
+        window.addEventListener('resize', updateSalubong, { passive: true });
+
+        requestAnimationFrame(updateSalubong);
+        setTimeout(updateSalubong, 150);
+        setTimeout(updateSalubong, 500);
+    })();
 
     // ── Forecast Income Popover – Smart Viewport-Aware Positioning ──────────
     (function() {
@@ -1364,23 +1565,23 @@
 
             // Prefer right side
             if (tr.right + pw + POPOVER_GAP <= vw) {
-                left = tr.right + POPOVER_GAP + window.scrollX;
-                top  = Math.max(8, Math.min(tr.top + window.scrollY - ph / 2 + tr.height / 2, vh + window.scrollY - ph - 8));
+                left = tr.right + POPOVER_GAP;
+                top  = Math.max(8, Math.min(tr.top - ph / 2 + tr.height / 2, vh - ph - 8));
                 arrowClass = 'border-l border-b -left-2 top-1/2 -translate-y-1/2 border-r-0 border-t-0';
             // Prefer left side
             } else if (tr.left - pw - POPOVER_GAP >= 0) {
-                left = tr.left - pw - POPOVER_GAP + window.scrollX;
-                top  = Math.max(8, Math.min(tr.top + window.scrollY - ph / 2 + tr.height / 2, vh + window.scrollY - ph - 8));
+                left = tr.left - pw - POPOVER_GAP;
+                top  = Math.max(8, Math.min(tr.top - ph / 2 + tr.height / 2, vh - ph - 8));
                 arrowClass = 'border-r border-t -right-2 top-1/2 -translate-y-1/2 border-l-0 border-b-0';
             // Fall to below trigger
             } else if (tr.bottom + ph + POPOVER_GAP <= vh) {
-                top  = tr.bottom + POPOVER_GAP + window.scrollY;
-                left = Math.max(8, Math.min(tr.left + window.scrollX, vw + window.scrollX - pw - 8));
+                top  = tr.bottom + POPOVER_GAP;
+                left = Math.max(8, Math.min(tr.left, vw - pw - 8));
                 arrowClass = 'border-t border-l -top-2 left-8 border-r-0 border-b-0';
             // Fall to above trigger
             } else {
-                top  = tr.top + window.scrollY - ph - POPOVER_GAP;
-                left = Math.max(8, Math.min(tr.left + window.scrollX, vw + window.scrollX - pw - 8));
+                top  = tr.top - ph - POPOVER_GAP;
+                left = Math.max(8, Math.min(tr.left, vw - pw - 8));
                 arrowClass = 'border-b border-r -bottom-2 left-8 border-t-0 border-l-0';
             }
 
@@ -1427,6 +1628,15 @@
                 popover.classList.remove('opacity-100', 'visible', 'pointer-events-auto');
             }
         });
+
+        // Auto-dismiss popover when scrolling to prevent collisions with other UI cards
+        window.addEventListener('scroll', function() {
+            const popover = document.getElementById('forecast-computation-popover');
+            if (popover && !popover.classList.contains('invisible')) {
+                popover.classList.add('opacity-0', 'invisible', 'pointer-events-none');
+                popover.classList.remove('opacity-100', 'visible', 'pointer-events-auto');
+            }
+        }, { passive: true });
     })();
 
 
@@ -1678,46 +1888,100 @@
 
     // ── AI DSS Logic ──────────────────────────────────────────────────────────
     const priorityConfig = {
-        critical: { bg: 'bg-rose-50', border: 'border-rose-200', badge: 'bg-rose-600 text-white', label: 'CRITICAL' },
-        high: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-500 text-white', label: 'HIGH' },
-        medium: { bg: 'bg-indigo-50', border: 'border-indigo-200', badge: 'bg-indigo-500 text-white', label: 'MEDIUM' },
-        low: { bg: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-500 text-white', label: 'LOW' },
+        critical: { badge: 'bg-slate-900/90 text-white', label: 'CRITICAL', dot: 'bg-rose-500' },
+        high: { badge: 'bg-slate-900/90 text-white', label: 'HIGH PRIORITY', dot: 'bg-amber-500' },
+        medium: { badge: 'bg-slate-900/90 text-white', label: 'STRATEGIC INSIGHT', dot: 'bg-indigo-500' },
+        low: { badge: 'bg-slate-900/90 text-white', label: 'OBSERVATION', dot: 'bg-slate-400' },
     };
 
-    const categoryColors = {
-        fleet: 'text-indigo-700 bg-indigo-50',
-        finance: 'text-emerald-700 bg-emerald-50',
-        drivers: 'text-blue-700 bg-blue-50',
-        maintenance: 'text-orange-700 bg-orange-50',
-        operations: 'text-purple-700 bg-purple-50',
-        legal: 'text-rose-700 bg-rose-50',
-        inventory: 'text-amber-700 bg-amber-50',
+    const insightTheme = {
+        fleet: {
+            bg: 'bg-gradient-to-br from-indigo-50/90 via-blue-50/80 to-indigo-100/60 border-indigo-200/90',
+            titleColor: 'text-indigo-950',
+            bullet: 'text-indigo-500',
+            svg: '{{ asset("image/kpi/taxi_3d.svg") }}',
+        },
+        finance: {
+            bg: 'bg-gradient-to-br from-emerald-50/90 via-teal-50/80 to-emerald-100/60 border-emerald-200/90',
+            titleColor: 'text-emerald-950',
+            bullet: 'text-emerald-500',
+            svg: '{{ asset("image/kpi/profit_3d.svg") }}',
+        },
+        drivers: {
+            bg: 'bg-gradient-to-br from-amber-50/90 via-yellow-50/80 to-amber-100/60 border-amber-200/90',
+            titleColor: 'text-amber-950',
+            bullet: 'text-amber-500',
+            svg: '{{ asset("image/kpi/leakage_3d.svg") }}',
+        },
+        maintenance: {
+            bg: 'bg-gradient-to-br from-orange-50/90 via-amber-50/80 to-orange-100/60 border-orange-200/90',
+            titleColor: 'text-orange-950',
+            bullet: 'text-orange-500',
+            svg: '{{ asset("image/kpi/maintenance_3d.svg") }}',
+        },
+        legal: {
+            bg: 'bg-gradient-to-br from-rose-50/90 via-pink-50/80 to-rose-100/60 border-rose-200/90',
+            titleColor: 'text-rose-950',
+            bullet: 'text-rose-500',
+            svg: '{{ asset("image/kpi/legal_3d.svg") }}',
+        },
+        inventory: {
+            bg: 'bg-gradient-to-br from-amber-50/90 via-yellow-50/80 to-amber-100/60 border-amber-200/90',
+            titleColor: 'text-amber-950',
+            bullet: 'text-amber-500',
+            svg: '{{ asset("image/kpi/parts_3d.svg") }}',
+        },
+        safety: {
+            bg: 'bg-gradient-to-br from-sky-50/90 via-blue-50/80 to-indigo-100/60 border-blue-200/90',
+            titleColor: 'text-blue-950',
+            bullet: 'text-blue-500',
+            svg: '{{ asset("image/kpi/violation_3d.svg") }}',
+        },
     };
+
+    function getInsightTheme(insight) {
+        const t = (insight.title || '').toLowerCase();
+        const cat = (insight.category || '').toLowerCase();
+        
+        let chosenKey = 'fleet';
+        if (t.includes('franchise') || cat === 'legal') chosenKey = 'legal';
+        else if (t.includes('parts') || cat === 'inventory') chosenKey = 'inventory';
+        else if (t.includes('safety') || t.includes('incident') || cat === 'safety') chosenKey = 'safety';
+        else if (t.includes('shortage') || t.includes('leakage')) chosenKey = 'drivers';
+        else if (t.includes('net income') || t.includes('profit') || t.includes('roi') || cat === 'finance') chosenKey = 'finance';
+        else if (t.includes('maintenance') || t.includes('repair') || cat === 'maintenance') chosenKey = 'maintenance';
+        else if (insightTheme[cat]) chosenKey = cat;
+
+        const th = insightTheme[chosenKey] || insightTheme.fleet;
+        let svg = th.svg;
+        if (t.includes('roi')) svg = '{{ asset("image/kpi/revenue_3d.svg") }}';
+        
+        return { ...th, svg };
+    }
 
     function renderInsightCard(insight) {
         const p = priorityConfig[insight.priority] || priorityConfig.medium;
-        const cc = categoryColors[insight.category] || 'text-gray-700 bg-gray-100';
-        const actions = (insight.actions || []).map(a => `<li class="flex items-start gap-2 text-slate-600 text-[11px] font-bold"><span class="text-indigo-500 mt-0.5">●</span> ${a}</li>`).join('');
+        const th = getInsightTheme(insight);
+        const actions = (insight.actions || []).map(a => `<li class="flex items-start gap-2 text-slate-700 text-[11px] font-bold"><span class="${th.bullet} mt-0.5">●</span> ${a}</li>`).join('');
 
         return `
-            <div class="rounded-3xl border-2 ${p.border} ${p.bg} p-6 transition-all hover:shadow-xl hover:-translate-y-1 duration-300">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <span class="text-3xl">${insight.icon || '💡'}</span>
-                        <div>
-                            <p class="font-black text-slate-800 text-sm">${insight.title}</p>
-                            <span class="px-2 py-0.5 text-[8px] font-black rounded-full uppercase tracking-widest ${p.badge}">${p.label}</span>
-                        </div>
+            <div class="rounded-3xl border ${th.bg} p-6 sm:p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                <img src="${th.svg}" alt="${insight.title}" class="absolute -right-4 -top-2 w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 object-contain pointer-events-none opacity-40">
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 text-white text-[9px] font-black uppercase tracking-wider mb-3 backdrop-blur-md shadow-sm">
+                        <span class="w-1.5 h-1.5 rounded-full ${p.dot}"></span>
+                        <span>${p.label}</span>
                     </div>
-                </div>
-                <p class="text-slate-600 text-xs leading-relaxed mb-6 font-medium">${insight.insight}</p>
-                <div class="mb-6 p-4 bg-white/60 rounded-2xl border border-white">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deep Reasoning</p>
-                    <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">${insight.reasoning}</p>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Recommended Actions</p>
-                    <ul class="space-y-2">${actions}</ul>
+                    <h4 class="font-black ${th.titleColor} text-base sm:text-lg mb-2 pr-12 leading-tight">${insight.title}</h4>
+                    <p class="text-slate-600 text-xs leading-relaxed mb-5 font-semibold">${insight.insight}</p>
+                    <div class="mb-5 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/80 shadow-xs">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Deep Reasoning</p>
+                        <p class="text-[11px] text-slate-700 leading-relaxed font-semibold">${insight.reasoning}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recommended Actions</p>
+                        <ul class="space-y-1.5">${actions}</ul>
+                    </div>
                 </div>
             </div>`;
     }

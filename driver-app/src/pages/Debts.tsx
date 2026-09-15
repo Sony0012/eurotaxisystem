@@ -101,7 +101,7 @@ const Debts: React.FC = () => {
         <div style={{ minHeight: '100vh', background: t.bg, paddingBottom: '120px' }}>
 
           {/* Month Selector Chips */}
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '10px 20px 4px', alignItems: 'center', msOverflowStyle: 'none', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+          <div id="debts-month" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '10px 20px 4px', alignItems: 'center', msOverflowStyle: 'none', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
             {months.map(m => (
               <div 
                 key={m.value}
@@ -145,7 +145,7 @@ const Debts: React.FC = () => {
           </div>
 
           {/* Content */}
-          <div style={{ padding: '0 20px' }}>
+          <div id="debts-list" style={{ padding: '0 20px' }}>
             {loading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
                 <IonSpinner name="crescent" color="warning" />

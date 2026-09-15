@@ -1,54 +1,74 @@
-<div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+<div class="overflow-x-auto w-full">
+    <table class="w-full divide-y divide-slate-100">
+        <thead class="bg-slate-50/70">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Part Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Archived</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th class="w-10 px-4 sm:px-6 py-4 text-center">
+                    <input type="checkbox" class="archive-select-all rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" title="Select All">
+                </th>
+                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Part Name</th>
+                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Supplier</th>
+                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Price</th>
+                <th class="px-6 sm:px-8 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Date Archived</th>
+                <th class="px-6 sm:px-8 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-slate-100">
             @forelse($items as $item)
-            <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+            <tr class="hover:bg-slate-50/80 transition-colors group" data-id="{{ $item->id }}">
+                <td class="w-10 px-4 sm:px-6 py-5 text-center">
+                    <input type="checkbox" class="archive-row-cb rounded border-slate-300 text-amber-500 focus:ring-amber-400 h-4 w-4 cursor-pointer" value="{{ $item->id }}" data-id="{{ $item->id }}">
+                </td>
+                <td class="px-6 sm:px-8 py-5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="archived-part-icon-box relative w-12 h-12 rounded-2xl p-1 flex items-center justify-center shrink-0 border border-slate-200 bg-white shadow-xs cursor-pointer overflow-hidden group-hover:scale-105 transition-transform"
+                             data-part-name="{{ $item->name }}"
+                             title="Click to view procedural vector">
+                            <i data-lucide="package" class="w-5 h-5 text-slate-400"></i>
                         </div>
-                        <span class="text-sm font-bold text-gray-900">{{ $item->name }}</span>
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-slate-900 tracking-tight">{{ $item->name }}</div>
+                            <div class="archived-part-meta flex items-center gap-1.5 mt-0.5" data-part-name="{{ $item->name }}">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Auto Component</span>
+                            </div>
+                        </div>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $item->supplier ?? 'Unspecified' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">₱{{ number_format($item->price, 2) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
-                        <i data-lucide="clock" class="w-3 h-3"></i>
+                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-xs font-bold text-slate-600">
+                    {{ $item->supplier ?? 'Unspecified' }}
+                </td>
+                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-sm font-black text-emerald-600">
+                    ₱{{ number_format($item->price, 2) }}
+                </td>
+                <td class="px-6 sm:px-8 py-5 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-xl">
+                        <i data-lucide="clock" class="w-3 h-3 text-rose-500"></i>
                         {{ $item->deleted_at->format('M d, Y h:i A') }}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <form action="{{ route('archive.restore', ['type' => 'spare_part', 'id' => $item->id]) }}" method="POST" class="inline-block">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg mr-2 transition-all">
-                            <i data-lucide="undo-2" class="w-3 h-3"></i> Restore
+                <td class="px-6 sm:px-8 py-5 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <button type="button"
+                            onclick="archiveRestore('{{ route('archive.restore', ['type' => 'spare_part', 'id' => $item->id]) }}', this)"
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restore
                         </button>
-                    </form>
-                    <button type="button"
-                        onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'spare_part', 'id' => $item->id]) }}')"
-                        class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all">
-                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Permanently
-                    </button>
+                        <button type="button"
+                            onclick="archiveForceDelete('{{ route('archive.forceDelete', ['type' => 'spare_part', 'id' => $item->id]) }}', this)"
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Permanently
+                        </button>
+                    </div>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="px-6 py-16 text-center">
-                    <div class="flex flex-col items-center gap-3 text-gray-400">
-                        <i data-lucide="package" class="w-12 h-12 opacity-30"></i>
-                        <p class="text-sm font-medium">No archived spare parts found.</p>
-                        <p class="text-xs">Spare parts you archive from the Inventory will appear here.</p>
+                <td colspan="6" class="px-6 sm:px-8 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-slate-400">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
+                            <i data-lucide="package" class="w-8 h-8 opacity-40"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-700">No archived spare parts found</p>
+                        <p class="text-xs text-slate-400">Spare parts you archive from Inventory will appear here.</p>
                     </div>
                 </td>
             </tr>

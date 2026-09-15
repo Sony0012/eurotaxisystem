@@ -51,22 +51,36 @@ class DriverManagementController extends Controller
         return back()->with('error', 'Failed to upload image.');
     }
 
-    public function deleteTerm($filename)
+    public function deleteTerm(Request $request, $filename = null)
     {
-        $path = public_path('uploads/terms/' . $filename);
+        $targetFilename = $filename ?? $request->input('filename');
+        if (!$targetFilename) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Filename is required.'], 400);
+            }
+            return redirect()->route('driver-management.terms')->with('error', 'Filename is required.');
+        }
+
+        $path = public_path('uploads/terms/' . $targetFilename);
         if (file_exists($path)) {
             $archiveDir = public_path('uploads/archives/terms');
             if (!file_exists($archiveDir)) {
                 mkdir($archiveDir, 0755, true);
             }
-            rename($path, $archiveDir . '/' . $filename);
+            rename($path, $archiveDir . '/' . $targetFilename);
             
-            \App\Http\Controllers\ActivityLogController::log('Archived Driver Term', "Term Document: {$filename} moved to archive.");
+            \App\Http\Controllers\ActivityLogController::log('Archived Driver Term', "Term Document: {$targetFilename} moved to archive.");
             
-            return back()->with('success', 'Document archived successfully.');
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Document archived successfully.']);
+            }
+            return redirect()->route('driver-management.terms')->with('success', 'Document archived successfully.');
         }
 
-        return back()->with('error', 'File not found.');
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'File not found.'], 404);
+        }
+        return redirect()->route('driver-management.terms')->with('error', 'File not found.');
     }
 
     public function restoreTerm($filename)
@@ -122,6 +136,7 @@ class DriverManagementController extends Controller
                 'd.contact_number', 'd.hire_date', 'd.daily_boundary_target',
                 'd.driver_type', 'd.driver_status',
                 'd.emergency_contact', 'd.emergency_phone',
+                'd.profile_photo', 'd.license_photo', 'd.nbi_clearance_photo', 'd.pnp_clearance_photo',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 'creator.full_name as creator_name',
                 'editor.full_name as editor_name',
@@ -277,7 +292,7 @@ class DriverManagementController extends Controller
                 'd.*',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit"),
-                DB::raw("(SELECT COUNT(*) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
+                DB::raw("(SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_plate"),
                 DB::raw("(SELECT boundary_rate FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_boundary_rate"),
                 DB::raw("(SELECT coding_day FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_coding_day"),
                 DB::raw("(SELECT year FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1) as assigned_unit_year"),
@@ -330,13 +345,20 @@ class DriverManagementController extends Controller
         $currentMonth = now()->month;
         $currentYear  = now()->year;
 
-        // All boundaries in lookback period
-        $allBoundaries = DB::table('boundaries')
+        // All boundaries of the driver for comprehensive metrics
+        $allTimeBoundaries = DB::table('boundaries')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->where('date', '>=', $lookbackFrom->toDateString())
             ->get();
 
+        $allTimeEarnedCount  = $allTimeBoundaries->where('has_incentive', 1)->count();
+        $allTimeTotalShifts  = $allTimeBoundaries->count();
+        $allTimeIncentive    = $allTimeBoundaries
+            ->where('has_incentive', 1)
+            ->whereIn('status', ['paid', 'excess'])
+            ->sum(fn($b) => floatval($b->actual_boundary) * 0.05);
+
+        // Current month boundaries
         $thisMonthBoundaries = DB::table('boundaries')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
@@ -352,46 +374,36 @@ class DriverManagementController extends Controller
         $total_incentive = $thisMonthBoundaries
             ->where('has_incentive', 1)
             ->whereIn('status', ['paid', 'excess'])
-            ->sum(fn($b) => $b->actual_boundary * 0.05);
+            ->sum(fn($b) => floatval($b->actual_boundary) * 0.05);
 
-        // Missed reason breakdown (current month - Unified from Behavior + Boundaries)
-        $late_turn_missed  = DB::table('driver_behavior')
+        // Friction Points / Missed Reasons
+        $late_turn_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Late Remittance')
             ->count();
 
-        $damage_missed     = DB::table('driver_behavior')
+        $damage_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Vehicle Damage')
             ->count();
 
-        $behavior_missed   = DB::table('driver_behavior')
+        $behavior_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->whereRaw($this->getViolationQuerySnippet())
             ->whereNotIn('incident_type', ['Late Remittance', 'Vehicle Damage', 'Short Boundary'])
             ->count();
 
-        $shortage_missed   = DB::table('driver_behavior')
+        $shortage_missed = DB::table('driver_behavior')
             ->where('driver_id', $id)
             ->whereNull('deleted_at')
-            ->whereMonth('incident_date', $currentMonth)
-            ->whereYear('incident_date', $currentYear)
             ->where('incident_type', 'Short Boundary')
             ->count();
 
-        // Backup check for boundaries that might have missed incentive for other reasons (e.g. manual toggle)
-        $other_missed = $thisMonthBoundaries->where('has_incentive', 0)->count() 
-            - ($late_turn_missed + $damage_missed + $shortage_missed);
-        $other_missed = max(0, $other_missed);
+        // Backup check for boundaries with 0 incentive
+        $other_missed = max(0, $allTimeBoundaries->where('has_incentive', 0)->count() - ($late_turn_missed + $damage_missed + $shortage_missed));
 
         // --- Full Eligibility Check (Non-Stacking Penalty Block Logic) ---
         $periodStart = now()->subDays(150)->toDateString();
@@ -437,7 +449,7 @@ class DriverManagementController extends Controller
         $is_eligible = !$currentPenaltyEnd || now()->gt($currentPenaltyEnd);
         $activeBlockStart = ($currentPenaltyEnd && now()->lte($currentPenaltyEnd)) ? $currentPenaltyStart->startOfDay() : null;
 
-        $has_shifts = $allBoundaries->count() > 0;
+        $has_shifts = $allTimeBoundaries->count() > 0;
         if (!$has_shifts) $is_eligible = false;
 
         $violations_no_incentive = 0;
@@ -493,11 +505,16 @@ class DriverManagementController extends Controller
         if ($violations_incidents > 0) $blocking_violations[] = "{$violations_incidents} behavior incident(s) on record";
         if (!$is_eligible && $currentPenaltyEnd) $blocking_violations[] = "Penalty Expires: " . $currentPenaltyEnd->format('M d, Y');
 
+        $effective_earned_count = $total_shifts > 0 ? $earned_count : $allTimeEarnedCount;
+        $effective_total_shifts = $total_shifts > 0 ? $total_shifts : $allTimeTotalShifts;
+        $effective_incentive_rate = $effective_total_shifts > 0 ? round(($effective_earned_count / $effective_total_shifts) * 100, 1) : 0;
+
+        $driver->total_incentive_earned   = round($allTimeIncentive, 2);
         $driver->monthly_incentive        = round($total_incentive, 2);
-        $driver->incentive_earned_count   = $earned_count;
-        $driver->incentive_missed_count   = $missed_count;
-        $driver->total_shifts_month       = $total_shifts;
-        $driver->incentive_rate           = $total_shifts > 0 ? round($earned_count / $total_shifts * 100, 1) : 0;
+        $driver->incentive_earned_count   = $effective_earned_count;
+        $driver->incentive_missed_count   = max(0, $effective_total_shifts - $effective_earned_count);
+        $driver->total_shifts_month       = $effective_total_shifts;
+        $driver->incentive_rate           = $effective_incentive_rate;
         $driver->late_turn_missed         = $late_turn_missed;
         $driver->damage_missed            = $damage_missed;
         $driver->behavior_missed          = $behavior_missed;
@@ -523,15 +540,21 @@ class DriverManagementController extends Controller
             ->limit(10)
             ->get();
 
-        // Per-shift incentive breakdown (last 15 records)
+        // Per-shift incentive breakdown (last 20 records)
         $driver->incentive_breakdown = DB::table('boundaries as b')
             ->where('b.driver_id', $id)
             ->whereNull('b.deleted_at')
             ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
             ->select('b.date', 'b.actual_boundary', 'b.boundary_amount', 'b.status', 'b.shortage', 'b.has_incentive', 'b.notes', 'u.plate_number')
             ->orderByDesc('b.date')
-            ->limit(15)
-            ->get();
+            ->limit(20)
+            ->get()
+            ->map(function ($row) {
+                $row->incentive_amount = ($row->has_incentive && in_array($row->status, ['paid', 'excess']))
+                    ? round(floatval($row->actual_boundary) * 0.05, 2)
+                    : 0.00;
+                return $row;
+            });
 
         // Recent performance logs for Performance tab (last 10)
         $driver->recent_performance = DB::table('boundaries as b')
@@ -567,6 +590,89 @@ class DriverManagementController extends Controller
             ->where('created_at', '>=', now()->subDays(30))
             ->whereRaw($this->getViolationQuerySnippet())
             ->count();
+
+        // Complete Boundary History
+        $driver->boundary_history = DB::table('boundaries as b')
+            ->where('b.driver_id', $id)
+            ->whereNull('b.deleted_at')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->select(
+                'b.id', 'b.date', 'b.actual_boundary', 'b.boundary_amount', 'b.status',
+                'b.shortage', 'b.excess', 'b.has_incentive', 'b.notes',
+                'b.vehicle_damaged', 'b.is_absent', 'u.plate_number'
+            )
+            ->orderByDesc('b.date')
+            ->orderByDesc('b.id')
+            ->get();
+
+        $driver->total_boundary_count          = $driver->boundary_history->count();
+        $driver->total_boundary_collected      = (float) $driver->boundary_history->sum('actual_boundary');
+        $driver->total_boundary_target         = (float) $driver->boundary_history->sum('boundary_amount');
+        $driver->total_boundary_shortage       = (float) $driver->boundary_history->sum('shortage');
+        $driver->total_boundary_excess         = (float) $driver->boundary_history->sum('excess');
+        $driver->total_boundary_paid_count     = $driver->boundary_history->where('status', 'paid')->count();
+        $driver->total_boundary_shortage_count = $driver->boundary_history->where('status', 'shortage')->count();
+
+        // Complete Debts & Paid Debts Ledger from driver_behavior
+        $allDebts = DB::table('driver_behavior as db')
+            ->where('db.driver_id', $id)
+            ->whereNull('db.deleted_at')
+            ->where(function($q) {
+                $q->where('db.total_charge_to_driver', '>', 0)
+                  ->orWhere('db.total_paid', '>', 0)
+                  ->orWhere('db.remaining_balance', '>', 0)
+                  ->orWhereIn('db.charge_status', ['pending', 'partial', 'paid', 'settled']);
+            })
+            ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+            ->select(
+                'db.id', 'db.incident_date as date', 'db.timestamp', 'db.description',
+                'db.severity', 'db.total_charge_to_driver as total_charge',
+                'db.total_paid', 'db.remaining_balance', 'db.charge_status', 'db.incident_type',
+                'db.created_at', 'db.updated_at',
+                'u.plate_number'
+            )
+            ->orderByDesc('db.incident_date')
+            ->orderByDesc('db.id')
+            ->get();
+
+        $driver->pending_debts = $allDebts->filter(function($d) {
+            return (float)$d->remaining_balance > 0 && strtolower($d->charge_status ?? '') !== 'paid' && strtolower($d->charge_status ?? '') !== 'settled';
+        })->values();
+
+        $driver->settled_debts = $allDebts->filter(function($d) {
+            return (float)$d->remaining_balance <= 0 || strtolower($d->charge_status ?? '') === 'paid' || strtolower($d->charge_status ?? '') === 'settled';
+        })->values();
+
+        $driverFullName = trim($driver->full_name ?? '');
+        $driverFirstName = trim($driver->first_name ?? '');
+        $driver->expense_payments = DB::table('expenses as e')
+            ->leftJoin('units as u', 'e.unit_id', '=', 'u.id')
+            ->where('e.category', 'Damage Recovery')
+            ->where('e.status', 'approved')
+            ->whereNull('e.deleted_at')
+            ->where(function($q) use ($driverFullName, $driverFirstName) {
+                if (!empty($driverFullName)) {
+                    $q->where('e.description', 'like', "%{$driverFullName}%");
+                }
+                if (!empty($driverFirstName) && strlen($driverFirstName) >= 3) {
+                    $q->orWhere('e.description', 'like', "%{$driverFirstName}%");
+                }
+            })
+            ->select(
+                'e.id', 'e.date', 'e.description', 'e.amount', 'e.created_at', 'e.payment_method',
+                'u.plate_number'
+            )
+            ->orderByDesc('e.date')
+            ->get()
+            ->map(function($p) {
+                $p->amount = abs((float)$p->amount);
+                return $p;
+            });
+
+        $driver->total_charged_all_time = (float) $allDebts->sum('total_charge');
+        $driver->total_paid_debts       = (float) $allDebts->sum('total_paid');
+        $driver->total_pending_debt     = (float) $driver->pending_debts->sum('remaining_balance');
+        $driver->net_shortage           = (float) $driver->total_boundary_shortage;
 
         return response()->json($driver);
     }
@@ -692,11 +798,6 @@ class DriverManagementController extends Controller
                 }
             }
         }
-        
-        // Check if status changed to suspended or banned
-        if ($newStatus !== $driver_instance->driver_status && in_array($newStatus, ['suspended', 'banned'])) {
-            \App\Services\NotificationService::sendDriverStatusNotification($driver_instance->id, $newStatus);
-        }
 
         $driver_instance->fill([
             'first_name'            => $request->first_name,
@@ -749,8 +850,9 @@ class DriverManagementController extends Controller
         $driver = Driver::where('id', $id)->first();
         if ($driver) {
             // Unassign from units before soft-deleting
-            DB::table('units')->where('driver_id', $driver->id)->update(['driver_id' => null]);
-            DB::table('units')->where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null]);
+            DB::table('units')->where('driver_id', $driver->id)->update(['driver_id' => null, 'updated_at' => now()]);
+            DB::table('units')->where('secondary_driver_id', $driver->id)->update(['secondary_driver_id' => null, 'updated_at' => now()]);
+            DB::table('units')->where('current_turn_driver_id', $driver->id)->update(['current_turn_driver_id' => null, 'updated_at' => now()]);
             $name = $driver->first_name . ' ' . $driver->last_name;
             $driver->delete();
             
@@ -817,11 +919,19 @@ class DriverManagementController extends Controller
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.incident_type',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.profile_photo',
                 'u.plate_number as unit_plate'
             )
             ->orderBy('db.updated_at', 'desc')
             ->limit(20)
             ->get();
+
+        $settledDebts = $settledDebts->map(function($s) {
+            $s->profile_photo_url = !empty($s->profile_photo)
+                ? (str_starts_with($s->profile_photo, 'http') ? $s->profile_photo : asset(ltrim($s->profile_photo, '/')))
+                : asset('image/avatars/driver.svg');
+            return $s;
+        });
 
         // 2. Get recent payment transactions from Expenses
         $payments = DB::table('expenses as e')
@@ -865,6 +975,8 @@ class DriverManagementController extends Controller
                 'db.severity', 'db.total_charge_to_driver as total_charge', 
                 'db.total_paid', 'db.remaining_balance', 'db.incident_type',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'd.first_name', 'd.last_name',
+                'd.profile_photo',
                 'u.plate_number as unit_plate'
             )
             ->orderBy('db.timestamp', 'desc')
@@ -874,16 +986,82 @@ class DriverManagementController extends Controller
         foreach ($debtsRaw as $debt) {
             $dId = $debt->driver_id;
             if (!isset($drivers[$dId])) {
+                $photoUrl = !empty($debt->profile_photo)
+                    ? (str_starts_with($debt->profile_photo, 'http') ? $debt->profile_photo : asset(ltrim($debt->profile_photo, '/')))
+                    : asset('image/avatars/driver.svg');
+
                 $drivers[$dId] = [
                     'driver_id' => $dId,
                     'driver_name' => trim($debt->driver_name),
+                    'first_name' => $debt->first_name,
+                    'profile_photo' => $debt->profile_photo,
+                    'profile_photo_url' => $photoUrl,
                     'unit_plate' => $debt->unit_plate,
                     'total_remaining' => 0,
-                    'debts' => []
+                    'debts' => [],
+                    'settled_debts' => [],
+                    'expense_payments' => []
                 ];
             }
             $drivers[$dId]['total_remaining'] = round($drivers[$dId]['total_remaining'] + $debt->remaining_balance, 2);
             $drivers[$dId]['debts'][] = $debt;
+        }
+
+        if (!empty($drivers)) {
+            $driverIds = array_keys($drivers);
+
+            // 1. Fetch settled debts for these active debtor drivers
+            $settledRaw = DB::table('driver_behavior as db')
+                ->leftJoin('units as u', 'db.unit_id', '=', 'u.id')
+                ->whereIn('db.driver_id', $driverIds)
+                ->where('db.charge_status', 'paid')
+                ->whereNull('db.deleted_at')
+                ->select(
+                    'db.id', 'db.driver_id', 'db.incident_date as date', 'db.timestamp', 'db.description',
+                    'db.severity', 'db.total_charge_to_driver as total_charge',
+                    'db.total_paid', 'db.remaining_balance', 'db.incident_type',
+                    'db.updated_at as settled_at', 'db.created_at',
+                    'u.plate_number as unit_plate'
+                )
+                ->orderBy('db.updated_at', 'desc')
+                ->get();
+
+            foreach ($settledRaw as $sDebt) {
+                if (isset($drivers[$sDebt->driver_id])) {
+                    $drivers[$sDebt->driver_id]['settled_debts'][] = $sDebt;
+                }
+            }
+
+            // 2. Fetch damage recovery cash-in payments from expenses
+            $expensePayments = DB::table('expenses as e')
+                ->leftJoin('units as u', 'e.unit_id', '=', 'u.id')
+                ->where('e.category', 'Damage Recovery')
+                ->where('e.status', 'approved')
+                ->whereNull('e.deleted_at')
+                ->select(
+                    'e.id', 'e.date', 'e.description', 'e.amount', 'e.created_at', 'e.payment_method',
+                    'u.plate_number as unit_plate'
+                )
+                ->orderBy('e.created_at', 'desc')
+                ->orderBy('e.date', 'desc')
+                ->get()
+                ->map(function($p) {
+                    $p->amount = abs((float)$p->amount);
+                    return $p;
+                });
+
+            foreach ($drivers as $dId => &$dData) {
+                $fullName = strtolower(trim($dData['driver_name']));
+                $firstName = strtolower(trim($dData['first_name'] ?? ''));
+
+                foreach ($expensePayments as $ep) {
+                    $desc = strtolower($ep->description);
+                    if (($fullName && str_contains($desc, $fullName)) || ($firstName && strlen($firstName) >= 3 && str_contains($desc, $firstName))) {
+                        $dData['expense_payments'][] = $ep;
+                    }
+                }
+            }
+            unset($dData);
         }
 
         return response()->json(['success' => true, 'debts' => array_values($drivers)]);
@@ -919,7 +1097,7 @@ class DriverManagementController extends Controller
         
         \App\Models\Expense::create([
             'category' => 'Damage Recovery',
-            'description' => "Direct cash payment from {$driverName} for {$debt->incident_type} debt (Incident Date: {$debt->incident_date})",
+            'description' => "Direct cash payment from {$driverName} for accident debt (Incident Date: {$debt->incident_date})",
             'amount' => -$amount, // Negative means revenue in an expense table
             'payment_method' => 'Cash',
             'date' => now()->toDateString(),
@@ -980,6 +1158,7 @@ class DriverManagementController extends Controller
             ->select(
                 'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
                 'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.license_photo', 'd.nbi_clearance_photo', 'd.pnp_clearance_photo',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 'creator.full_name as creator_name'
             );
@@ -1095,8 +1274,6 @@ class DriverManagementController extends Controller
             'suspension_reason' => $reason,
         ]);
 
-        \App\Services\NotificationService::sendDriverStatusNotification($driver->id, $status);
-
         // Auto-logout driver app by revoking Sanctum tokens, and soft-delete user on permanent ban
         $user = $driver->user;
         if ($user) {
@@ -1174,6 +1351,214 @@ class DriverManagementController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Driver has been successfully " . ($action === 'suspend' ? 'suspended' : 'banned') . "."
+        ]);
+    }
+
+    public function printDebtsPdf()
+    {
+        $driversRaw = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->whereExists(function($q) {
+                $q->select(DB::raw(1))
+                  ->from('driver_behavior as db')
+                  ->whereColumn('db.driver_id', 'd.id')
+                  ->whereNull('db.deleted_at')
+                  ->where(function($q2) {
+                      $q2->where('db.remaining_balance', '>', 0)
+                         ->orWhere('db.charge_status', 'paid')
+                         ->orWhere('db.total_paid', '>', 0);
+                  });
+            })
+            ->leftJoin('units as u', function($join) {
+                $join->on('u.driver_id', '=', 'd.id')
+                     ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
+            ->select(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"),
+                'u.plate_number as unit_plate'
+            )
+            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.contact_number', 'u.plate_number')
+            ->orderBy('d.last_name', 'asc')
+            ->orderBy('d.first_name', 'asc')
+            ->get();
+
+        $drivers = [];
+        $grandTotalPending = 0;
+        $grandTotalCharge = 0;
+        $grandTotalPaid = 0;
+        $totalActiveDebtors = 0;
+        $totalPendingItems = 0;
+
+        foreach ($driversRaw as $d) {
+            $dId = $d->id;
+
+            // 1. Pending Debts
+            $pendingDebts = DB::table('driver_behavior')
+                ->where('driver_id', $dId)
+                ->where('charge_status', 'pending')
+                ->where('remaining_balance', '>', 0)
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_date as date', 'description', 'incident_type', 'total_charge_to_driver as total_charge', 'total_paid', 'remaining_balance')
+                ->orderBy('incident_date', 'asc')
+                ->get();
+
+            // 2. Settled Debts (fully paid)
+            $settledDebts = DB::table('driver_behavior')
+                ->where('driver_id', $dId)
+                ->where('charge_status', 'paid')
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_date as date', 'description', 'incident_type', 'total_charge_to_driver as total_charge', 'total_paid', 'remaining_balance', 'updated_at as settled_at')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            $driverFullName = trim($d->driver_name);
+
+            // 3. Payments in Expenses
+            $expensePayments = DB::table('expenses')
+                ->where('category', 'Damage Recovery')
+                ->where('status', 'approved')
+                ->whereNull('deleted_at')
+                ->where(function($q) use ($driverFullName, $d) {
+                    $q->where('description', 'like', "%{$driverFullName}%")
+                      ->orWhere('description', 'like', "%{$d->first_name}%");
+                })
+                ->select('id', 'date', 'description', 'amount')
+                ->orderBy('date', 'desc')
+                ->get()
+                ->map(function($p) {
+                    $p->amount = abs((float)$p->amount);
+                    return $p;
+                });
+
+            $driverPending = (float)$pendingDebts->sum('remaining_balance');
+            $driverCharge = (float)$pendingDebts->sum('total_charge') + (float)$settledDebts->sum('total_charge');
+            $driverPaid = (float)$pendingDebts->sum('total_paid') + (float)$settledDebts->sum('total_paid');
+
+            if ($driverPending > 0) {
+                $totalActiveDebtors++;
+            }
+            $totalPendingItems += count($pendingDebts);
+
+            $grandTotalPending += $driverPending;
+            $grandTotalCharge += $driverCharge;
+            $grandTotalPaid += $driverPaid;
+
+            $drivers[] = [
+                'driver_id'         => $dId,
+                'driver_name'       => ucwords(strtolower(trim($d->driver_name))),
+                'license_number'    => $d->license_number ?: '---',
+                'contact_number'    => $d->contact_number ?: '---',
+                'unit_plate'        => $d->unit_plate ?: 'NO UNIT',
+                'pending_debts'     => $pendingDebts,
+                'settled_debts'     => $settledDebts,
+                'expense_payments'  => $expensePayments,
+                'total_pending'     => $driverPending,
+                'total_charge'      => $driverCharge,
+                'total_paid'        => $driverPaid,
+            ];
+        }
+
+        // Total collected from damage recovery payments
+        $totalCollections = DB::table('expenses')
+            ->where('category', 'Damage Recovery')
+            ->where('status', 'approved')
+            ->whereNull('deleted_at')
+            ->sum('amount');
+        $totalCollections = abs((float)$totalCollections);
+
+        return view('driver-management.print-debts', compact(
+            'drivers',
+            'grandTotalPending',
+            'grandTotalCharge',
+            'grandTotalPaid',
+            'totalActiveDebtors',
+            'totalPendingItems',
+            'totalCollections'
+        ));
+    }
+
+    public function printBannedPdf(Request $request)
+    {
+        $query = DB::table('drivers as d')
+            ->whereNull('d.deleted_at')
+            ->whereIn('d.driver_status', ['banned', 'suspended'])
+            ->leftJoin('users as creator', 'd.created_by', '=', 'creator.id')
+            ->leftJoin('units as u', function($join) {
+                $join->on('u.driver_id', '=', 'd.id')
+                     ->orOn('u.secondary_driver_id', '=', 'd.id');
+            })
+            ->select(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
+                'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.created_at', 'd.updated_at',
+                DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
+                'creator.full_name as creator_name',
+                'u.plate_number as assigned_unit'
+            )
+            ->groupBy(
+                'd.id', 'd.first_name', 'd.last_name', 'd.license_number', 'd.license_expiry',
+                'd.contact_number', 'd.hire_date', 'd.address', 'd.driver_status', 'd.suspended_until', 'd.suspension_reason',
+                'd.profile_photo', 'd.created_at', 'd.updated_at', 'creator.full_name', 'u.plate_number'
+            )
+            ->orderBy('d.driver_status', 'asc') // 'banned' first, then 'suspended'
+            ->orderBy('d.updated_at', 'desc')
+            ->get();
+
+        $bannedCount = 0;
+        $suspendedCount = 0;
+        $totalOutstandingLiabilities = 0;
+
+        foreach ($query as $driver) {
+            if ($driver->driver_status === 'banned') {
+                $bannedCount++;
+            } else {
+                $suspendedCount++;
+            }
+
+            if ($driver->driver_status === 'suspended' && $driver->suspended_until) {
+                $now = \Carbon\Carbon::now()->timezone('Asia/Manila');
+                $until = \Carbon\Carbon::parse($driver->suspended_until)->timezone('Asia/Manila');
+                if ($until->gt($now)) {
+                    $driver->days_left = ceil($now->diffInSeconds($until, false) / 86400);
+                } else {
+                    $driver->days_left = 0;
+                }
+            } else {
+                $driver->days_left = null;
+            }
+
+            $driver->incidents = DB::table('driver_behavior')
+                ->where('driver_id', $driver->id)
+                ->whereNull('deleted_at')
+                ->select('id', 'incident_type', 'severity', 'description', 'incident_date', 'timestamp', 'total_charge_to_driver', 'remaining_balance', 'charge_status')
+                ->orderBy('incident_date', 'desc')
+                ->get();
+
+            $driver->total_unpaid = (float) $driver->incidents->where('remaining_balance', '>', 0)->sum('remaining_balance');
+            $totalOutstandingLiabilities += $driver->total_unpaid;
+        }
+
+        $totalLockouts = count($query);
+
+        $autoBanSettings = [
+            'auto_ban_enabled'                      => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days'         => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days'            => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? '3',
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days'      => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type'                  => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
+        return view('driver-management.print-banned', [
+            'drivers'                     => $query,
+            'totalLockouts'               => $totalLockouts,
+            'bannedCount'                 => $bannedCount,
+            'suspendedCount'              => $suspendedCount,
+            'totalOutstandingLiabilities' => $totalOutstandingLiabilities,
+            'autoBanSettings'             => $autoBanSettings,
+            'generatedAt'                 => now()->timezone('Asia/Manila')->format('M d, Y h:i A'),
+            'generatedBy'                 => \Illuminate\Support\Facades\Auth::user()->full_name ?? 'System Administrator'
         ]);
     }
 }

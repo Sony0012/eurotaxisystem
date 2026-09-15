@@ -53,63 +53,55 @@
     {{-- ── Financial Summary Cards ─────────────────────────────────────────── --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {{-- Total Collections --}}
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full opacity-60 group-hover:scale-120 transition-transform"></div>
-            <div class="relative z-10 flex items-start justify-between mb-3">
-                <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
-                    <i data-lucide="wallet" class="w-6 h-6"></i>
+        <div class="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/70 p-6 shadow-sm flex flex-col justify-between">
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="text-[11px] font-black text-emerald-600 uppercase tracking-widest">Total Collections</h4>
+                    <span class="text-[9px] font-black text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-full uppercase tracking-wider">Revenue</span>
                 </div>
-                <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Revenue</span>
+                <p class="text-3xl font-black text-slate-800 tabular-nums">{{ formatCurrency($totals['revenue']) }}</p>
             </div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Collections</h4>
-            <p class="text-2xl font-black text-slate-800">{{ formatCurrency($totals['revenue']) }}</p>
+            <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Collections 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
         </div>
 
         {{-- Total Expenses --}}
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-50 rounded-full opacity-60 group-hover:scale-120 transition-transform"></div>
-            <div class="relative z-10 flex items-start justify-between mb-3">
-                <div class="p-3 bg-rose-50 rounded-2xl text-rose-600">
-                    <i data-lucide="receipt" class="w-6 h-6"></i>
+        <div class="relative overflow-hidden rounded-3xl border border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50/70 p-6 shadow-sm flex flex-col justify-between">
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="text-[11px] font-black text-rose-500 uppercase tracking-widest">Total Expenses</h4>
+                    <span class="text-[9px] font-black text-rose-700 bg-rose-100/80 px-2.5 py-1 rounded-full uppercase tracking-wider">Expenses</span>
                 </div>
-                <span class="text-[9px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Expenses</span>
+                <p class="text-3xl font-black text-slate-800 tabular-nums cursor-pointer hover:text-rose-600 transition-colors select-none"
+                   onclick="openExpensesBreakdown(null, '{{ $date_from }}', '{{ $date_to }}', 'All Expenses ({{ formatDate($date_from) }} to {{ formatDate($date_to) }})')">
+                    <span class="underline decoration-dashed decoration-slate-300 hover:decoration-rose-500">{{ formatCurrency($totals['expenses']) }}</span>
+                </p>
             </div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Expenses</h4>
-            <p class="text-2xl font-black text-slate-800 cursor-pointer hover:text-rose-600 transition-colors select-none"
-               onclick="openExpensesBreakdown(null, '{{ $date_from }}', '{{ $date_to }}', 'All Expenses ({{ formatDate($date_from) }} to {{ formatDate($date_to) }})')">
-                <span class="underline decoration-dashed decoration-slate-300 hover:decoration-rose-500">{{ formatCurrency($totals['expenses']) }}</span>
-            </p>
+            <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Expenses 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
         </div>
 
         {{-- Total Maintenance --}}
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full opacity-60 group-hover:scale-120 transition-transform"></div>
-            <div class="relative z-10 flex items-start justify-between mb-3">
-                <div class="p-3 bg-amber-50 rounded-2xl text-amber-600">
-                    <i data-lucide="wrench" class="w-6 h-6"></i>
+        <div class="relative overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50/70 p-6 shadow-sm flex flex-col justify-between">
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="text-[11px] font-black text-amber-600 uppercase tracking-widest">Total Maintenance</h4>
+                    <span class="text-[9px] font-black text-amber-700 bg-amber-100/80 px-2.5 py-1 rounded-full uppercase tracking-wider">Maintenance</span>
                 </div>
-                <span class="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md uppercase tracking-wider">Maintenance</span>
+                <p class="text-3xl font-black text-slate-800 tabular-nums">{{ formatCurrency($totals['maintenance']) }}</p>
             </div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Maintenance</h4>
-            <p class="text-2xl font-black text-slate-800">{{ formatCurrency($totals['maintenance']) }}</p>
+            <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
         </div>
 
         {{-- Net Income --}}
-        <div class="p-6 rounded-3xl border shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group
-            {{ $totals['net_profit'] >= 0 ? 'bg-white border-slate-200' : 'bg-rose-50/30 border-rose-100' }}">
-            <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-60 group-hover:scale-120 transition-transform
-                {{ $totals['net_profit'] >= 0 ? 'bg-indigo-50' : 'bg-rose-100/50' }}"></div>
-            <div class="relative z-10 flex items-start justify-between mb-3">
-                <div class="p-3 rounded-2xl 
-                    {{ $totals['net_profit'] >= 0 ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-100 text-rose-600' }}">
-                    <i data-lucide="banknote" class="w-6 h-6"></i>
+        @php $isProfit = $totals['net_profit'] >= 0; @endphp
+        <div class="relative overflow-hidden rounded-3xl border {{ $isProfit ? 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50/70' : 'border-rose-200 bg-gradient-to-br from-rose-50 to-red-50/70' }} p-6 shadow-sm flex flex-col justify-between">
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="text-[11px] font-black {{ $isProfit ? 'text-indigo-600' : 'text-rose-500' }} uppercase tracking-widest">Net Yield</h4>
+                    <span class="text-[9px] font-black {{ $isProfit ? 'text-indigo-700 bg-indigo-100/80' : 'text-rose-700 bg-rose-100/80' }} px-2.5 py-1 rounded-full uppercase tracking-wider">Net Yield</span>
                 </div>
-                <span class="text-[9px] font-black rounded-md uppercase tracking-wider
-                    {{ $totals['net_profit'] >= 0 ? 'text-indigo-600 bg-indigo-50' : 'text-rose-600 bg-rose-100' }}">Net Yield</span>
+                <p class="text-3xl font-black {{ $isProfit ? 'text-slate-800' : 'text-rose-700' }} tabular-nums">{{ formatCurrency($totals['net_profit']) }}</p>
             </div>
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Yield</h4>
-            <p class="text-2xl font-black 
-                {{ $totals['net_profit'] >= 0 ? 'text-indigo-700' : 'text-rose-700' }}">{{ formatCurrency($totals['net_profit']) }}</p>
+            <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Net Yield 3D" class="absolute -right-3 -bottom-3 w-24 h-24 object-contain pointer-events-none opacity-40">
         </div>
     </div>
 

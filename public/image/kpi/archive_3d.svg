@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <!-- Ambient Radial Glow -->
+    <radialGradient id="arcGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.6"/>
+      <stop offset="60%" stop-color="#0369a1" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 3D Box Main Body Gradient -->
+    <linearGradient id="boxBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="30%" stop-color="#38bdf8"/>
+      <stop offset="70%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+
+    <!-- Box Lid Gradient -->
+    <linearGradient id="boxLid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <!-- Document File Gradient -->
+    <linearGradient id="docGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <!-- Gold Accent / Clock Arrow Gradient -->
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="arcShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#082f49" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Background -->
+  <circle cx="100" cy="105" r="90" fill="url(#arcGlow)"/>
+
+  <!-- Main 3D Composition Group -->
+  <g filter="url(#arcShadow)">
+    
+    <!-- 3D Isometric / Angled Archive Box Base -->
+    <g transform="rotate(-6 100 105)">
+      
+      <!-- Back Files Sticking Out of Box -->
+      <g transform="translate(0, -10)">
+        <!-- File 1 (Back Left) -->
+        <path d="M56 60 L92 48 L124 58 L88 70 Z" fill="#94a3b8" opacity="0.7"/>
+        <path d="M56 60 L88 70 L88 95 L56 85 Z" fill="#64748b" opacity="0.7"/>
+        <path d="M124 58 L88 70 L88 95 L124 83 Z" fill="#cbd5e1" opacity="0.7"/>
+        
+        <!-- File 2 (Front Center - Gold Tab) -->
+        <path d="M68 50 L108 36 L144 48 L104 62 Z" fill="#ffffff"/>
+        <path d="M68 50 L104 62 L104 90 L68 78 Z" fill="#e2e8f0"/>
+        <path d="M144 48 L104 62 L104 90 L144 76 Z" fill="#f8fafc"/>
+        <rect x="80" y="44" width="22" height="6" rx="2" fill="url(#goldAccent)" transform="rotate(-18 80 44)"/>
+      </g>
+
+      <!-- Main Box Container (Isometric Front) -->
+      <!-- Left Face -->
+      <path d="M42 90 L98 112 L98 165 L42 143 Z" fill="url(#boxBody)"/>
+      <path d="M42 90 L98 112 L98 165 L42 143 Z" fill="#0369a1" opacity="0.3"/>
+
+      <!-- Right Face -->
+      <path d="M98 112 L158 90 L158 143 L98 165 Z" fill="url(#boxBody)"/>
+
+      <!-- Top Rim Lip -->
+      <path d="M42 90 L98 112 L158 90 L102 68 Z" fill="url(#boxLid)" opacity="0.95"/>
+      <path d="M48 91 L98 110 L152 91 L102 72 Z" fill="#0c4a6e" opacity="0.6"/>
+
+      <!-- Front Handle Hole / Cutout -->
+      <ellipse cx="128" cy="116" rx="10" ry="5" fill="#075985" transform="rotate(-20 128 116)"/>
+      <ellipse cx="128" cy="116" rx="8" ry="3.5" fill="#082f49" transform="rotate(-20 128 116)"/>
+      
+      <!-- Label Plate on Box -->
+      <polygon points="60,112 88,123 88,142 60,131" fill="#ffffff" opacity="0.9"/>
+      <line x1="66" y1="120" x2="82" y2="126" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+      <line x1="66" y1="127" x2="82" y2="133" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <!-- Foreground Floating 3D Restore Curved Arrow Badge -->
+    <g transform="translate(108, 105)">
+      <!-- Golden Badge Circle -->
+      <circle cx="28" cy="28" r="26" fill="url(#goldAccent)"/>
+      <circle cx="28" cy="28" r="22" fill="#ffffff"/>
+      <circle cx="28" cy="28" r="19" fill="#fffbeb"/>
+      
+      <!-- 3D Undo / Restore Arrow -->
+      <path d="M36 28 C36 22 30 18 24 20 C18 22 16 28 20 34 C22 36 26 38 30 36" fill="none" stroke="#d97706" stroke-width="4.5" stroke-linecap="round"/>
+      <polygon points="22,14 26,22 17,22" fill="#d97706"/>
+    </g>
+
+  </g>
+</svg>

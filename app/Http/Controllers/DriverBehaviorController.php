@@ -134,7 +134,10 @@ class DriverBehaviorController extends Controller
     public function accidents(Request $request)
     {
         $accident_reports = \App\Models\RescueRequest::with(['driver', 'unit'])
-            ->where('type', 'accident')
+            ->where(function($q) {
+                $q->whereIn('type', ['accident', 'sos', 'emergency', 'rescue'])
+                  ->orWhereNull('type');
+            })
             ->orderByDesc('created_at')
             ->get();
 

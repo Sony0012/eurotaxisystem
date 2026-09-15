@@ -30,6 +30,7 @@ use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PresenceController;
 
 // ─── Auth Routes ───────────────────────────────────────
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -44,9 +45,11 @@ Route::get('/force-change-password', [AuthController::class, 'showForceChangePas
 Route::post('/force-change-password', [AuthController::class, 'updateForceChangePassword'])->name('auth.force-change-password.update');
 
 
-// ─── My Account Routes ───────────────────────────────────
+// ─── My Account & Presence Routes ────────────────────────
 Route::middleware(['auth'])->group(function () {
-    Route::post('/heartbeat', [AuthController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/heartbeat', [PresenceController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/presence/heartbeat', [PresenceController::class, 'heartbeat'])->name('presence.heartbeat');
+    Route::post('/presence/disconnect', [PresenceController::class, 'disconnect'])->name('presence.disconnect');
     Route::get('/my-account', [MyAccountController::class, 'index'])->name('my-account');
     Route::post('/my-account/update-profile', [MyAccountController::class, 'updateProfile'])->name('my-account.update-profile');
     Route::post('/my-account/update-profile-image', [MyAccountController::class, 'updateProfileImage'])->name('my-account.update-profile-image');
@@ -71,6 +74,7 @@ Route::get('/auth/github/callback', [GitHubAuthController::class, 'handleGitHubC
 
 // Real-time dashboard data
 Route::post('/api/tutorial/complete', [DashboardController::class, 'completeTutorial'])->middleware('auth');
+Route::post('/api/staff-feedback', [SuperAdminController::class, 'submitStaffFeedback'])->middleware('auth')->name('staff-feedback.submit');
 Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealTimeData'])->middleware('auth');
 Route::get('/api/revenue-trend', [DashboardController::class, 'getRevenueTrend'])->middleware('auth');
 Route::get('/api/units-overview', [DashboardController::class, 'getUnitsOverview'])->middleware('auth');
@@ -82,21 +86,6 @@ Route::get('/api/coding-units', [DashboardController::class, 'getCodingUnits'])-
 Route::post('/web-notifications/save-token', [\App\Http\Controllers\Api\NotificationController::class, 'saveToken']);
 Route::post('/api/diagnose-capacitor', [\App\Http\Controllers\Api\NotificationController::class, 'logDiagnostics']);
 Route::get('/web-notifications/poll', [\App\Http\Controllers\Api\NotificationController::class, 'pollNotifications'])->middleware('auth');
-Route::post('/web-notifications/trigger-test-chime', function() {
-    try {
-        \Illuminate\Support\Facades\DB::table('system_alerts')->insert([
-            'type' => 'test_chime_alert',
-            'title' => '🔊 Test Sound Broadcast',
-            'message' => 'Lodi! Sumisigaw na ang chime sa phone mo! Gumagana na ang real-time push bypass! 🔥',
-            'is_resolved' => false,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        return response()->json(['success' => true, 'message' => 'Test chime alert inserted successfully!']);
-    } catch (\Exception $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()]);
-    }
-})->middleware('auth');
 
 Route::get('/web-notifications/native-poll', function(\Illuminate\Http\Request $request) {
     try {
@@ -186,21 +175,30 @@ Route::middleware(['auth', 'page_access'])->group(function () {
 
     // Driver Management — static paths MUST be registered before the resource
     // so "pending-debts" is not matched as driver-management/{id} (show).
-    Route::get('/driver-management/banned', [DriverManagementController::class, 'banned'])->name('driver-management.banned');
-    Route::get('/driver-management/debts', [DriverManagementController::class, 'debtsPage'])->name('driver-management.debts');
-    Route::get('/driver-management/pending-debts', [DriverManagementController::class, 'getPendingDebts'])->name('driver-management.pending-debts');
+    Route::get('/driver-management/print', [DriverManagementV2Controller::class, 'printPdf'])->name('driver-management.print');
+    Route::get('/driver-management/debts/print', [DriverManagementV2Controller::class, 'printDebtsPdf'])->name('driver-management.debts.print');
+    Route::get('/driver-management/banned/print', [DriverManagementV2Controller::class, 'printBannedPdf'])->name('driver-management.banned.print');
     Route::get('/driver-management/banned', [DriverManagementV2Controller::class, 'banned'])->name('driver-management.banned');
     Route::get('/driver-management/debts', [DriverManagementV2Controller::class, 'debtsPage'])->name('driver-management.debts');
+    Route::get('/driver-management/funds-ledger', [DriverManagementV2Controller::class, 'fundsLedgerPage'])->name('driver-management.funds-ledger');
+    Route::get('/driver-management/funds-ledger/data', [DriverManagementV2Controller::class, 'getFundsLedgerData'])->name('driver-management.funds-ledger.data');
+    Route::get('/driver-management/funds-ledger/print', [DriverManagementV2Controller::class, 'printFundsLedgerPdf'])->name('driver-management.funds-ledger.print');
     Route::get('/driver-management/pending-debts', [DriverManagementV2Controller::class, 'getPendingDebts'])->name('driver-management.pending-debts');
     Route::get('/driver-management/debt-history', [DriverManagementV2Controller::class, 'getDebtHistory'])->name('driver-management.debt-history');
     Route::post('/driver-management/pay-debt', [DriverManagementV2Controller::class, 'payDebt'])->name('driver-management.pay-debt');
     Route::get('/driver-management/terms', [DriverManagementV2Controller::class, 'terms'])->name('driver-management.terms');
     Route::post('/driver-management/terms', [DriverManagementV2Controller::class, 'uploadTerm'])->name('driver-management.terms.upload');
-    Route::post('/driver-management/terms/{filename}', [DriverManagementV2Controller::class, 'deleteTerm'])->name('driver-management.terms.delete');
+    Route::post('/driver-management/terms/archive', [DriverManagementV2Controller::class, 'deleteTerm'])->name('driver-management.terms.delete');
+    Route::post('/driver-management/terms/{filename}/delete', [DriverManagementV2Controller::class, 'deleteTerm']);
+    Route::post('/driver-management/terms/{filename}', [DriverManagementV2Controller::class, 'deleteTerm']);
     Route::post('/driver-management/terms/{filename}/restore', [DriverManagementV2Controller::class, 'restoreTerm'])->name('driver-management.terms.restore');
     Route::delete('/driver-management/terms/{filename}/force', [DriverManagementV2Controller::class, 'forceDeleteTerm'])->name('driver-management.terms.force-delete');
     Route::post('/driver-management/{id}/unban', [DriverManagementV2Controller::class, 'unban'])->name('driver-management.unban');
     Route::post('/driver-management/{id}/suspend-or-ban', [DriverManagementV2Controller::class, 'suspendOrBan'])->name('driver-management.suspend-or-ban');
+    Route::get('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'getAutoBanSettings'])->name('driver-management.auto-ban-settings');
+    Route::post('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'updateAutoBanSettings'])->name('driver-management.update-auto-ban-settings');
+    Route::get('/driver-management/{id}/lockout-details', [DriverManagementV2Controller::class, 'getDriverLockoutDetails'])->name('driver-management.lockout-details');
+    Route::post('/driver-management/{id}/withdraw-fund', [DriverManagementV2Controller::class, 'withdrawFund'])->name('driver-management.withdraw-fund');
 
 
     // Driver Management Resource Routes
@@ -272,6 +270,8 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
     Route::post('/archive/restore/{type}/{id}', [ArchiveController::class, 'restore'])->name('archive.restore');
     Route::delete('/archive/force-delete/{type}/{id}', [ArchiveController::class, 'forceDelete'])->name('archive.forceDelete');
+    Route::post('/archive/bulk-restore', [ArchiveController::class, 'bulkRestore'])->name('archive.bulkRestore');
+    Route::delete('/archive/bulk-force-delete', [ArchiveController::class, 'bulkForceDelete'])->name('archive.bulkForceDelete');
 
     // ─── System Settings - Boundary Rules ───────────────────
     Route::get('/boundary-rules', [BoundarySettingsController::class, 'index'])->name('boundary-rules.index');
@@ -282,6 +282,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     // ─── Spare Parts Management ───────────────────────────
     Route::get('/inventory-management', [SparePartController::class, 'manage'])->name('inventory.manage');
     Route::get('/spare-parts', [SparePartController::class, 'index'])->name('spare-parts.index');
+    Route::get('/spare-parts/suggest-images', [SparePartController::class, 'suggestImages'])->name('spare-parts.suggest-images');
     Route::get('/spare-parts/archived', [SparePartController::class, 'archived'])->name('spare-parts.archived');
     Route::get('/spare-parts/history', [SparePartController::class, 'history'])->name('spare-parts.history');
     Route::post('/spare-parts', [SparePartController::class, 'store'])->name('spare-parts.store');
@@ -354,45 +355,26 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->name('super-a
     Route::delete('/incident-classifications/{id}/archive', [SuperAdminController::class, 'archiveClassification'])->name('incident-classifications.archive');
     Route::post('/incident-classifications/{id}/restore', [SuperAdminController::class, 'restoreClassification'])->name('incident-classifications.restore');
     Route::delete('/incident-classifications/{id}', [SuperAdminController::class, 'deleteClassification'])->name('incident-classifications.delete');
-    // ─── Super Admin / System Admin Routes ─────────────────
-    Route::get('/super-admin', [SuperAdminController::class, 'index'])->name('super-admin.index');
-    Route::get('/super-admin/json', [SuperAdminController::class, 'indexJson'])->name('super-admin.json');
-    Route::post('/super-admin/users/{id}/approve', [SuperAdminController::class, 'approveUser'])->name('super-admin.approve-user');
-    Route::post('/super-admin/users/{id}/reject', [SuperAdminController::class, 'rejectUser'])->name('super-admin.reject-user');
-    Route::post('/super-admin/users/{id}/toggle-disable', [SuperAdminController::class, 'toggleDisable'])->name('super-admin.toggle-disable');
-    Route::post('/super-admin/users/{id}/page-access', [SuperAdminController::class, 'updatePageAccess'])->name('super-admin.update-page-access');
-    Route::get('/super-admin/login-history', [SuperAdminController::class, 'loginHistory'])->name('super-admin.login-history');
-    Route::post('/super-admin/users/{id}/archive', [SuperAdminController::class, 'archiveUser'])->name('super-admin.archive-user');
-    Route::post('/super-admin/users/{id}/restore', [SuperAdminController::class, 'restoreUser'])->name('super-admin.restore-user');
-    Route::post('/super-admin/users/{id}/update', [SuperAdminController::class, 'updateUser'])->name('super-admin.update-user');
-    Route::get('/super-admin/users/{id}/details', [SuperAdminController::class, 'getUserDetails'])->name('super-admin.get-user');
-    Route::post('/super-admin/users/{id}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('super-admin.reset-password');
-    Route::post('/super-admin/users/{id}/update-role', [SuperAdminController::class, 'updateRole'])->name('super-admin.update-role');
-    Route::post('/super-admin/staff', [SuperAdminController::class, 'storeStaff'])->name('super-admin.store-staff');
-    Route::post('/super-admin/classifications', [SuperAdminController::class, 'storeClassification'])->name('super-admin.store-classification');
-    Route::get('/super-admin/classifications/{id}', [SuperAdminController::class, 'getClassificationDetails'])->name('super-admin.get-classification');
-    Route::put('/super-admin/classifications/{id}', [SuperAdminController::class, 'updateClassification'])->name('super-admin.update-classification');
-    Route::delete('/super-admin/classifications/{id}/archive', [SuperAdminController::class, 'archiveClassification'])->name('super-admin.archive-classification');
-    Route::post('/super-admin/classifications/{id}/restore', [SuperAdminController::class, 'restoreClassification'])->name('super-admin.restore-classification');
-    Route::post('/super-admin/roles', [SuperAdminController::class, 'storeRole'])->name('super-admin.store-role');
-    Route::get('/super-admin/roles/{id}', [SuperAdminController::class, 'getRoleDetails'])->name('super-admin.get-role');
-    Route::put('/super-admin/roles/{id}', [SuperAdminController::class, 'updateRole'])->name('super-admin.update-role-details');
-    Route::delete('/super-admin/roles/{id}/archive', [SuperAdminController::class, 'archiveRole'])->name('super-admin.archive-role');
-    Route::post('/super-admin/roles/{id}/restore', [SuperAdminController::class, 'restoreRole'])->name('super-admin.restore-role');
-    Route::post('/super-admin/verify-archive-password', [SuperAdminController::class, 'verifyArchivePassword'])->name('super-admin.verify-archive-password');
-    Route::post('/super-admin/settings/update', [SuperAdminController::class, 'updateSystemSettings'])->name('super-admin.update-settings');
-
-    // System Security Settings
-    Route::post('/security/update-archive-password', [SuperAdminController::class, 'updateArchivePassword'])->name('security.update-archive-password');
+    // Client Activity Monitoring
+    Route::get('/activity-monitoring', [SuperAdminController::class, 'activityMonitoring'])->name('activity-monitoring');
+    Route::get('/activity-monitoring/user/{id}', [SuperAdminController::class, 'userActivityDetail'])->name('activity-monitoring.user');
+    Route::post('/activity-monitoring/user/{id}/reset', [SuperAdminController::class, 'resetUserActivity'])->name('activity-monitoring.user.reset');
+    Route::get('/activity-monitoring/feedbacks', [SuperAdminController::class, 'getStaffFeedbacks'])->name('activity-monitoring.feedbacks');
+    Route::post('/activity-monitoring/feedbacks/{id}/status', [SuperAdminController::class, 'updateFeedbackStatus'])->name('activity-monitoring.feedbacks.status');
+    Route::delete('/activity-monitoring/feedbacks/{id}', [SuperAdminController::class, 'deleteFeedback'])->name('activity-monitoring.feedbacks.delete');
 });
 
-// ─── Temporary System Sync Route ───────────────────────────
+// ─── Temporary System Sync & Cache Clear Route ─────────────
 Route::get('/force-sync-db-2026', function() {
     try {
         Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return "<h1>Migration Success!</h1><pre>" . Illuminate\Support\Facades\Artisan::output() . "</pre><br><a href='/'>Go to Dashboard</a>";
+        Illuminate\Support\Facades\Artisan::call('route:clear');
+        Illuminate\Support\Facades\Artisan::call('config:clear');
+        Illuminate\Support\Facades\Artisan::call('view:clear');
+        Illuminate\Support\Facades\Artisan::call('cache:clear');
+        return redirect('/super-admin?tab=activity');
     } catch (\Exception $e) {
-        return "<h1>Migration Failed!</h1><pre>" . $e->getMessage() . "</pre>";
+        return response()->json(['error' => $e->getMessage()]);
     }
 });
 

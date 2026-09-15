@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="maintGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#991b1b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="carRedBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="50%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="carRedRoof" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fca5a5"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <linearGradient id="carGlassRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef2f2" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#fecaca" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="carWheel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="maintShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#7f1d1d" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#maintGlow)"/>
+  <g filter="url(#maintShadow)">
+    <ellipse cx="100" cy="155" rx="70" ry="14" fill="#7f1d1d" opacity="0.3"/>
+    <ellipse cx="58" cy="140" rx="16" ry="18" fill="url(#carWheel)"/>
+    <ellipse cx="58" cy="140" rx="8" ry="9" fill="#94a3b8"/>
+    <circle cx="58" cy="140" r="4" fill="#f8fafc"/>
+    <ellipse cx="142" cy="140" rx="16" ry="18" fill="url(#carWheel)"/>
+    <ellipse cx="142" cy="140" rx="8" ry="9" fill="#94a3b8"/>
+    <circle cx="142" cy="140" r="4" fill="#f8fafc"/>
+    <rect x="30" y="96" width="140" height="42" rx="18" fill="url(#carRedBody)"/>
+    <path d="M52 96 L70 58 Q76 52 86 52 L124 52 Q134 52 140 62 L152 96 Z" fill="url(#carRedRoof)"/>
+    <path d="M72 61 L88 61 L88 92 L56 92 Z" fill="url(#carGlassRed)"/>
+    <path d="M94 61 L122 61 L122 92 L94 92 Z" fill="url(#carGlassRed)"/>
+    <path d="M128 61 L136 70 L146 92 L128 92 Z" fill="url(#carGlassRed)"/>
+    <rect x="86" y="40" width="28" height="12" rx="4" fill="#f87171"/>
+    <rect x="90" y="42" width="20" height="8" rx="2" fill="#fef2f2"/>
+    <circle cx="36" cy="110" r="6" fill="#fef08a"/>
+    <circle cx="164" cy="110" r="5" fill="#f87171"/>
+    <path d="M40 102 Q100 98 160 102" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+    
+    <!-- Maintenance Wrench Badge -->
+    <circle cx="152" cy="62" r="18" fill="#ffffff"/>
+    <circle cx="152" cy="62" r="16" fill="#ef4444"/>
+    <path d="M145 69 L159 55 M144 64 C142 62 143 58 147 58 C149 58 150 59 151 60 L148 63 L151 66 L154 63 C155 64 156 65 156 67 C156 71 152 72 150 70 Z" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>

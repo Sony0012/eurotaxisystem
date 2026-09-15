@@ -13,6 +13,12 @@
     100% { transform: translateY(2px) scale(1.0); }
 }
 
+@keyframes sparklineContinuous {
+    0% { transform: translateY(5px) scaleY(1); opacity: 0.7; }
+    50% { transform: translateY(-5px) scaleY(1.05); opacity: 0.9; }
+    100% { transform: translateY(5px) scaleY(1); opacity: 0.7; }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -60,8 +66,8 @@
 }
 
 .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    /* transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); */
 }
 
 /* Graph wave background on cards */
@@ -80,6 +86,7 @@
     transition: opacity 0.35s ease, transform 0.35s ease;
     pointer-events: none;
     z-index: 0;
+    animation: sparklineContinuous 6s ease-in-out infinite;
 }
 
 /* Variant 2 (Smooth Upward) for every second card */
@@ -100,7 +107,7 @@
 /* Highlight line on hover with movement */
 .card-hover:hover::after {
     opacity: 1;
-    animation: sparklineMotion 4s ease-in-out infinite;
+    animation: sparklineContinuous 3s ease-in-out infinite;
 }
 
 /* Ensure card content stays above the wave */

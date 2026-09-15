@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="tarGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#78350f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tarRing1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="tarShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#78350f" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#tarGlow)"/>
+  <g filter="url(#tarShadow)">
+    <g transform="rotate(-6 100 100)">
+      <!-- Outer Target Ring -->
+      <circle cx="100" cy="100" r="50" fill="url(#tarRing1)"/>
+      <circle cx="100" cy="100" r="40" fill="#ffffff"/>
+      <!-- Middle Target Ring -->
+      <circle cx="100" cy="100" r="30" fill="url(#tarRing1)"/>
+      <circle cx="100" cy="100" r="20" fill="#ffffff"/>
+      <!-- Bullseye Center -->
+      <circle cx="100" cy="100" r="10" fill="#d97706"/>
+      <!-- Dart / Arrow in Bullseye -->
+      <path d="M125 75 L102 98" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+      <polygon points="120,68 132,68 132,80" fill="#b45309"/>
+    </g>
+  </g>
+</svg>

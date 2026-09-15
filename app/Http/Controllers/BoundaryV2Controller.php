@@ -230,29 +230,9 @@ class BoundaryV2Controller extends Controller
             $pricing = $this->getCurrentPricing([
                 'year' => $b->unit_year,
                 'plate_number' => $b->plate_number,
-                'boundary_rate' => $b->boundary_amount, // Use the target recorded
+                'boundary_rate' => $b->boundary_amount,
                 'coding_day' => $b->unit_coding_day
-            ], $boundary_rules);
-
-            // Re-calculate specifically for the record's day if it's not today
-            if ($dayOfWeek === 'Saturday') {
-                $rule = $boundary_rules->where('start_year', '<=', $b->unit_year)->where('end_year', '>=', $b->unit_year)->first();
-                $pricing['label'] = 'Saturday Discount';
-                $pricing['type'] = 'discount';
-            } elseif ($dayOfWeek === 'Sunday') {
-                $pricing['label'] = 'Sunday Discount';
-                $pricing['type'] = 'discount';
-            } else {
-                // Coding check for that day
-                $cDay = $pricing['coding_day'] ?? null;
-                if ($cDay && strtolower($dayOfWeek) === strtolower($cDay)) {
-                    $pricing['label'] = 'Coding Rate';
-                    $pricing['type'] = 'coding';
-                } else {
-                    $pricing['label'] = 'Regular Rate';
-                    $pricing['type'] = 'regular';
-                }
-            }
+            ], $boundary_rules, $b->date);
 
             $item = (array) $b;
             $item['rate_label'] = $pricing['label'];
@@ -336,6 +316,19 @@ class BoundaryV2Controller extends Controller
                 if ($existing) {
                     return back()->with('error', 'Boundary record already exists for this unit and date');
                 } else {
+                    $unit = \App\Models\Unit::find($unit_id);
+                    $boundary_rules = DB::table('boundary_rules')->get();
+                    $datePricing = $this->getCurrentPricing([
+                        'year' => $unit ? $unit->year : 0,
+                        'plate_number' => $unit ? $unit->plate_number : '',
+                        'boundary_rate' => $unit ? $unit->boundary_rate : 0,
+                        'coding_day' => $unit ? $unit->coding_day : null
+                    ], $boundary_rules, $date);
+
+                    if ($boundary_amount <= 0 || !$request->has('boundary_amount')) {
+                        $boundary_amount = (float) $datePricing['rate'];
+                    }
+
                     $shortage = max(0, $boundary_amount - $actual_boundary);
                     $excess   = max(0, $actual_boundary - $boundary_amount);
                     $status   = $shortage > 0 ? 'shortage' : ($excess > 0 ? 'excess' : 'paid');
@@ -344,6 +337,7 @@ class BoundaryV2Controller extends Controller
 
                     if ($shortage > 0) {
                         $has_incentive = false;
+                        $rateTag = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
                         $notes = trim($notes . " [Automatic Violation: Short Boundary]");
                         
                         // Auto-log to Driver Performance
@@ -352,7 +346,7 @@ class BoundaryV2Controller extends Controller
                             'driver_id'               => $driver_id,
                             'incident_type'           => 'Short Boundary',
                             'severity'                => 'medium',
-                            'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2),
+                            'description'             => "Auto-logged [Shortage]: Driver remitted ₱" . number_format($actual_boundary, 2) . " instead of ₱" . number_format($boundary_amount, 2) . $rateTag,
                             'incident_date'           => $date,
                             'timestamp'               => now(),
                             'total_charge_to_driver'  => $shortage,
@@ -360,7 +354,6 @@ class BoundaryV2Controller extends Controller
                             'remaining_balance'       => $shortage,
                             'charge_status'           => 'pending',
                         ]);
-                        \App\Services\NotificationService::sendBoundaryShortageNotification($driver_id, $date, $shortage);
                     }
 
                     // --- Check for ANY pre-existing violations today ---
@@ -377,7 +370,13 @@ class BoundaryV2Controller extends Controller
                     $past_cutoff = $request->has('past_cutoff');
                     if ($past_cutoff) {
                         $has_incentive = false;
-                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past 10:00 AM)]");
+                        $late_cutoff_raw = $request->input('late_cutoff_time', '10:00');
+                        try {
+                            $formatted_cutoff = Carbon::createFromFormat('H:i', $late_cutoff_raw)->format('h:i A');
+                        } catch (\Exception $e) {
+                            $formatted_cutoff = '10:00 AM';
+                        }
+                        $notes = trim($notes . " [Automatic Violation: Late Remittance (Past " . $formatted_cutoff . ")]");
                         
                         // Auto-log to Driver Performance
                         \App\Models\DriverBehavior::create([
@@ -385,7 +384,7 @@ class BoundaryV2Controller extends Controller
                             'driver_id'     => $driver_id,
                             'incident_type' => 'Late Remittance',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Late Remittance]: Driver remitted boundary after the 10:00 AM cutoff.',
+                            'description'   => "Auto-logged [Late Remittance]: Driver remitted boundary after the {$formatted_cutoff} cutoff.",
                             'incident_date' => $date,
                             'timestamp'     => $now,
                         ]);
@@ -469,25 +468,38 @@ class BoundaryV2Controller extends Controller
                             $hourly_rate = 0;
                             $comp_note = "";
                             
-                            if ($unit->last_swapping_at) {
+                            if ($request->filled('breakdown_time_out')) {
+                                $swap_time = Carbon::parse($request->input('breakdown_time_out'));
+                            } elseif ($unit->last_swapping_at) {
                                 $swap_time = Carbon::parse($unit->last_swapping_at);
                             } else {
-                                // Fallback: Assume start was 10:00 AM of the record date (or yesterday if currently past 10AM)
-                                $swap_time = Carbon::parse($date . ' 10:00:00');
-                                if ($swap_time->isFuture()) {
-                                    $swap_time->subDay();
-                                }
+                                // Fallback: Assume start was 06:00 AM of the record date
+                                $swap_time = Carbon::parse($date . ' 06:00:00');
                             }
-                            $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
-                            $hourly_rate = $unit->boundary_rate / 24;
-                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr", $hours_driven, $hourly_rate);
+
+                            if ($request->filled('breakdown_time_in')) {
+                                $now = Carbon::parse($request->input('breakdown_time_in'));
+                            }
+
+                            if ($request->filled('hours_driven')) {
+                                $hours_driven = max(0, (float) $request->input('hours_driven'));
+                            } else {
+                                $hours_driven = max(0, $swap_time->diffInMinutes($now) / 60);
+                            }
+
+                            $base_rate = (float) $datePricing['rate'];
+                            $hourly_rate = $base_rate / 24;
+                            $rate_label = isset($datePricing['label']) ? " ({$datePricing['label']})" : "";
+                            $comp_note = sprintf("%.2f hrs x ₱%.2f/hr (Base: ₱%.2f%s)", $hours_driven, $hourly_rate, $base_rate, $rate_label);
+
+                            $early_failure_threshold = max(0.5, (float) $request->input('early_failure_max_hours', 2));
 
                             $repair_desc = $needs_maintenance_half 
                                 ? "Automatic entry: Reported broken down during boundary turnover (Half Boundary).\nComputation: " . $comp_note
-                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary).";
+                                : "Automatic entry: Reported broken down immediately upon deployment (No Boundary - {$early_failure_threshold}hr threshold).";
                             
-                            if ($needs_maintenance_zero && $hours_driven > 2) {
-                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs.";
+                            if ($needs_maintenance_zero && $hours_driven > $early_failure_threshold) {
+                                $repair_desc .= "\nNote: Driver claimed 'Free Boundary' but unit was out for " . number_format($hours_driven, 2) . " hrs (Early shift threshold: {$early_failure_threshold} hrs).";
                             }
                             
                             $dispatcher_notes = trim($request->input('notes', ''));
@@ -512,9 +524,9 @@ class BoundaryV2Controller extends Controller
                             // Auto-log to Driver Performance
                             $behavior_desc = $needs_maintenance_half
                                 ? "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs on shift."
-                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= 2 hrs).";
+                                : "Auto-logged [Breakdown]: Unit broke down immediately upon deployment (<= {$early_failure_threshold} hrs).";
                                 
-                            if ($needs_maintenance_zero && $hours_driven > 2) {
+                            if ($needs_maintenance_zero && $hours_driven > $early_failure_threshold) {
                                 $behavior_desc = "Auto-logged [Breakdown]: Unit broke down after " . number_format($hours_driven, 2) . " hrs. No boundary collected.";
                             }
 
@@ -534,12 +546,6 @@ class BoundaryV2Controller extends Controller
                     }
 
                     $damage_payment = (float) $request->input('damage_payment', 0);
-
-                    // Clean up auto-generated 'Missed Boundary' since the driver remitted
-                    \App\Models\DriverBehavior::where('driver_id', $driver_id)
-                        ->where('incident_date', $date)
-                        ->where('incident_type', 'Missed Boundary')
-                        ->delete();
 
                     $boundary = Boundary::create([
                         'unit_id'         => $unit_id,
@@ -575,7 +581,6 @@ class BoundaryV2Controller extends Controller
                             'remaining_balance'=> $shortage,
                             'charge_status'   => 'pending',
                         ]);
-                        \App\Services\NotificationService::sendBoundaryShortageNotification($driver_id, $date, $shortage);
                     }
 
                     // --- AUTOMATIC DEBT DEDUCTION LOGIC ---

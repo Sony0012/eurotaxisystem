@@ -75,62 +75,56 @@
     </div>
 
     {{-- Overall Stats Cards (TOP) --}}
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
-            <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Units</p>
-                <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black text-gray-800 whitespace-nowrap">{{ $overview['total_units'] ?? 0 }}</p>
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {{-- Total Units --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-slate-200 bg-gradient-to-br from-slate-50 to-indigo-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-slate-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Units</p>
+                <p class="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ $overview['total_units'] ?? 0 }}</p>
+                <p class="text-[9px] text-slate-500 font-bold uppercase">Active Fleet</p>
             </div>
-            <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
-                <svg viewBox="0 0 100 20" class="w-full h-full"><path d="M0 20 Q 25 15, 50 18 T 100 12 L 100 20 L 0 20 Z" fill="#64748b"/></svg>
-            </div>
+            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Units 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
-            <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-green-600">Total Boundary</p>
-                <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black text-green-600 whitespace-nowrap">{{ formatCurrency($overview['total_boundary'] ?? 0) }}</p>
-                </div>
+
+        {{-- Total Boundary --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-green-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Boundary</p>
+                <p class="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($overview['total_boundary'] ?? 0) }}</p>
+                <p class="text-[9px] text-green-600 font-bold uppercase">Gross Collections</p>
             </div>
-            <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
-                <svg viewBox="0 0 100 20" class="w-full h-full"><path d="M0 20 L 20 15 L 40 18 L 60 12 L 80 16 L 100 10 L 100 20 L 0 20 Z" fill="#22c55e"/></svg>
-            </div>
+            <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Total Boundary 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
-            <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-red-600">Total Expenses</p>
-                <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black text-red-600 whitespace-nowrap">{{ formatCurrency($overview['total_expenses'] ?? 0) }}</p>
-                </div>
+
+        {{-- Total Expenses --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-rose-200 bg-gradient-to-br from-rose-50 to-red-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Expenses</p>
+                <p class="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($overview['total_expenses'] ?? 0) }}</p>
+                <p class="text-[9px] text-rose-500 font-bold uppercase">Cost & Maintenance</p>
             </div>
-            <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
-                <svg viewBox="0 0 100 20" class="w-full h-full"><path d="M0 20 L 10 18 L 30 15 L 50 19 L 70 14 L 90 17 L 100 15 L 100 20 L 0 20 Z" fill="#ef4444"/></svg>
-            </div>
+            <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Total Expenses 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
-            <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-blue-600">Net Income</p>
-                @php $ni = $overview['net_income'] ?? 0; @endphp
-                <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black {{ $ni >= 0 ? 'text-blue-600' : 'text-red-600' }} whitespace-nowrap">{{ formatCurrency($ni) }}</p>
-                </div>
+
+        {{-- Net Income --}}
+        @php $ni = $overview['net_income'] ?? 0; @endphp
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border {{ $ni >= 0 ? 'border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50/70' : 'border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70' }} p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="{{ $ni >= 0 ? 'text-blue-600' : 'text-red-500' }} text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Net Income</p>
+                <p class="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($ni) }}</p>
+                <p class="text-[9px] {{ $ni >= 0 ? 'text-blue-500' : 'text-red-500' }} font-bold uppercase">Period Earnings</p>
             </div>
-            <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
-                <svg viewBox="0 0 100 20" class="w-full h-full"><path d="M0 20 Q 25 12, 50 15 T 100 5 L 100 20 L 0 20 Z" fill="#3b82f6"/></svg>
-            </div>
+            <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Net Income 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 card-hover overflow-hidden card-number-container relative">
-            <div class="px-2 py-4 sm:p-6 text-center relative z-10">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 text-violet-600">Avg Profit / Unit</p>
-                <div class="flex justify-center items-center h-10 sm:h-12">
-                    <p class="auto-scale-text font-black text-violet-600 whitespace-nowrap">{{ formatCurrency($overview['avg_profit'] ?? 0) }}</p>
-                </div>
+
+        {{-- Avg Profit / Unit --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50/70 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-purple-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Avg Profit / Unit</p>
+                <p class="text-slate-800 text-xl sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($overview['avg_profit'] ?? 0) }}</p>
+                <p class="text-[9px] text-purple-500 font-bold uppercase">Per Active Unit</p>
             </div>
-            <div class="absolute bottom-0 left-0 w-full h-1/2 opacity-10 pointer-events-none">
-                <svg viewBox="0 0 100 20" class="w-full h-full"><path d="M0 20 L 20 18 L 40 16 L 60 19 L 80 15 L 100 17 L 100 20 L 0 20 Z" fill="#8b5cf6"/></svg>
-            </div>
+            <img src="{{ asset('image/kpi/avg_unit_profit_3d.svg') }}" alt="Avg Profit 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
     </div>
 

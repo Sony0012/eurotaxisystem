@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface TutorialStep {
@@ -13,9 +13,11 @@ export interface TutorialStep {
 }
 
 export const MASTER_TOUR: TutorialStep[] = [
-  // ── Navigation Tabs (1 step — intro) ────────────────────────────────────────
-  { route: '/dashboard', targetId: 'nav-tab-home', title: 'Navigation Tabs', description: 'These four tabs let you switch between Home, Live Tracking, Messages, and Settings. Tap any tab to navigate instantly.', placement: 'top' },
-
+  // ── Navigation Tabs ────────────────────────────────────────
+  { route: '/dashboard', targetId: 'nav-tab-home', title: 'Home Tab', description: 'Tap here to view your dashboard, daily boundary progress, and quick access to driver tools.', placement: 'top' },
+  { route: '/dashboard', targetId: 'nav-tab-tracking', title: 'Tracking Tab', description: 'Tap here to see your vehicle\'s real-time location and today\'s driving route on the map.', placement: 'top' },
+  { route: '/dashboard', targetId: 'nav-tab-messages', title: 'Messages Tab', description: 'Need help? Tap here to chat directly with EuroTaxi management or support.', placement: 'top' },
+  { route: '/dashboard', targetId: 'nav-tab-settings', title: 'Settings Tab', description: 'Tap here to manage your driver profile, vehicle details, and app preferences.', placement: 'top' },
   // ── Dashboard (6 steps) ──────────────────────────────────────────────────────
   { route: '/dashboard', targetId: 'dash-greeting', title: 'Welcome to EuroTaxi!', description: 'This is your personal dashboard. Here you can see your daily performance at a glance.', placement: 'bottom' },
   { route: '/dashboard', targetId: 'dash-notif-btn', title: 'Notifications', description: 'Tap this bell icon to view remittance alerts, incident updates, and system messages.', placement: 'bottom' },
@@ -24,21 +26,18 @@ export const MASTER_TOUR: TutorialStep[] = [
   { route: '/dashboard', targetId: 'dash-toolbox', title: 'Driver Toolbox', description: 'Quick access to Stats, Vehicle, History, Incidents, Debts, and Announcements. Tap any icon to navigate.', placement: 'top' },
   { route: '/dashboard', targetId: 'dash-sos-btn', title: 'Emergency SOS', description: 'Press and hold this button for 3 seconds to trigger an emergency alert. Use this only in real emergencies!', placement: 'top' },
 
-  // ── Tracking (7 steps) ───────────────────────────────────────────────────────
-  { route: '/tracking', targetId: 'track-map-area', title: 'Live Map', description: 'This area shows your real-time GPS position, heading, and the exact path you have traveled today.', placement: 'center' },
+  // ── Tracking ───────────────────────────────────────────────────────
   { route: '/tracking', targetId: 'track-status-badge', title: 'GPS Status', description: 'This badge shows your current GPS state: MOVING, PARKED, or OFFLINE. The color changes automatically.', placement: 'bottom' },
   { route: '/tracking', targetId: 'track-unit-btn', title: 'Unit Info', description: 'Tap this button to view your assigned vehicle details, plate number, and current GPS coordinates.', placement: 'left' },
   { route: '/tracking', targetId: 'track-nearby-btn', title: 'Nearby Drivers', description: 'Tap this yellow button to find other EuroTaxi drivers near your location and see them on the map.', placement: 'left' },
   { route: '/tracking', targetId: 'track-crosshair', title: 'Auto-follow & Zoom', description: 'Tap this crosshair once to zoom in and auto-follow your position as you move. Tap again to unlock the map.', placement: 'top' },
-  { route: '/tracking', targetId: 'track-start-pin', title: 'Trip Start', description: 'This checkered flag marks exactly where you started your driving session today.', placement: 'top' },
 
   // ── Messages (1 step) ────────────────────────────────────────────────────────
-  { route: '/support', targetId: 'nav-tab-messages', title: 'Messages', description: 'Chat directly with EuroTaxi management here. Get support, ask questions, or receive important updates.', placement: 'top' },
+  { route: '/support', targetId: 'support-chat-input', title: 'Messages', description: 'Chat directly with EuroTaxi management here. Type your message and hit send to get support.', placement: 'top' },
 
-  // ── Debts (3 steps) ────────────────────────────────────────────────────────
-  { route: '/charges', targetId: 'charges-tabs', title: 'Debts & Incentives', description: 'Toggle between your pending accident debts and your boundary incentives.', placement: 'bottom' },
-  { route: '/charges', targetId: 'charges-month', title: 'Filter by Month', description: 'Quickly filter your financial records by month using these tabs or the date picker.', placement: 'bottom' },
-  { route: '/charges', targetId: 'charges-list', title: 'Record Details', description: 'View the specifics of each debt (balance, status) or incentive here.', placement: 'top' },
+  // ── Debts (2 steps) ────────────────────────────────────────────────────────
+  { route: '/debts', targetId: 'debts-month', title: 'Filter by Month', description: 'Quickly filter your debt records by month using these tabs or the date picker.', placement: 'bottom' },
+  { route: '/debts', targetId: 'debts-list', title: 'Record Details', description: 'View the specifics of each debt, including balance and status, here.', placement: 'top' },
 
   // ── Performance (2 steps) ────────────────────────────────────────────────────
   { route: '/performance', targetId: 'perf-chart', title: 'Performance Trends', description: 'This chart visually tracks your boundary remittances over the past week compared to your target.', placement: 'bottom' },
@@ -50,7 +49,7 @@ export const MASTER_TOUR: TutorialStep[] = [
 
   // ── Settings (2 steps) ───────────────────────────────────────────────────────
   { route: '/settings', targetId: 'settings-profile', title: 'Driver Profile', description: 'Your personal info, license, and assigned vehicle details are stored here.', placement: 'bottom' },
-  { route: '/settings', targetId: 'settings-replay', title: 'Replay Tour', description: 'You can tap here to replay this guided tour at any time!', placement: 'bottom' },
+  { route: '/settings', targetId: 'settings-replay-tut', title: 'Replay Tour', description: 'You can tap here to replay this guided tour at any time!', placement: 'bottom' },
 ];
 
 interface TutorialContextValue {
@@ -66,13 +65,32 @@ interface TutorialContextValue {
 }
 
 const STORAGE_KEY = 'eurotaxi_tutorial_done';
+const STEP_KEY = 'eurotaxi_tutorial_step';
+const ACTIVE_KEY = 'eurotaxi_tutorial_active';
 
 // ── Context ──────────────────────────────────────────────────────────────────
 const TutorialContext = createContext<TutorialContextValue | null>(null);
 
 export const TutorialProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isActive, setIsActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  // On mount, restore saved tutorial state (survives page reloads from forced navigation)
+  const [isActive, setIsActive] = useState(() => {
+    return localStorage.getItem(ACTIVE_KEY) === 'true';
+  });
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = localStorage.getItem(STEP_KEY);
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  // Persist tutorial state to localStorage whenever it changes
+  useEffect(() => {
+    if (isActive) {
+      localStorage.setItem(ACTIVE_KEY, 'true');
+      localStorage.setItem(STEP_KEY, String(currentStep));
+    } else {
+      localStorage.removeItem(ACTIVE_KEY);
+      localStorage.removeItem(STEP_KEY);
+    }
+  }, [isActive, currentStep]);
 
   const hasCompletedBefore = useCallback(() => {
     return localStorage.getItem(STORAGE_KEY) === 'true';

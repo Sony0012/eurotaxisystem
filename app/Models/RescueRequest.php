@@ -16,8 +16,6 @@ class RescueRequest extends Model
         'driver_id',
         'unit_id',
         'type',
-        'accident_type',
-        'description',
         'latitude',
         'longitude',
         'status',

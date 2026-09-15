@@ -91,14 +91,14 @@
                     </div>
                 </div>
 
-                <!-- Status Filter: spans 1 column on mobile, w-full lg:w-44 on desktop -->
-                <div class="col-span-1 lg:w-44 order-3 flex-shrink-0">
+                <!-- Status Filter: spans 1 column on mobile, w-full lg:w-52 on desktop -->
+                <div class="col-span-1 lg:w-52 order-3 flex-shrink-0">
                     <select name="status" onchange="this.form.submit()"
-                        class="block w-full px-3 py-2 lg:h-[38px] border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                        <option value="">All Status</option>
-                        <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only</option>
-                        <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
-                        <option value="no_unit" {{ ($status_filter ?? '') === 'no_unit' ? 'selected' : '' }}>Available (No Unit)</option>
+                        class="block w-full px-3 py-2 lg:h-[38px] border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none font-medium">
+                        <option value="">All Status ({{ $status_counts['all'] ?? 0 }})</option>
+                        <option value="active" {{ ($status_filter ?? '') === 'active' ? 'selected' : '' }}>Active Only ({{ $status_counts['active'] ?? 0 }})</option>
+                        <option value="inactive" {{ ($status_filter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only ({{ $status_counts['inactive'] ?? 0 }})</option>
+                        <option value="no_unit" {{ ($status_filter ?? '') === 'no_unit' ? 'selected' : '' }}>Available (No Unit) ({{ $status_counts['no_unit'] ?? 0 }})</option>
                     </select>
                 </div>
 
@@ -112,7 +112,11 @@
                         display: none;
                     }
                 </style>
-                <button type="button" onclick="openAddDriverModal()" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[150px]">
+                <button type="button" onclick="printInHiddenIframe('{{ route('driver-management.print') }}')"
+                    class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
+                </button>
+                <button type="button" onclick="openAddDriverModal()" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Driver
                 </button>
             </div>
@@ -156,7 +160,7 @@
                 <div class="p-6 flex-1 overflow-y-auto space-y-8">
 
                     {{-- Section 1: Personal Information --}}
-                    <div>
+                    <div id="addDriverSecPersonal">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-blue-100 rounded-lg">
                                 <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
@@ -241,7 +245,7 @@
                     </div>
 
                     {{-- Section 2: License & Employment --}}
-                    <div>
+                    <div id="addDriverSecLicense">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-yellow-100 rounded-lg">
                                 <i data-lucide="credit-card" class="w-5 h-5 text-yellow-600"></i>
@@ -312,7 +316,7 @@
                         </div>
 
                         {{-- Optional Documents Upload --}}
-                        <div class="mt-6 border-t border-gray-100 pt-6">
+                        <div id="addDriverSecVault" class="mt-6 border-t border-gray-100 pt-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <div class="p-2 bg-blue-100 rounded-lg">
                                     <i data-lucide="folder-open" class="w-5 h-5 text-blue-600"></i>
@@ -388,7 +392,7 @@
                     </div>
 
                     {{-- Section 3: Emergency Contact --}}
-                    <div>
+                    <div id="addDriverSecEmergency">
                         <div class="flex items-center gap-2 mb-4">
                             <div class="p-2 bg-red-100 rounded-lg">
                                 <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
@@ -432,7 +436,7 @@
                 </div>{{-- End Scrollable Content --}}
 
                 {{-- Fixed Footer --}}
-                <div class="p-4 border-t flex justify-between items-center gap-3 shadow-inner bg-gray-50 shrink-0">
+                <div id="addDriverSecActions" class="p-4 border-t flex justify-between items-center gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" id="deleteDriverButton" onclick="confirmDeleteDriver()"
                         class="hidden px-5 py-2 bg-orange-100 text-orange-700 border border-orange-200 rounded-lg hover:bg-orange-200 text-sm font-bold transition-all flex items-center gap-2">
                         <i data-lucide="archive" class="w-4 h-4"></i> Archive Driver
@@ -826,4 +830,56 @@
             <img id="previewModalImage" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
         </div>
     </div>
+
+    <!-- Print PDF Tutorial Preview Modal for Driver Management -->
+    <div id="driverPrintPdfModal" class="hidden fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border border-gray-200">
+            <div class="bg-blue-600 px-6 py-4 flex items-center justify-between text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 rounded-lg">
+                        <i data-lucide="printer" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">Driver Management Roster PDF Preview</h3>
+                        <p class="text-xs text-blue-100">Live generated Driver PDF report document</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeDriverPdfPreview()" class="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <iframe id="driverPdfIframe" class="w-full flex-1 border-0" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openDriverPdfPreview() {
+            const modal = document.getElementById('driverPrintPdfModal');
+            const iframe = document.getElementById('driverPdfIframe');
+            if (modal && iframe) {
+                if (typeof window.generateStaticDriverTutorialPdfReport === 'function') {
+                    iframe.srcdoc = window.generateStaticDriverTutorialPdfReport();
+                } else {
+                    iframe.src = "{{ route('driver-management.print') }}?preview=1";
+                }
+                modal.classList.remove('hidden');
+                modal.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+            }
+        }
+        function closeDriverPdfPreview() {
+            const modal = document.getElementById('driverPrintPdfModal');
+            const iframe = document.getElementById('driverPdfIframe');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.15s ease';
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+                    if (iframe) iframe.src = "about:blank";
+                }, 150);
+            }
+        }
+        window.openDriverPdfPreview = openDriverPdfPreview;
+        window.closeDriverPdfPreview = closeDriverPdfPreview;
+    </script>
 @endsection

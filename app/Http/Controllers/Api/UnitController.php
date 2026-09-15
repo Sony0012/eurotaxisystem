@@ -89,7 +89,7 @@ class UnitController extends Controller
                 ->where('unit_id', $u->id)
                 ->whereNull('deleted_at')
                 ->whereIn('status', ['paid', 'excess', 'shortage'])
-                ->sum('actual_boundary');
+                ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)'));
 
             $maintenanceCost = (float) DB::table('maintenance')
                 ->where('unit_id', $u->id)
@@ -233,7 +233,7 @@ class UnitController extends Controller
         }
 
         // ROI Logic Sync with Web Dashboard
-        $revenue    = (float) DB::table('boundaries')->where('unit_id',$id)->whereNull('deleted_at')->whereIn('status',['paid','excess','shortage'])->sum('actual_boundary');
+        $revenue    = (float) DB::table('boundaries')->where('unit_id',$id)->whereNull('deleted_at')->whereIn('status',['paid','excess','shortage'])->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)'));
         
         // "Avg Monthly Revenue" in the web actually refers to the CURRENT month's boundary collection
         $monthly    = (float) DB::table('boundaries')
@@ -242,7 +242,7 @@ class UnitController extends Controller
                         ->whereIn('status', ['paid', 'excess', 'shortage'])
                         ->whereMonth('date', now()->month)
                         ->whereYear('date', now()->year)
-                        ->sum('actual_boundary');
+                        ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)'));
 
         $maintCost  = (float) DB::table('maintenance')->where('unit_id',$id)->whereNull('deleted_at')->where('status','!=','cancelled')->sum('cost');
         

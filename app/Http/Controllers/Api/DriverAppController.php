@@ -677,11 +677,31 @@ class DriverAppController extends Controller
             ->where('is_read', false)
             ->count();
 
+        // Fetch daily track points from Tracksolid
+        $trackPoints = [];
+        if ($unit && $unit->imei && !$request->has('skip_gps')) {
+            try {
+                $beginTime = Carbon::now('Asia/Manila')->startOfDay()->timezone('UTC')->format('Y-m-d H:i:s');
+                $endTime = Carbon::now('Asia/Manila')->timezone('UTC')->format('Y-m-d H:i:s');
+                $trackData = $this->tracksolid->getTrackList($unit->imei, $beginTime, $endTime);
+                if (is_array($trackData)) {
+                    foreach ($trackData as $point) {
+                        if (isset($point['lat']) && isset($point['lng'])) {
+                            $trackPoints[] = [(float)$point['lat'], (float)$point['lng']];
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Failed to fetch track points for unit {$unit->plate_number}: " . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
                 'unread_support_messages' => $unread_support_messages,
                 'has_unit' => $unit ? true : false,
+                'path' => $trackPoints,
                 'driver_name' => $driver->first_name . ' ' . $driver->last_name,
                 'unit' => ($unit ? ($unit->make ? $unit->make . ' ' : '') . $unit->model . ' (' . $unit->plate_number . ')' : 'No Unit'),
                 'plate_number' => $unit ? $unit->plate_number : '',

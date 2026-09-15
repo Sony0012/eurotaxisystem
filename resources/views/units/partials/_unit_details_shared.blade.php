@@ -1,5 +1,5 @@
     {{-- Unit Details Modal --}}
-    <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+    <div id="unitDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm" onclick="if(event.target === this) closeUnitDetailsModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden animate-fade-in">
             {{-- Modal Header (Deep Navy matching login page) --}}
             <div class="bg-slate-800 p-3 sm:p-4 shrink-0">
@@ -13,8 +13,8 @@
                             <p class="text-[10px] sm:text-sm text-slate-300 leading-tight mt-0.5">Complete unit information and management</p>
                         </div>
                     </div>
-                    <button onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200 transition-colors p-1 bg-white bg-opacity-5 hover:bg-opacity-10 rounded-lg">
-                        <i data-lucide="x" class="w-4.5 h-4.5 sm:w-5 sm:h-5"></i>
+                    <button type="button" onclick="closeUnitDetailsModal()" class="text-white hover:text-gray-200 transition-colors p-1.5 bg-white/10 hover:bg-white/20 rounded-lg cursor-pointer flex items-center justify-center">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
@@ -37,9 +37,201 @@
         // =============================================
         let currentViewUnitId = null;
 
+        function renderMockUnitDetails(id) {
+            const mockUnit = (window.TutorialStaticData && window.TutorialStaticData.units && window.TutorialStaticData.units[0]) ? window.TutorialStaticData.units[0] : {
+                plate_number: 'AAK 9196',
+                status: 'active',
+                unit_type: 'New',
+                make: 'Toyota',
+                model: 'Vios',
+                year: 2015,
+                boundary_rate: 1000.00
+            };
+
+            document.getElementById('unitDetailsContent').innerHTML = `
+            <div class="space-y-4 sm:space-y-6">
+                <!-- Unit Summary Card (Top) -->
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-4 sm:p-6 rounded-2xl text-white shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="p-2.5 sm:p-3 bg-white bg-opacity-10 rounded-xl">
+                                <i data-lucide="car" class="w-6 h-6 sm:w-8 sm:h-8 text-white"></i>
+                            </div>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-1.5 sm:gap-3 mb-1">
+                                    <h3 class="text-base sm:text-2xl font-black tracking-tight leading-none">${mockUnit.plate_number || 'AAK 9196'}</h3>
+                                    <span class="px-2 py-0.5 bg-green-500 text-white rounded text-[9px] font-bold uppercase tracking-wider">ACTIVE</span>
+                                    <span class="px-2 py-0.5 bg-white bg-opacity-10 rounded text-[9px] font-bold uppercase tracking-wider">${mockUnit.unit_type || 'New'}</span>
+                                </div>
+                                <p class="text-slate-300 text-xs font-semibold">${(mockUnit.make || 'Toyota') + ' ' + (mockUnit.model || 'Vios') + ' (' + (mockUnit.year || '2015') + ')'}</p>
+                            </div>
+                        </div>
+                        <div class="sm:text-right flex sm:flex-col justify-between items-center sm:items-end bg-white bg-opacity-5 p-2.5 rounded-xl sm:p-0 sm:bg-transparent">
+                            <p class="text-slate-400 text-[9px] font-black uppercase tracking-widest sm:hidden">Daily Boundary Rate</p>
+                            <div class="text-right">
+                                <div class="text-base sm:text-2xl font-black text-blue-400 sm:text-white">₱${parseFloat(mockUnit.boundary_rate || 1000).toLocaleString('en-PH', {minimumFractionDigits:2})}</div>
+                                <p class="text-slate-300 text-[10px] sm:text-xs font-bold hidden sm:block">Daily Boundary Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swipeable Tabs Navigation -->
+                <div class="border-b border-gray-200">
+                    <div class="overflow-x-auto scrollbar-none" style="-webkit-overflow-scrolling: touch;">
+                        <nav class="-mb-px flex space-x-1 min-w-max px-1">
+                            <button onclick="showTab('overview')" class="tab-btn py-3 px-3.5 border-b-2 border-blue-600 font-black text-[10px] uppercase tracking-widest text-blue-600 transition-all duration-200 whitespace-nowrap" data-tab="overview">Overview</button>
+                            <button onclick="showTab('drivers')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="drivers">Drivers</button>
+                            <button onclick="showTab('coding')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="coding">Coding</button>
+                            <button onclick="showTab('boundary')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="boundary">Boundary</button>
+                            <button onclick="showTab('maintenance')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="maintenance">Maintenance</button>
+                            <button onclick="showTab('roi')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="roi">ROI</button>
+                            <button onclick="showTab('location')" class="tab-btn py-3 px-3.5 border-b-2 border-transparent font-black text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-all duration-200 whitespace-nowrap" data-tab="location">Location</button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Tab Content Area -->
+                <div id="tabContent" class="min-h-[250px]">
+                    <!-- 1. Overview Tab -->
+                    <div id="overview-tab" class="tab-content">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Primary Driver</div>
+                                <div class="text-sm font-bold text-gray-900">Ria Jane Perocho</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Status</div>
+                                <div class="text-sm font-bold text-green-600">Active (On Road)</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Daily Target</div>
+                                <div class="text-sm font-bold text-gray-900">₱1,000.00</div>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="text-xs text-gray-500 font-semibold mb-1">Coding Day</div>
+                                <div class="text-sm font-bold text-blue-600">Tuesday</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Drivers Tab -->
+                    <div id="drivers-tab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Day Shift (D1)</span>
+                                    <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-bold">Active</span>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-900">Ria Jane Perocho</h4>
+                                <p class="text-xs text-gray-500 mt-1">License: N02-14-98401</p>
+                                <p class="text-xs text-gray-500">Contact: 0917-882-9901</p>
+                            </div>
+                            <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Night Shift (D2)</span>
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-bold">Unassigned</span>
+                                </div>
+                                <h4 class="text-base font-bold text-gray-400">No Secondary Driver</h4>
+                                <p class="text-xs text-gray-400 mt-1">Ready for driver assignment</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Coding Tab -->
+                    <div id="coding-tab" class="tab-content hidden">
+                        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="p-2 bg-blue-600 text-white rounded-lg">
+                                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900">MMDA Number Coding Schedule</h4>
+                                    <p class="text-xs text-gray-600">Restricted on Tuesday (Plate ends in 6)</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4 text-xs">
+                                <div><span class="text-gray-500 font-semibold">Restriction Day:</span> <span class="font-bold text-gray-900">Tuesday</span></div>
+                                <div><span class="text-gray-500 font-semibold">Hours:</span> <span class="font-bold text-gray-900">7:00 AM - 8:00 PM</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Boundary Tab -->
+                    <div id="boundary-tab" class="tab-content hidden">
+                        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 font-bold text-xs uppercase tracking-wider text-gray-700">Recent Boundary Collections</div>
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-gray-50 text-gray-500">
+                                    <tr><th class="p-3">Date</th><th class="p-3">Driver</th><th class="p-3 text-right">Amount</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr><td class="p-3 font-medium">2026-08-11</td><td class="p-3">Ria Jane Perocho</td><td class="p-3 text-right font-bold text-green-600">₱1,000.00</td></tr>
+                                    <tr><td class="p-3 font-medium">2026-08-10</td><td class="p-3">Ria Jane Perocho</td><td class="p-3 text-right font-bold text-green-600">₱1,000.00</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 5. Maintenance Tab -->
+                    <div id="maintenance-tab" class="tab-content hidden">
+                        <div class="space-y-3">
+                            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-bold uppercase">Oil Change</span>
+                                        <h4 class="font-bold text-gray-900 text-sm mt-1">5,000 KM Periodic Maintenance Service</h4>
+                                    </div>
+                                    <span class="font-bold text-xs text-gray-900">₱2,450.00</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Mechanic: Jun Mechanic | Completed at 4,800 KM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. ROI Tab -->
+                    <div id="roi-tab" class="tab-content hidden">
+                        <div class="bg-gradient-to-r from-emerald-700 to-teal-800 p-5 rounded-2xl text-white shadow-md">
+                            <h4 class="text-xs uppercase font-bold text-emerald-200 tracking-wider">Financial Return on Investment</h4>
+                            <div class="text-3xl font-black mt-1">100.0%</div>
+                            <p class="text-xs text-emerald-100 mt-2">Strong revenue generator covering boundary target rates consistently.</p>
+                        </div>
+                    </div>
+
+                    <!-- 7. Location Tab -->
+                    <div id="location-tab" class="tab-content hidden">
+                        <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+                                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">GPS Tracking Device (IMEI: 8649020491823)</h4>
+                                    <p class="text-xs text-slate-400">Live Status: Online | Location: Quezon City, Metro Manila</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         function viewUnitDetails(id) {
             currentViewUnitId = id;
-            document.getElementById('unitDetailsModal').classList.remove('hidden');
+            const modal = document.getElementById('unitDetailsModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('z-index', '100005', 'important');
+            }
+
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (isTutorialActive) {
+                renderMockUnitDetails(id);
+                return;
+            }
 
             // Show loading state inside content div (same as backup)
             document.getElementById('unitDetailsContent').innerHTML = `
@@ -109,10 +301,17 @@
                 let driversOverviewHtml = '';
                 if (assignedDrivers.length > 0) {
                     assignedDrivers.forEach(d => {
-                        driversOverviewHtml += `<div class="bg-gray-50 p-3 rounded">
-                            <div class="font-medium">${d.full_name || ''}</div>
-                            <div class="text-sm text-gray-600">${d.license_number || ''}</div>
-                            <div class="text-sm text-gray-600">Contact: ${d.contact_number || 'N/A'}</div>
+                        const avatarSrc = d.profile_photo_url || (d.profile_photo ? (d.profile_photo.startsWith('http') ? d.profile_photo : `/${d.profile_photo.replace(/^\//, '')}`) : '/image/avatars/driver.svg');
+                        const safeName = (d.full_name || 'Driver').trim();
+
+                        driversOverviewHtml += `<div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center gap-3">
+                            <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs group" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${avatarSrc}'); }" title="Click to view profile photo">
+                                <img src="${avatarSrc}" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='/image/avatars/driver.svg';">
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-sm text-gray-900 truncate">${safeName}</div>
+                                <div class="text-xs text-gray-500 truncate">${d.license_number || ''} • Contact: ${d.contact_number || 'N/A'}</div>
+                            </div>
                         </div>`;
                     });
                 }
@@ -120,26 +319,34 @@
                 let driversTabHtml = '';
                 if (assignedDrivers.length > 0) {
                     assignedDrivers.forEach(d => {
-                        driversTabHtml += `<div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h5 class="font-semibold text-gray-900">${d.full_name || ''}</h5>
-                                    <p class="text-sm text-gray-600">License: ${d.license_number || ''}</p>
-                                    <p class="text-sm text-gray-600">Contact: ${d.contact_number || 'N/A'}</p>
+                        const avatarSrc = d.profile_photo_url || (d.profile_photo ? (d.profile_photo.startsWith('http') ? d.profile_photo : `/${d.profile_photo.replace(/^\//, '')}`) : '/image/avatars/driver.svg');
+                        const safeName = (d.full_name || 'Driver').trim();
+
+                        driversTabHtml += `<div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 sm:p-6 shadow-xs hover:border-blue-200 transition-colors">
+                            <div class="flex items-center justify-between pb-4 border-b border-gray-200/60">
+                                <div class="flex items-center gap-3.5 sm:gap-4">
+                                    <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 flex-shrink-0 cursor-pointer shadow-xs group" onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${avatarSrc}'); }" title="Click to view full profile photo">
+                                        <img src="${avatarSrc}" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='/image/avatars/driver.svg';">
+                                    </div>
+                                    <div>
+                                        <h5 class="font-black text-base sm:text-lg text-gray-900 leading-tight">${safeName}</h5>
+                                        <p class="text-xs text-gray-500 font-bold uppercase tracking-tight mt-1">License: ${d.license_number || 'N/A'}</p>
+                                        <p class="text-xs text-gray-500 font-medium">Contact: ${d.contact_number || 'N/A'}</p>
+                                    </div>
                                 </div>
-                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800 uppercase tracking-tight">Active</span>
                             </div>
-                            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div><span class="text-gray-600">License Number:</span><p class="font-medium">${d.license_number || 'N/A'}</p></div>
-                                <div><span class="text-gray-600">Contact:</span><p class="font-medium">${d.contact_number || 'N/A'}</p></div>
-                                <div><span class="text-gray-600">Daily Target:</span><p class="font-medium">₱${parseFloat(d.daily_boundary_target || 1100).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
-                                <div><span class="text-gray-600">Hire Date:</span><p class="font-medium">${d.hire_date || 'Not set'}</p></div>
-                                <div><span class="text-gray-600">License Expiry:</span><p class="font-medium">${d.license_expiry || 'Not set'}</p></div>
+                            <div class="mt-4 grid grid-cols-2 gap-3.5 text-xs">
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">License Number:</span><p class="font-bold text-gray-900">${d.license_number || 'N/A'}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Contact:</span><p class="font-bold text-gray-900">${d.contact_number || 'N/A'}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Daily Target:</span><p class="font-bold text-blue-600">₱${parseFloat(d.daily_boundary_target || 1100).toLocaleString('en-PH', {minimumFractionDigits:2})}</p></div>
+                                <div><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">Hire Date:</span><p class="font-bold text-gray-900">${d.hire_date || 'Not set'}</p></div>
+                                <div class="col-span-2 sm:col-span-1"><span class="text-gray-400 uppercase font-black tracking-widest text-[10px] block mb-0.5">License Expiry:</span><p class="font-bold text-gray-900">${d.license_expiry || 'Not set'}</p></div>
                             </div>
                         </div>`;
                     });
                 } else {
-                    driversTabHtml = `<div class="text-center py-8 text-gray-500"><i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i><p>No drivers assigned to this unit</p></div>`;
+                    driversTabHtml = `<div class="text-center py-8 text-gray-500 col-span-2"><i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i><p>No drivers assigned to this unit</p></div>`;
                 }
 
                 let boundaryRowsHtml = '';
@@ -345,29 +552,88 @@
                         <!-- Overview Tab -->
                         <div id="overview-tab" class="tab-content animate-in fade-in duration-300">
                             <!-- Quick Stats Grid -->
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-blue-50 rounded-xl"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Drivers</p><p class="text-xl font-black text-gray-900">${assignedDrivers.length}/2</p></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <!-- Card 1: Drivers -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-indigo-50/30 to-blue-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Assigned Drivers
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                                ${assignedDrivers.length} / 2
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${assignedDrivers.length > 0 ? 'text-indigo-600' : 'text-slate-400'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${assignedDrivers.length > 0 ? 'bg-indigo-500' : 'bg-slate-300'}"></span>
+                                                <span>${assignedDrivers.length === 2 ? 'Fully Staffed' : assignedDrivers.length === 1 ? 'Single Shift' : 'No Driver'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/drivers_3d.svg") }}" alt="Drivers" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-green-50 rounded-xl"><i data-lucide="calendar" class="w-5 h-5 text-green-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Next Coding</p><p class="text-xl font-black text-gray-900">${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}</p></div>
+
+                                <!-- Card 2: Next Coding -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Next Coding
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black ${daysUntilCoding === 0 ? 'text-amber-600' : 'text-slate-900'} leading-tight tracking-tight tabular-nums truncate">
+                                                ${daysUntilCoding === 0 ? 'Today' : daysUntilCoding + 'd'}
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${daysUntilCoding === 0 ? 'text-amber-600' : 'text-purple-600'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${daysUntilCoding === 0 ? 'bg-amber-500' : 'bg-purple-500'}"></span>
+                                                <span>${daysUntilCoding === 0 ? 'Restricted Today' : 'Schedule Standby'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/coding_3d.svg") }}" alt="Coding" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-purple-50 rounded-xl"><i data-lucide="trending-up" class="w-5 h-5 text-purple-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">ROI</p><p class="text-xl font-black text-gray-900">${roiPct.toFixed(1)}%</p></div>
+
+                                <!-- Card 3: ROI -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Unit ROI
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-tight tracking-tight tabular-nums truncate">
+                                                ${roiPct.toFixed(1)}%
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold text-emerald-600">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                <span>Capital Return</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/profit_3d.svg") }}" alt="ROI" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                                    <div class="flex items-center gap-4">
-                                        <div class="p-2.5 bg-orange-50 rounded-xl"><i data-lucide="wrench" class="w-5 h-5 text-orange-600"></i></div>
-                                        <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Maint Jobs</p><p class="text-xl font-black text-gray-900">${maint.length}</p></div>
+
+                                <!-- Card 4: Maint Jobs -->
+                                <div class="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-orange-50/30 to-amber-50/20 p-4 sm:p-5 shadow-xs">
+                                    <div class="flex items-center justify-between gap-3 relative z-10">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                                Maint Jobs
+                                            </span>
+                                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight tabular-nums truncate">
+                                                ${maint.length}
+                                            </div>
+                                            <div class="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold ${maint.length > 0 ? 'text-orange-600' : 'text-slate-400'}">
+                                                <span class="inline-flex h-1.5 w-1.5 rounded-full ${maint.length > 0 ? 'bg-orange-500' : 'bg-slate-300'}"></span>
+                                                <span>${maint.length > 0 ? 'Logged Records' : 'Zero Service Jobs'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+                                            <img src="{{ asset("image/kpi/maint_ongoing_3d.svg") }}" alt="Maintenance" class="w-full h-full object-contain filter drop-shadow-md">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -402,7 +668,7 @@
                                             <span class="text-gray-400 font-bold uppercase text-[10px] tracking-tight">Status</span>
                                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${assignedDrivers.length >= 2 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}">${assignedDrivers.length >= 2 ? 'Full' : 'Available'}</span>
                                         </div>
-                                        ${driversOverviewHtml ? '<div class="space-y-3">' + driversOverviewHtml.replace(/bg-gray-50/g, 'bg-gray-50 border border-gray-100 rounded-xl p-4') + '</div>' : `
+                                        ${driversOverviewHtml ? '<div class="space-y-3">' + driversOverviewHtml + '</div>' : `
                                             <div class="text-center py-10">
                                                 <div class="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
                                                     <i data-lucide="user-x" class="w-6 h-6 text-gray-300"></i>
@@ -422,7 +688,7 @@
                                     <i data-lucide="users" class="w-5 h-5 text-blue-600"></i> Assigned Drivers Details
                                 </h4>
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    ${driversTabHtml.replace(/border border-gray-200/g, 'bg-gray-50 border border-gray-100 shadow-sm').replace(/p-4/g, 'p-6').replace(/rounded-lg/g, 'rounded-2xl')}
+                                    ${driversTabHtml}
                                 </div>
                             </div>
                         </div>
@@ -776,8 +1042,21 @@
         }
 
         function closeUnitDetailsModal() {
-            document.getElementById('unitDetailsModal').classList.add('hidden');
+            const modal = document.getElementById('unitDetailsModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.setProperty('display', 'none', 'important');
+            }
         }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                const modal = document.getElementById('unitDetailsModal');
+                if (modal && !modal.classList.contains('hidden') && modal.style.display !== 'none') {
+                    closeUnitDetailsModal();
+                }
+            }
+        });
 
         function toggleBndHistoryRemarks(idx) {
             if (window.innerWidth >= 640) {

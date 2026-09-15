@@ -20,6 +20,8 @@ trait CalculatesBoundary
         $year = (int) data_get($unit_data, 'year', data_get($unit_data, 'assigned_unit_year', 0));
         $customRate = (float) data_get($unit_data, 'boundary_rate', data_get($unit_data, 'daily_boundary_target', 0));
         $plate = data_get($unit_data, 'plate_number');
+        $unit_type = strtolower(trim((string) (data_get($unit_data, 'unit_type') ?: data_get($unit_data, 'assigned_unit_type', ''))));
+        $is_hulog = str_contains($unit_type, 'hulog');
         
         $coding_day = data_get($unit_data, 'coding_day', data_get($unit_data, 'assigned_coding_day'));
         if (!$coding_day && $plate) {
@@ -30,13 +32,42 @@ trait CalculatesBoundary
         $dayName = date('l', $timestamp);
         $is_coding = $coding_day && (strtolower($dayName) === strtolower($coding_day));
         
-        // Find matching rule by year
-        $rule = $rules->where('start_year', '<=', $year)->where('end_year', '>=', $year)->first();
+        // Smart rule matching:
+        // If unit is Boundary Hulog, prioritize rule containing 'hulog'
+        $rule = null;
+        if ($is_hulog) {
+            $rule = $rules->first(function($r) use ($year) {
+                $name = strtolower($r->name ?? '');
+                return str_contains($name, 'hulog') && ($year === 0 || ($r->start_year <= $year && $r->end_year >= $year));
+            });
+            if (!$rule) {
+                $rule = $rules->first(function($r) {
+                    return str_contains(strtolower($r->name ?? ''), 'hulog');
+                });
+            }
+        }
         
-        // Base rate priority: Custom -> Rule -> Default
-        $base = $customRate > 0 ? $customRate : ($rule ? (float)$rule->regular_rate : 1100);
+        // Non-hulog or fallback rule: Match by year range, EXCLUDING hulog rules for regular units
+        if (!$rule) {
+            $rule = $rules->first(function($r) use ($year, $is_hulog) {
+                $name = strtolower($r->name ?? '');
+                if (!$is_hulog && str_contains($name, 'hulog')) {
+                    return false;
+                }
+                return ($r->start_year <= $year && $r->end_year >= $year);
+            });
+        }
+        
+        // Base rate priority:
+        if ($is_hulog && $rule) {
+            // For Boundary Hulog, lock to bracket regular_rate if customRate is unset or default 1100
+            $base = ($customRate > 0 && $customRate != 1100) ? $customRate : (float) $rule->regular_rate;
+        } else {
+            $base = $customRate > 0 ? $customRate : ($rule ? (float)$rule->regular_rate : 1100);
+        }
+        
         $final = $base;
-        $label = 'Regular Rate';
+        $label = $is_hulog ? ($rule->name ?? 'Boundary Hulog') : 'Regular Rate';
         $type = 'regular';
 
         if ($is_coding) {
@@ -45,17 +76,17 @@ trait CalculatesBoundary
             } else {
                 $final = $base / 2;
             }
-            $label = 'Coding Rate';
+            $label = $is_hulog ? 'Boundary Hulog Coding' : 'Coding Rate';
             $type = 'coding';
         } elseif ($dayName === 'Saturday') {
             $discount = $rule ? (float)$rule->sat_discount : 100;
             $final = $base - $discount;
-            $label = 'Saturday Discount';
+            $label = $is_hulog ? 'Boundary Hulog Sat Discount' : 'Saturday Discount';
             $type = 'discount';
         } elseif ($dayName === 'Sunday') {
             $discount = $rule ? (float)$rule->sun_discount : 200;
             $final = $base - $discount;
-            $label = 'Sunday Discount';
+            $label = $is_hulog ? 'Boundary Hulog Sun Discount' : 'Sunday Discount';
             $type = 'discount';
         }
 
@@ -64,7 +95,9 @@ trait CalculatesBoundary
             'label' => $label,
             'type' => $type,
             'base' => $base,
-            'coding_day' => $coding_day
+            'coding_day' => $coding_day,
+            'unit_type' => $unit_type,
+            'rule_name' => $rule->name ?? null
         ];
     }
 

@@ -9,74 +9,59 @@
     {{-- Statistics Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
         {{-- Today --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Total Today</p>
-                    <i data-lucide="clock" class="h-4 w-4 text-orange-500"></i>
-                </div>
-                <h3 id="statToday" class="text-base sm:text-lg font-black text-orange-600 truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</h3>
-                <div class="flex items-center gap-1 mt-1">
-                    <span class="w-1 h-1 rounded-full bg-orange-400 animate-pulse"></span>
-                    <p class="text-[9px] text-gray-400 font-bold uppercase transition-colors group-hover:text-orange-500">Live</p>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/70 p-4 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-orange-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Total Today</p>
+                <h3 id="statToday" class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($stats['today'] ?? 0) }}</h3>
+                <div class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                    <p class="text-[9px] text-orange-600 font-bold uppercase">Live</p>
                 </div>
             </div>
+            <img src="{{ asset('image/kpi/expense_today_3d.svg') }}" alt="Total Today 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
 
         {{-- This Month --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">This Month</p>
-                    <i data-lucide="calendar-days" class="h-4 w-4 text-red-500"></i>
-                </div>
-                <h3 id="statThisMonth" class="text-base sm:text-lg font-black text-red-600 truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1 transition-colors group-hover:text-red-500">M-T-D</p>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70 p-4 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">This Month</p>
+                <h3 id="statThisMonth" class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($stats['this_month'] ?? 0) }}</h3>
+                <p class="text-[9px] text-red-500 font-bold uppercase">M-T-D</p>
             </div>
+            <img src="{{ asset('image/kpi/expense_month_3d.svg') }}" alt="This Month 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
 
         {{-- Last Month --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-gray-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Last Month</p>
-                    <i data-lucide="history" class="h-4 w-4 text-gray-400"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-gray-600 truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Previous</p>
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-slate-200 bg-gradient-to-br from-slate-50 to-gray-100/80 p-4 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-slate-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Last Month</p>
+                <h3 class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ formatCurrency($stats['last_month'] ?? 0) }}</h3>
+                <p class="text-[9px] text-slate-400 font-bold uppercase">Previous</p>
             </div>
+            <img src="{{ asset('image/kpi/expense_last_3d.svg') }}" alt="Last Month 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
 
-        {{-- Monthly Change --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            @php $change = $stats['monthly_change'] ?? 0; @endphp
-            <div class="absolute top-0 right-0 w-16 h-16 {{ $change < 0 ? 'bg-green-50' : 'bg-rose-50' }} rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">Trend</p>
-                    <i data-lucide="{{ $change < 0 ? 'trending-down' : 'trending-up' }}" class="h-4 w-4 {{ $change < 0 ? 'text-green-500' : 'text-rose-500' }}"></i>
-                </div>
-                <h3 class="text-base sm:text-lg font-black {{ $change < 0 ? 'text-green-600' : 'text-rose-600' }} truncate">
+        {{-- Monthly Change / Trend --}}
+        @php $change = $stats['monthly_change'] ?? 0; @endphp
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border {{ $change < 0 ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50/70' : 'border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50/70' }} p-4 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="{{ $change < 0 ? 'text-emerald-600' : 'text-rose-500' }} text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">Trend</p>
+                <h3 class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate">
                     {{ $change > 0 ? '+' : '' }}{{ formatCurrency(abs($change)) }}
                 </h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">{{ $change < 0 ? 'Saved' : 'Added' }}</p>
+                <p class="text-[9px] {{ $change < 0 ? 'text-emerald-600' : 'text-rose-500' }} font-bold uppercase">{{ $change < 0 ? 'Saved' : 'Added' }}</p>
             </div>
+            <img src="{{ asset('image/kpi/expense_trend_3d.svg') }}" alt="Trend 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
 
-        {{-- Total Records --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-hover relative overflow-hidden group min-w-0">
-            <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-50 rounded-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
-            <div class="relative">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider truncate">History</p>
-                    <i data-lucide="layers" class="h-4 w-4 text-yellow-600"></i>
-                </div>
-                <h3 id="statTotalRecords" class="text-base sm:text-lg font-black text-yellow-600 truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</h3>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Entries</p>
+        {{-- Total Records / History --}}
+        <div class="relative overflow-hidden rounded-2xl shadow-sm border border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50/70 p-4 flex items-center justify-between min-w-0">
+            <div class="flex-1 min-w-0 relative z-10">
+                <p class="text-amber-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 truncate">History</p>
+                <h3 id="statTotalRecords" class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-1 truncate tabular-nums">{{ $stats['total_records'] ?? 0 }}</h3>
+                <p class="text-[9px] text-amber-500 font-bold uppercase">Entries</p>
             </div>
+            <img src="{{ asset('image/kpi/expense_history_3d.svg') }}" alt="History 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0">
         </div>
     </div>
 

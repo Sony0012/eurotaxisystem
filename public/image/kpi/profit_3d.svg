@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="profitGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#15803d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a3e635"/>
+      <stop offset="50%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="50%" stop-color="#84cc16"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+    <filter id="profitShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#14532d" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#profitGlow)"/>
+  <g filter="url(#profitShadow)">
+    <!-- 3D Bar 1 -->
+    <rect x="42" y="115" width="26" height="45" rx="8" fill="url(#bar1)"/>
+    <rect x="44" y="117" width="22" height="6" rx="3" fill="#ffffff" opacity="0.5"/>
+    <!-- 3D Bar 2 -->
+    <rect x="76" y="90" width="26" height="70" rx="8" fill="url(#bar2)"/>
+    <rect x="78" y="92" width="22" height="6" rx="3" fill="#ffffff" opacity="0.5"/>
+    <!-- 3D Bar 3 -->
+    <rect x="110" y="65" width="26" height="95" rx="8" fill="url(#bar3)"/>
+    <rect x="112" y="67" width="22" height="6" rx="3" fill="#ffffff" opacity="0.5"/>
+    <!-- 3D Rising Growth Arrow -->
+    <path d="M35 125 Q75 105 130 55" stroke="url(#arrowGrad)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M115 48 L146 50 L135 78 Z" fill="#facc15"/>
+    <circle cx="145" cy="50" r="4" fill="#ffffff"/>
+  </g>
+</svg>

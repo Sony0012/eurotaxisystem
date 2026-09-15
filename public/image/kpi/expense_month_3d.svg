@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="monGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#991b1b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="monCalHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <filter id="monShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#7f1d1d" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#monGlow)"/>
+  <g filter="url(#monShadow)">
+    <g transform="rotate(4 100 105)">
+      <!-- Calendar Body -->
+      <rect x="52" y="62" width="96" height="86" rx="14" fill="#ffffff"/>
+      <!-- Calendar Top Header -->
+      <path d="M52 74 C52 67 57 62 64 62 L136 62 C143 62 148 67 148 74 L148 84 L52 84 Z" fill="url(#monCalHeader)"/>
+      <!-- Binder Rings -->
+      <rect x="72" y="54" width="8" height="16" rx="4" fill="#fecaca" stroke="#dc2626" stroke-width="1.5"/>
+      <rect x="120" y="54" width="8" height="16" rx="4" fill="#fecaca" stroke="#dc2626" stroke-width="1.5"/>
+      <!-- Grid Dots -->
+      <circle cx="76" cy="102" r="5" fill="#fca5a5"/>
+      <circle cx="100" cy="102" r="5" fill="#fca5a5"/>
+      <circle cx="124" cy="102" r="5" fill="#fca5a5"/>
+      <circle cx="76" cy="124" r="5" fill="#fca5a5"/>
+      <circle cx="100" cy="124" r="5" fill="#ef4444"/>
+      <circle cx="124" cy="124" r="5" fill="#fca5a5"/>
+    </g>
+  </g>
+</svg>

@@ -3,7 +3,7 @@
 @section('title', 'Live Tracking - Euro System')
 @section('page-heading', 'Live Tracking')
 @section('page-subheading', 'Real-time GPS monitoring of all taxi units')
-@section('main-padding', 'p-0')
+@section('main-padding', 'p-0 pb-14 md:pb-0')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" />
@@ -88,56 +88,127 @@
 #navMenuBtn.nav-open .icon-home  { opacity: 0;  transform: scale(0.5); }
 #navMenuBtn.nav-open .icon-close { opacity: 1;  transform: scale(1); }
 
-/* ── Unit Detail Popup (side-opening) ───────────────────────────── */
-/* Hide the tip arrow — it points nowhere when popup is to the side */
-.pro-popup .leaflet-popup-tip-container { display: none !important; }
+/* ── Unit Detail Popup (Centered with Speech Bubble Pointer) ───── */
+.pro-popup {
+    margin-bottom: 0 !important;
+    pointer-events: none;
+    z-index: 1000 !important;
+}
 
-/* ── Remove Leaflet's default inner content margin/padding ─────────
-   This is the PRIMARY cause of right-side clipping:
-   Leaflet adds margin: 13px 24px to .leaflet-popup-content by default,
-   which makes the content wider than the wrapper's reported maxWidth.
-   Setting it to 0 lets us fully control layout from the inner div.     */
+.pro-popup .leaflet-popup-tip-container {
+    display: none !important;
+}
+
+/* ── Content container: Auto fit, auto adjust, no scrollbar ── */
 .pro-popup .leaflet-popup-content {
     margin: 0 !important;
     padding: 0 !important;
-    width: 310px !important;   /* Force exact width to prevent inner cut-off */
+    width: 310px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
 }
 
-/* Wrapper styling */
+/* ── Wrapper styling ── */
 .pro-popup .leaflet-popup-content-wrapper {
-    border-radius: 16px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 2px 10px rgba(0,0,0,0.08);
-    border: 1px solid rgba(0,0,0,0.06);
+    position: relative;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.22), 0 4px 14px -2px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.9);
     padding: 0;
-    overflow: hidden;
-    width: 310px;           /* fixed stable width — matches inner min-w */
+    overflow: visible !important;
+    width: 310px;
     max-width: 310px;
-    /* Always fit within the visible map viewport */
-    max-height: calc(100vh - 180px);
-    overflow-y: auto;
-    /* Thin custom scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: #d1d5db transparent;
+    height: auto !important;
+    pointer-events: auto;
+    /* Center vertically to the car marker and offset to the right with comfortable breathing distance */
+    transform: translate(210px, 50%);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
-.pro-popup .leaflet-popup-content-wrapper::-webkit-scrollbar { width: 4px; }
-.pro-popup .leaflet-popup-content-wrapper::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:4px; }
 
-/* Slide-in from left animation — only once, no re-trigger on live update */
+/* ── Speech bubble pointer / tail pointing left towards the car with nice gap ── */
+.pro-popup .leaflet-popup-content-wrapper::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 13px solid #ffffff;
+    filter: drop-shadow(-3px 0 2px rgba(15, 23, 42, 0.08));
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* ── Opening slide animation ── */
 .pro-popup.popup-just-opened .leaflet-popup-content-wrapper {
-    animation: popupSlideIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation: popupSlideInDesktop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
-@keyframes popupSlideIn {
-    from { opacity: 0; transform: translateX(-18px) scale(0.96); }
-    to   { opacity: 1; transform: translateX(0)     scale(1);    }
+@keyframes popupSlideInDesktop {
+    from { opacity: 0; transform: translate(190px, 50%) scale(0.95); }
+    to   { opacity: 1; transform: translate(210px, 50%) scale(1); }
 }
 
-/* Close button */
+/* ── Close button ── */
 .pro-popup .leaflet-popup-close-button {
-    top: 10px !important; right: 10px !important;
-    font-size: 18px !important; color: #6b7280 !important;
-    z-index: 10;
+    top: 12px !important;
+    right: 12px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    color: #94a3b8 !important;
+    background: #f8fafc !important;
+    border-radius: 50% !important;
+    border: 1px solid #e2e8f0 !important;
+    z-index: 30;
+    transition: all 0.15s ease;
 }
-.pro-popup .leaflet-popup-close-button:hover { color: #111 !important; }
+.pro-popup .leaflet-popup-close-button:hover {
+    color: #0f172a !important;
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* ── Mobile responsiveness for popup card ── */
+@media (max-width: 640px) {
+    .pro-popup .leaflet-popup-content-wrapper {
+        transform: translateY(0) !important;
+        margin-left: 0 !important;
+        margin-bottom: 24px !important;
+        width: min(310px, calc(100vw - 32px)) !important;
+        max-width: min(310px, calc(100vw - 32px)) !important;
+    }
+    .pro-popup .leaflet-popup-content {
+        width: min(310px, calc(100vw - 32px)) !important;
+        max-height: min(420px, calc(100vh - 160px)) !important;
+    }
+    /* Tail points down towards the car on mobile */
+    .pro-popup .leaflet-popup-content-wrapper::before {
+        left: 50% !important;
+        top: auto !important;
+        bottom: -11px !important;
+        transform: translateX(-50%) !important;
+        border-top: 12px solid #ffffff !important;
+        border-bottom: none !important;
+        border-left: 10px solid transparent !important;
+        border-right: 10px solid transparent !important;
+        filter: drop-shadow(0 3px 2px rgba(15, 23, 42, 0.08)) !important;
+    }
+    .pro-popup.popup-just-opened .leaflet-popup-content-wrapper {
+        animation: popupSlideInMobile 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popupSlideInMobile {
+        from { opacity: 0; transform: translateY(-12px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+}
 
 /* ── Unit Explorer Panel ────────────────────────────────────────── */
 #unitExplorerPanel {
@@ -312,34 +383,10 @@
 /* ── Fullscreen Badge ───────────────────────────────────────────────
    Shown below the map type switcher when unit panel is hidden.     */
 #fsBadge {
-    position: absolute;
-    /* below: 56px top + (34px btn × 2) + (5px gap × 2) + 10px margin = 145px */
-    top: 145px;
-    right: 10px;
-    z-index: 800;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 12px 6px 9px;
-    background: rgba(15,23,42,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 9px;
-    color: #fff;
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.28);
-    opacity: 0;
-    transform: translateY(-10px) scale(0.93);
-    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.4,0,0.2,1);
-    pointer-events: none;
-    user-select: none;
+    display: none !important;
 }
 #fsBadge.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    display: none !important;
 }
 .fs-dot {
     width: 7px; height: 7px;
@@ -394,15 +441,6 @@
 .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; }
 .status-dot { width:8px;height:8px;border-radius:50%;display:inline-block; }
 
-/* ── Custom Popup Positioning: Card Center, Car Left ────────────── */
-/* Shift the wrapper to the right by 200px and down by 50% so it's vertically centered to the car with a gap */
-.pro-popup .leaflet-popup-content-wrapper {
-    transform: translate(200px, 50%);
-}
-/* Hide the tip because it doesn't align nicely on the side */
-.pro-popup .leaflet-popup-tip-container {
-    display: none;
-}
 
 /* ── Mobile ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
@@ -426,6 +464,18 @@
 body:has(#appSidebar.show) #navMenuBtn,
 body:has(#appSidebar.show) #mapToggleBtn {
     left: 290px !important;
+}
+
+/* ── Leaflet Attribution Glass Styling (no white box) ── */
+.leaflet-control-attribution {
+    background: rgba(15, 23, 42, 0.65) !important;
+    color: #cbd5e1 !important;
+    backdrop-filter: blur(6px);
+    border-radius: 6px 0 0 0;
+    font-size: 9px !important;
+}
+.leaflet-control-attribution a {
+    color: #fef08a !important;
 }
 </style>
 <div id="liveTrackingRoot">

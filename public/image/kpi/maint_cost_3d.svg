@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="costGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a7f3d0"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="coinTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d1fae5"/>
+      <stop offset="50%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="costShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#064e3b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="110" r="85" fill="url(#costGlow)"/>
+  <g filter="url(#costShadow)">
+    <g transform="translate(10, 5)">
+      <!-- Back Stack Coin -->
+      <g transform="translate(50, 45)">
+        <ellipse cx="40" cy="80" rx="38" ry="18" fill="#047857"/>
+        <path d="M2 80 L2 95 C2 105 78 105 78 95 L78 80 Z" fill="url(#coinGrad)"/>
+        <ellipse cx="40" cy="80" rx="38" ry="18" fill="url(#coinTop)"/>
+      </g>
+      
+      <!-- Middle Stack Coin -->
+      <g transform="translate(50, 25)">
+        <ellipse cx="40" cy="75" rx="38" ry="18" fill="#047857"/>
+        <path d="M2 75 L2 90 C2 100 78 100 78 90 L78 75 Z" fill="url(#coinGrad)"/>
+        <ellipse cx="40" cy="75" rx="38" ry="18" fill="url(#coinTop)"/>
+      </g>
+
+      <!-- Top Stack Coin with Peso Sign -->
+      <g transform="translate(50, 5)">
+        <ellipse cx="40" cy="70" rx="38" ry="18" fill="#047857"/>
+        <path d="M2 70 L2 85 C2 95 78 95 78 85 L78 70 Z" fill="url(#coinGrad)"/>
+        <ellipse cx="40" cy="70" rx="38" ry="18" fill="url(#coinTop)"/>
+        <ellipse cx="40" cy="70" rx="30" ry="13" fill="none" stroke="#ecfdf5" stroke-width="2" opacity="0.6"/>
+        <text x="40" y="77" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">₱</text>
+      </g>
+    </g>
+    <!-- Floating Sparkle -->
+    <path d="M145 52 L148 44 L151 52 L159 55 L151 58 L148 66 L145 58 L137 55 Z" fill="#ffffff" opacity="0.95"/>
+  </g>
+</svg>

@@ -55,11 +55,11 @@ class SalaryController extends Controller
             ->whereBetween('pay_date', [$date_from, $date_to])
             ->get();
  
-        // Calculate income from boundaries for net profit
-        $total_income = DB::table('boundaries')
+        // Calculate income from boundaries (including damage payments) for net profit
+        $total_income = (float) (DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
-            ->sum('actual_boundary') ?? 0;
+            ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
  
         // Calculate totals/summary using filtered records
         $total_salaries = $monthlyRecords->sum('total_salary');

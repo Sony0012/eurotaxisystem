@@ -61,14 +61,20 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4 shrink-0">
-                <div class="flex flex-col text-left md:text-right bg-red-500/5 px-6 py-4 rounded-2xl border border-red-500/10">
+            <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                <div class="flex flex-col text-left md:text-right bg-red-500/5 px-5 py-3.5 rounded-2xl border border-red-500/10">
                     <span class="text-[10px] font-black text-red-400 uppercase tracking-widest block mb-0.5">Total Lockouts</span>
-                    <span id="banned-count-badge" class="text-4xl font-black text-red-500 tracking-tighter">{{ count($bannedDrivers) }}</span>
+                    <span id="banned-count-badge" class="text-3xl font-black text-red-500 tracking-tighter">{{ count($bannedDrivers) }}</span>
                 </div>
+                {{-- PRINT PDF BUTTON --}}
+                <button type="button" id="btnPrintBannedPdf" onclick="triggerPrintBannedPdf()"
+                    class="flex items-center gap-2 px-5 py-4 bg-slate-800/90 hover:bg-slate-700 text-rose-300 hover:text-white font-black text-xs uppercase tracking-widest rounded-2xl border border-rose-500/30 shadow-xl shadow-black/20 transition-all active:scale-95 cursor-pointer">
+                    <i data-lucide="printer" class="w-4 h-4 text-rose-400"></i>
+                    <span>Print PDF</span>
+                </button>
                 {{-- ADD BAN/SUSPEND BUTTON --}}
                 <button type="button" onclick="openAddBanModal()"
-                    class="flex items-center gap-2.5 px-6 py-4 bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-red-500/30 transition-all active:scale-95">
+                    class="flex items-center gap-2.5 px-6 py-4 bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-red-500/30 transition-all active:scale-95 cursor-pointer">
                     <i data-lucide="shield-plus" class="w-5 h-5"></i>
                     <span class="hidden sm:inline">Add Ban / Suspend</span>
                 </button>
@@ -106,6 +112,11 @@
         </div>
 
         <div class="flex items-center gap-3 w-full lg:w-auto shrink-0 justify-end">
+            <button type="button" onclick="triggerPrintBannedPdf()"
+                class="flex items-center justify-center gap-2 px-4 py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black rounded-xl transition-all active:scale-95 shadow-xs cursor-pointer w-full sm:w-auto">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Print PDF</span>
+            </button>
             <a href="{{ route('driver-management.index') }}"
                class="flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200 w-full lg:w-auto">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Roster
@@ -116,16 +127,20 @@
     {{-- ── Banned Drivers Grid ── --}}
     <div id="bannedDriversGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @forelse($bannedDrivers as $driver)
-            <div class="banned-profile-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer"
+            <div class="banned-profile-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md hover:border-amber-200/80 transition-all"
                  id="driver-card-{{ $driver->id }}"
                  data-status="{{ $driver->driver_status }}"
                  data-search-terms="{{ strtolower($driver->full_name . ' ' . ($driver->license_number ?? '') . ' ' . ($driver->contact_number ?? '')) }}"
-                 onclick="openDriverDetails({{ $driver->id }})">
+                 onclick="openChangeSuspensionModal({{ $driver->id }}, '{{ addslashes($driver->full_name) }}', '{{ $driver->driver_status }}')">
                 
                 {{-- Card Header --}}
                 <div class="p-6 border-b border-gray-50 flex items-start gap-4 bg-slate-50/50">
-                    <div class="w-14 h-14 bg-gradient-to-br {{ $driver->driver_status === 'suspended' ? 'from-amber-500 to-orange-600 shadow-amber-500/10' : 'from-red-500 to-rose-600 shadow-red-500/10' }} rounded-2xl flex items-center justify-center text-white text-lg font-black shrink-0 shadow-lg">
-                        {{ substr($driver->first_name, 0, 1) }}{{ substr($driver->last_name, 0, 1) }}
+                    <div class="relative w-14 h-14 rounded-2xl overflow-hidden shrink-0 border-2 {{ $driver->driver_status === 'suspended' ? 'border-amber-400' : 'border-red-400' }} shadow-sm bg-slate-100">
+                        @if(!empty($driver->profile_photo))
+                            <img src="{{ asset($driver->profile_photo) }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                        @else
+                            <img src="{{ asset('image/avatars/driver.svg') }}" alt="{{ $driver->full_name }}" class="w-full h-full object-cover bg-amber-50">
+                        @endif
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
@@ -213,18 +228,20 @@
                 </div>
 
                 {{-- Action Footer --}}
-                <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-3 relative z-50" onclick="event.stopPropagation()">
-                    {{-- Re-Suspend Button (for banned drivers) / Extend Suspension (for suspended) --}}
+                <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-3 relative z-50">
+                    {{-- Dues & Lockout Details Button --}}
                     <button type="button"
-                        class="modify-suspension-btn px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-black rounded-xl transition-all flex items-center gap-2 border border-amber-200 hover:border-amber-300 active:scale-95 cursor-pointer relative z-50"
+                        class="modify-suspension-btn px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black rounded-xl transition-all flex items-center gap-2 border border-amber-200 hover:border-amber-300 active:scale-95 cursor-pointer relative z-50 shadow-2xs"
+                        onclick="event.stopPropagation(); openChangeSuspensionModal({{ $driver->id }}, '{{ addslashes($driver->full_name) }}', '{{ $driver->driver_status }}')"
                         data-id="{{ $driver->id }}"
                         data-name="{{ $driver->full_name }}"
                         data-status="{{ $driver->driver_status }}">
-                        <i data-lucide="shield-alert" class="w-4 h-4 pointer-events-none"></i>
-                        {{ $driver->driver_status === 'suspended' ? 'Modify' : 'Re-Suspend' }}
+                        <i data-lucide="receipt" class="w-4 h-4 pointer-events-none text-amber-600"></i>
+                        <span>Dues & Lockout Details</span>
                     </button>
                     <button type="button"
                             class="restore-driver-btn px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95 cursor-pointer relative z-50"
+                            onclick="event.stopPropagation(); performUnban({{ $driver->id }}, '{{ addslashes($driver->full_name) }}')"
                             data-id="{{ $driver->id }}"
                             data-name="{{ $driver->full_name }}">
                         <i data-lucide="shield-check" class="w-4 h-4 pointer-events-none text-emerald-400"></i> Restore Driver
@@ -253,6 +270,8 @@
         <p class="text-xs text-slate-400">Try a different name, license, or contact number.</p>
     </div>
 </div>
+
+
 
 {{-- ════════════════════════════════════════════════════════
      ADD NEW BAN / SUSPENSION MODAL
@@ -420,83 +439,195 @@
 </div>
 
 {{-- ════════════════════════════════════════════════════════
-     MODIFY / RE-SUSPEND MODAL (for already-banned drivers)
+     LOCKOUT & DEBT BREAKDOWN MODAL (for banned/suspended drivers)
 ════════════════════════════════════════════════════════ --}}
 <div id="changeSuspensionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[9999] flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden">
-        <div class="bg-gradient-to-r from-amber-600 to-orange-600 p-6">
+    <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {{-- Header --}}
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/50 p-6 shrink-0 border-b border-slate-700/50">
             <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-500/20 border border-amber-500/30 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="receipt" class="w-6 h-6 text-amber-400"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-black text-white">Modify Lock-Out</h3>
-                        <p id="changeSuspendSubtitle" class="text-[10px] text-amber-200 font-bold mt-0.5 uppercase tracking-widest">Driver Name</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg font-black text-white" id="modalDriverName">Driver Name</h3>
+                            <span id="modalDriverStatusBadge" class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30">Banned</span>
+                        </div>
+                        <p id="changeSuspendSubtitle" class="text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">DRV-0000 • Lockout & Dues Breakdown</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeChangeSuspensionModal()" class="text-white/60 hover:text-white p-1.5 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                <button type="button" onclick="closeChangeSuspensionModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
-        <form id="changeSuspensionForm" onsubmit="submitChangeSuspension(event)" class="p-7 space-y-5">
-            <input type="hidden" id="changeSuspendDriverId" value="">
+        <div class="p-6 sm:p-7 overflow-y-auto space-y-6">
+            {{-- 1. Three Top Metric Cards (Total Dues, Overdue Days, Unit) --}}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                {{-- Total Unpaid Dues --}}
+                <div class="bg-gradient-to-br from-red-50 to-rose-50/60 border border-red-200/80 rounded-2xl p-4 shadow-2xs">
+                    <div class="flex items-center justify-between text-red-600 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider">Total Outstanding Dues</span>
+                        <i data-lucide="wallet" class="w-4 h-4"></i>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-red-700 tracking-tight" id="modalTotalDues">
+                        ₱0.00
+                    </div>
+                    <span class="text-[10px] font-bold text-red-500 mt-0.5 block">Accumulated pending charges</span>
+                </div>
 
-            <div class="space-y-2">
-                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Action Type <span class="text-red-500">*</span></label>
-                <select id="changeSuspendActionType" onchange="toggleChangeDuration()"
-                    class="w-full px-4 py-3.5 border-2 border-slate-100 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-slate-50/50 font-bold text-sm text-slate-700">
-                    <option value="suspend">Temporary Suspension</option>
-                    <option value="ban">Permanent Ban</option>
-                </select>
+                {{-- Overdue / Missed Days --}}
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200/80 rounded-2xl p-4 shadow-2xs">
+                    <div class="flex items-center justify-between text-amber-700 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider">Missed / Overdue Days</span>
+                        <i data-lucide="calendar-alert" class="w-4 h-4"></i>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-amber-800 tracking-tight" id="modalOverdueDaysCount">
+                        0 Days
+                    </div>
+                    <span class="text-[10px] font-bold text-amber-600 mt-0.5 block">Unreturned vehicle days</span>
+                </div>
+
+                {{-- Current Unit --}}
+                <div class="bg-gradient-to-br from-slate-50 to-blue-50/50 border border-slate-200/80 rounded-2xl p-4 shadow-2xs">
+                    <div class="flex items-center justify-between text-slate-600 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider">Assigned Unit</span>
+                        <i data-lucide="car" class="w-4 h-4 text-sky-600"></i>
+                    </div>
+                    <div class="text-base sm:text-lg font-black text-slate-800 truncate" id="modalUnitPlate">
+                        None
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 mt-0.5 block" id="modalBoundaryRate">Rate: ₱0.00/day</span>
+                </div>
             </div>
 
-            <div class="space-y-2" id="changeDurationSection">
-                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Duration (Days) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i data-lucide="calendar-clock" class="w-4 h-4 text-slate-400"></i>
-                    </div>
-                    <input type="number" id="changeSuspendDuration" min="1" max="365" value="7"
-                        class="w-full pl-11 pr-14 py-3.5 border-2 border-slate-100 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-slate-50/50 font-black text-sm text-slate-800"
-                        placeholder="e.g. 14">
-                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                        <span class="text-xs font-black text-slate-400">DAYS</span>
+            {{-- 2. Itemized Daily Missed Boundary & Incident Breakdown Table --}}
+            <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                        <i data-lucide="list-ordered" class="w-4 h-4 text-amber-500"></i>
+                        Itemized Daily Dues & Incident Breakdown
+                    </h4>
+                    <span class="text-[10px] font-bold text-slate-400" id="breakdownCount">0 Records</span>
+                </div>
+
+                <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xs">
+                    <div class="max-h-60 sm:max-h-72 overflow-y-auto overflow-x-auto custom-scrollbar">
+                        <table class="w-full min-w-[500px] divide-y divide-slate-100 text-left border-collapse">
+                            <thead class="bg-slate-100/90 backdrop-blur-xs sticky top-0 z-20 border-b border-slate-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider w-32">Date</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider w-44">Charge / Incident Type</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider">Description</th>
+                                    <th class="px-4 py-3 text-[10px] font-black text-slate-600 uppercase tracking-wider text-right w-28">Amount Due</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalBreakdownTbody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-8 text-center text-slate-400 font-bold">
+                                        Loading dues breakdown...
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot id="modalBreakdownTfoot" class="bg-slate-100/95 backdrop-blur-xs sticky bottom-0 z-20 border-t-2 border-slate-300 shadow-sm hidden">
+                                <tr>
+                                    <td colspan="3" class="px-4 py-3 text-xs font-black text-slate-800 uppercase tracking-wider">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="calculator" class="w-4 h-4 text-amber-600"></i>
+                                            <span>Total Outstanding Balance:</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                                        <span class="text-sm font-black text-red-600 tracking-tight" id="tableFooterTotalAmount">₱0.00</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
-                <div class="flex flex-wrap gap-2">
+            </div>
+
+            {{-- 3. Administrative Lockout Adjustment Form (Re-Suspend / Modify) --}}
+            <form id="changeSuspensionForm" onsubmit="submitChangeSuspension(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                <input type="hidden" id="changeSuspendDriverId" value="">
+                
+                <div class="flex items-center justify-between">
+                    <h5 class="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-slate-600"></i>
+                        Administrative Status Adjustment
+                    </h5>
+                    <span class="text-[10px] font-bold text-slate-400">Modify lockout policy for this driver</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Action Type <span class="text-red-500">*</span></label>
+                        <select id="changeSuspendActionType" onchange="toggleChangeDuration()"
+                            class="w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-white font-bold text-xs text-slate-700">
+                            <option value="suspend">Temporary Suspension</option>
+                            <option value="ban">Permanent Ban</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5" id="changeDurationSection">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Duration (Days) <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="number" id="changeSuspendDuration" min="1" max="365" value="7"
+                                class="w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-white font-black text-xs text-slate-800">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-[10px] font-black text-slate-400">DAYS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Preset Duration Pills --}}
+                <div class="flex flex-wrap items-center gap-1.5" id="changeDurationPresets">
+                    <span class="text-[10px] font-bold text-slate-400">Quick set:</span>
                     @foreach([3, 7, 14, 30, 60, 90] as $d)
                         <button type="button" onclick="document.getElementById('changeSuspendDuration').value = {{ $d }}"
-                            class="px-3 py-1.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-700 text-slate-600 text-[10px] font-black rounded-lg transition-all border border-slate-200">
+                            class="px-2.5 py-1 bg-white hover:bg-amber-100 hover:text-amber-800 text-slate-600 text-[10px] font-bold rounded-lg transition-all border border-slate-200">
                             {{ $d }}d
                         </button>
                     @endforeach
                 </div>
-            </div>
 
-            <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Reason / Description <span class="text-red-500">*</span></label>
-                    <span id="changeReasonCount" class="text-[10px] font-bold text-slate-400">0 / 500</span>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Administrative Notes / Reason <span class="text-red-500">*</span></label>
+                        <span id="changeReasonCount" class="text-[10px] font-bold text-slate-400">0 / 500</span>
+                    </div>
+                    <textarea id="changeSuspendReason" rows="2"
+                        placeholder="State reason for modifying driver status or settlement agreement..."
+                        required minlength="5" maxlength="500"
+                        oninput="document.getElementById('changeReasonCount').textContent = this.value.length + ' / 500'"
+                        class="w-full px-3.5 py-2.5 border-2 border-slate-200 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-white font-medium text-xs text-slate-700 resize-none"></textarea>
                 </div>
-                <textarea id="changeSuspendReason" rows="3"
-                    placeholder="Explain the reason for this modified administrative action..."
-                    required minlength="5" maxlength="500"
-                    oninput="document.getElementById('changeReasonCount').textContent = this.value.length + ' / 500'"
-                    class="w-full px-4 py-3.5 border-2 border-slate-100 rounded-xl focus:border-amber-400/50 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none bg-slate-50/50 font-medium text-sm text-slate-700 resize-none"></textarea>
-            </div>
 
-            <div class="flex justify-end gap-3 pt-2">
-                <button type="button" onclick="closeChangeSuspensionModal()"
-                    class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-xl transition-all">Cancel</button>
-                <button type="submit" id="changeSuspendSubmitBtn"
-                    class="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i> Update Lock-Out
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-200/80">
+                    <button type="button" id="modalRestoreDriverBtn"
+                        onclick="performUnbanFromModal()"
+                        class="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-black rounded-xl border border-emerald-300 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restore / Unban Driver
+                    </button>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeChangeSuspensionModal()"
+                            class="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-black rounded-xl border border-slate-200 transition-all cursor-pointer">
+                            Close
+                        </button>
+                        <button type="submit" id="changeSuspendSubmitBtn"
+                            class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i> Update Status
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -707,29 +838,159 @@ function submitAddBanSuspend(event) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   MODIFY EXISTING SUSPENSION MODAL
+   LOCKOUT & DEBT BREAKDOWN MODAL LOGIC
 ═══════════════════════════════════════════════════════ */
-function openChangeSuspensionModal(driverId, driverName, currentStatus) {
+async function openChangeSuspensionModal(driverId, driverName, currentStatus) {
+    const modal = document.getElementById('changeSuspensionModal');
+    if (!modal) return;
+
     document.getElementById('changeSuspendDriverId').value = driverId;
-    document.getElementById('changeSuspendSubtitle').textContent = driverName;
+    document.getElementById('modalDriverName').textContent = driverName;
+    document.getElementById('changeSuspendSubtitle').textContent = `DRV-${String(driverId).padStart(4, '0')} • Lockout & Dues Breakdown`;
+    
+    const statusBadge = document.getElementById('modalDriverStatusBadge');
+    if (statusBadge) {
+        if (currentStatus === 'suspended') {
+            statusBadge.className = 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30';
+            statusBadge.textContent = 'Suspended';
+        } else {
+            statusBadge.className = 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30';
+            statusBadge.textContent = 'Banned';
+        }
+    }
+
     document.getElementById('changeSuspendActionType').value = currentStatus === 'suspended' ? 'suspend' : 'ban';
     document.getElementById('changeSuspendDuration').value = '7';
     document.getElementById('changeSuspendReason').value = '';
     document.getElementById('changeReasonCount').textContent = '0 / 500';
     toggleChangeDuration();
-    document.getElementById('changeSuspensionModal').classList.remove('hidden');
+
+    // Reset breakdown display to loading
+    document.getElementById('modalTotalDues').textContent = '₱0.00';
+    document.getElementById('modalOverdueDaysCount').textContent = '0 Days';
+    document.getElementById('modalUnitPlate').textContent = 'Loading...';
+    document.getElementById('modalBoundaryRate').textContent = 'Rate: ₱0.00/day';
+    document.getElementById('modalBreakdownTbody').innerHTML = `
+        <tr>
+            <td colspan="4" class="px-4 py-8 text-center text-slate-400 font-bold">
+                <span class="inline-block w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mr-2"></span>
+                Fetching driver dues & incident history...
+            </td>
+        </tr>
+    `;
+
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
     if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Fetch real-time breakdown data via AJAX
+    try {
+        const res = await fetch(`/driver-management/${driverId}/lockout-details`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            const d = data.driver;
+            const charges = data.unpaid_charges || [];
+            const totalDues = data.total_unpaid_amount || 0;
+            const missedDays = data.missed_boundary_days_count || 0;
+
+            document.getElementById('modalTotalDues').textContent = '₱' + parseFloat(totalDues).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('modalOverdueDaysCount').textContent = `${missedDays} ${missedDays === 1 ? 'Day' : 'Days'}`;
+            document.getElementById('modalUnitPlate').textContent = d.current_unit_plate || 'Unassigned / Returned';
+            document.getElementById('modalBoundaryRate').textContent = d.unit_boundary_rate ? `Daily Rate: ₱${parseFloat(d.unit_boundary_rate).toLocaleString('en-US', {minimumFractionDigits: 2})}` : 'No Active Rate';
+            document.getElementById('breakdownCount').textContent = `${charges.length} ${charges.length === 1 ? 'Record' : 'Records'}`;
+
+            const tbody = document.getElementById('modalBreakdownTbody');
+            const tfoot = document.getElementById('modalBreakdownTfoot');
+            const footerTotal = document.getElementById('tableFooterTotalAmount');
+
+            if (charges.length === 0) {
+                if (tfoot) tfoot.classList.add('hidden');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-10 text-center text-slate-400 font-bold">
+                            <i data-lucide="check-circle" class="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-90"></i>
+                            <div class="text-xs text-slate-600 font-black">No pending boundary dues or unpaid charges recorded.</div>
+                            <div class="text-[10px] text-slate-400 font-medium mt-0.5">This driver has zero outstanding debt balance.</div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                if (tfoot) tfoot.classList.remove('hidden');
+                if (footerTotal) footerTotal.textContent = '₱' + parseFloat(totalDues).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                tbody.innerHTML = charges.map(c => {
+                    const formattedDate = c.incident_date ? new Date(c.incident_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'N/A';
+                    const amount = parseFloat(c.remaining_balance || c.total_charge_to_driver || 0);
+                    const isMissed = (c.incident_type || '').toLowerCase().includes('missed');
+                    
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-3 whitespace-nowrap text-[11px] font-black text-slate-800">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    ${formattedDate}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${isMissed ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-red-100 text-red-800 border border-red-200'}">
+                                    ${c.incident_type || 'Charge'}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-[11px] text-slate-600">
+                                <p class="break-words font-medium italic">"${c.description || 'Missed boundary charge'}"</p>
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
+                                ${amount > 0 
+                                    ? `<span class="text-xs font-black text-red-600">₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`
+                                    : `<span class="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">₱0.00 (Disciplinary)</span>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    } catch(err) {
+        console.error('Failed to load driver lockout details:', err);
+    }
 }
+
 function closeChangeSuspensionModal() {
-    document.getElementById('changeSuspensionModal').classList.add('hidden');
+    const modal = document.getElementById('changeSuspensionModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
 }
+
 function toggleChangeDuration() {
     const type = document.getElementById('changeSuspendActionType').value;
     const section = document.getElementById('changeDurationSection');
+    const presets = document.getElementById('changeDurationPresets');
     const input = document.getElementById('changeSuspendDuration');
-    if (type === 'suspend') { section.style.display = 'block'; input.required = true; }
-    else { section.style.display = 'none'; input.required = false; }
+    if (type === 'suspend') { 
+        if (section) section.style.display = 'block'; 
+        if (presets) presets.style.display = 'flex';
+        if (input) input.required = true; 
+    } else { 
+        if (section) section.style.display = 'none'; 
+        if (presets) presets.style.display = 'none';
+        if (input) input.required = false; 
+    }
 }
+
+function performUnbanFromModal() {
+    const driverId = document.getElementById('changeSuspendDriverId').value;
+    const driverName = document.getElementById('modalDriverName').textContent;
+    if (!driverId) return;
+    closeChangeSuspensionModal();
+    performUnban(driverId, driverName);
+}
+
 function submitChangeSuspension(event) {
     event.preventDefault();
     const driverId = document.getElementById('changeSuspendDriverId').value;
@@ -746,7 +1007,7 @@ function submitChangeSuspension(event) {
     const btn = document.getElementById('changeSuspendSubmitBtn');
     const origHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Updating...';
+    btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> Updating...';
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     fetch(`/driver-management/${driverId}/suspend-or-ban`, {
@@ -758,8 +1019,8 @@ function submitChangeSuspension(event) {
     .then(data => {
         if (data.success) {
             closeChangeSuspensionModal();
-            if (typeof showNotification === 'function') showNotification(data.message, 'success');
-            setTimeout(() => window.location.reload(), 800);
+            alert(data.message || 'Driver status updated successfully.');
+            setTimeout(() => window.location.reload(), 500);
         } else {
             alert('Error: ' + (data.message || 'Failed.'));
             btn.disabled = false;
@@ -776,7 +1037,10 @@ function submitChangeSuspension(event) {
 
 /* Close modals on Escape */
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeAddBanModal(); closeChangeSuspensionModal(); }
+    if (e.key === 'Escape') { 
+        closeAddBanModal(); 
+        closeChangeSuspensionModal(); 
+    }
 });
 
 /* Event listeners for driver card buttons to stop propagation safely */
@@ -819,6 +1083,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+/* ─── Trigger Pop-up Print without opening a new tab ─── */
+function triggerPrintBannedPdf() {
+    const btns = document.querySelectorAll('#btnPrintBannedPdf, [onclick="triggerPrintBannedPdf()"]');
+    btns.forEach(btn => {
+        btn.dataset.origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> <span>Preparing...</span>';
+    });
+
+    let printFrame = document.getElementById('bannedPrintIframe');
+    if (!printFrame) {
+        printFrame = document.createElement('iframe');
+        printFrame.id = 'bannedPrintIframe';
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        printFrame.style.visibility = 'hidden';
+        document.body.appendChild(printFrame);
+    }
+
+    printFrame.onload = function() {
+        btns.forEach(btn => {
+            btn.disabled = false;
+            if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+            if (window.lucide) lucide.createIcons();
+        });
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            } catch (e) {
+                console.error('Print iframe error:', e);
+            }
+        }, 300);
+    };
+
+    printFrame.src = '{{ route("driver-management.banned.print") }}?preview=1';
+}
 </script>
 
 @include('driver-management.partials._driver_details_modal')

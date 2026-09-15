@@ -46,11 +46,12 @@ class UnitProfitabilityController extends Controller
                 COALESCE(m.total_maintenance, 0) as total_maintenance,
                 COALESCE(m.maintenance_days, 0) as maintenance_days,
                 COALESCE(e.total_expenses, 0) as total_expenses,
+                COALESCE(e.total_recovery, 0) as total_recovery,
                 COALESCE(e.expense_days, 0) as expense_days
             FROM units u
             LEFT JOIN (
                 SELECT unit_id,
-                       SUM(actual_boundary) as total_boundary,
+                       SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
                        SUM(boundary_amount) as total_target_boundary,
                        COUNT(DISTINCT id) as boundary_days
                 FROM boundaries
@@ -62,15 +63,16 @@ class UnitProfitabilityController extends Controller
                        SUM(cost) as total_maintenance,
                        COUNT(DISTINCT id) as maintenance_days
                 FROM maintenance
-                WHERE deleted_at IS NULL AND date_started BETWEEN ? AND ?
+                WHERE deleted_at IS NULL AND (status IS NULL OR LOWER(status) != 'cancelled') AND date_started BETWEEN ? AND ?
                 GROUP BY unit_id
             ) m ON u.id = m.unit_id
             LEFT JOIN (
                 SELECT unit_id,
-                       SUM(ABS(amount)) as total_expenses,
+                       SUM(CASE WHEN category != 'Damage Recovery' THEN amount ELSE 0 END) as total_expenses,
+                       SUM(CASE WHEN category = 'Damage Recovery' THEN ABS(amount) ELSE 0 END) as total_recovery,
                        COUNT(DISTINCT id) as expense_days
                 FROM expenses
-                WHERE deleted_at IS NULL AND date BETWEEN ? AND ?
+                WHERE deleted_at IS NULL AND status = 'approved' AND date BETWEEN ? AND ?
                 GROUP BY unit_id
             ) e ON u.id = e.unit_id
             $where_clause
@@ -88,6 +90,7 @@ class UnitProfitabilityController extends Controller
 
         // Calculate additional metrics
         foreach ($profitability as &$unit) {
+            $unit->total_boundary = (float)$unit->total_boundary + (float)$unit->total_recovery;
             $unit->net_income = $unit->total_boundary - $unit->total_maintenance - $unit->total_expenses;
             $unit->profit_margin = $unit->total_boundary > 0 ? (($unit->net_income / $unit->total_boundary) * 100) : 0;
             $unit->maintenance_cost = $unit->total_maintenance;
@@ -120,7 +123,7 @@ class UnitProfitabilityController extends Controller
             ->where('u.status', 'active')
             ->leftJoin(DB::raw("(
                 SELECT unit_id,
-                       AVG(actual_boundary) as avg_daily_boundary,
+                       AVG(actual_boundary + COALESCE(damage_payment, 0)) as avg_daily_boundary,
                        COUNT(DISTINCT date) as operating_days
                 FROM boundaries
                 WHERE deleted_at IS NULL AND date >= '{$ninetyDaysAgo}'
@@ -131,7 +134,7 @@ class UnitProfitabilityController extends Controller
                        SUM(cost) as total_maint_cost,
                        COUNT(DISTINCT DATE(date_started)) as maint_days
                 FROM maintenance
-                WHERE deleted_at IS NULL AND date_started >= '{$ninetyDaysAgo}'
+                WHERE deleted_at IS NULL AND (status IS NULL OR LOWER(status) != 'cancelled') AND date_started >= '{$ninetyDaysAgo}'
                 GROUP BY unit_id
             ) as m"), 'm.unit_id', '=', 'u.id')
             ->selectRaw('
@@ -196,6 +199,7 @@ class UnitProfitabilityController extends Controller
         $maintenances = \DB::table('maintenance')
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
+            ->where(function($q) { $q->whereNull('status')->orWhere('status', '!=', 'cancelled'); })
             ->whereBetween('date_started', [$date_from, $date_to])
             ->orderBy('date_started', 'desc')
             ->get();
@@ -204,6 +208,7 @@ class UnitProfitabilityController extends Controller
         $expenses = \DB::table('expenses')
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
             ->whereBetween('date', [$date_from, $date_to])
             ->orderBy('date', 'desc')
             ->get();
@@ -225,11 +230,12 @@ class UnitProfitabilityController extends Controller
         $boundariesSub = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$date_from, $date_to])
-            ->select('unit_id', DB::raw('SUM(actual_boundary) as total_revenue'), DB::raw('COUNT(DISTINCT id) as active_days'))
+            ->select('unit_id', DB::raw('SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_revenue'), DB::raw('COUNT(DISTINCT id) as active_days'))
             ->groupBy('unit_id');
 
         $maintSub = DB::table('maintenance')
             ->whereNull('deleted_at')
+            ->where('status', '!=', 'cancelled')
             ->whereBetween('date_started', [$date_from, $date_to])
             ->select('unit_id', DB::raw('SUM(cost) as total_maintenance'))
             ->groupBy('unit_id');

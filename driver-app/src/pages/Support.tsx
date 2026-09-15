@@ -349,7 +349,7 @@ const Support: FC = () => {
         )}
 
         <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom) + 12px)', background: t.headerBg, borderTop: t.borderSubtle }}>
-          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <form id="support-chat-input" onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <input 
               type="file" 
               ref={fileInputRef} 

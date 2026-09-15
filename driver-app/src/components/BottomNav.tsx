@@ -7,10 +7,20 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { endpoints } from '../config/api';
 
+import { useTutorial } from '../context/TutorialContext';
+
 const BottomNav: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
   const { t, isDark } = useTheme();
+  const { isActive, currentStep, steps } = useTutorial();
+
+  const activeStep = steps[currentStep];
+  const shouldHideForTutorial = isActive && activeStep && (!activeStep.targetId || !activeStep.targetId.startsWith('nav-tab-'));
+
+  if (shouldHideForTutorial) {
+    return null;
+  }
 
   const tabs = [
     { name: 'Home', path: '/dashboard', iconOutline: homeOutline, iconSolid: home },

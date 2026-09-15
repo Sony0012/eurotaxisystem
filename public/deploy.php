@@ -1,35 +1,37 @@
 <?php
 /**
  * Web-based Deployer for EuroTaxi System
- * This script allows deployment by visiting it in the browser.
  */
+header('Content-Type: text/plain; charset=utf-8');
 
-echo "--- WEB DEPLOY START ---<br>";
+echo "=== EUROTAXI WEB DEPLOY START ===\n\n";
 
-// 1. Pull from GitHub
-echo "Pulling from GitHub...<br>";
-$output = [];
-$return_var = 0;
-exec("git pull origin main 2>&1", $output, $return_var);
-echo "<pre>" . implode("\n", $output) . "</pre>";
-
-if ($return_var !== 0) {
-    echo "<b>ERROR during git pull.</b><br>";
-} else {
-    echo "<b>SUCCESS: Code updated.</b><br>";
+$baseDir = dirname(__DIR__);
+if (file_exists($baseDir . '/artisan')) {
+    chdir($baseDir);
+} elseif (file_exists(__DIR__ . '/artisan')) {
+    chdir(__DIR__);
 }
 
-// 2. Run migrations
-echo "Running migrations...<br>";
-$output = [];
-exec("php artisan migrate --force 2>&1", $output, $return_var);
-echo "<pre>" . implode("\n", $output) . "</pre>";
+echo "Working Directory: " . getcwd() . "\n\n";
 
-// 3. Optimize
-echo "Optimizing...<br>";
-$output = [];
-exec("php artisan optimize 2>&1", $output, $return_var);
-echo "<pre>" . implode("\n", $output) . "</pre>";
+// 1. Fetch & Reset Git
+echo "--- Step 1: Git Fetch & Hard Reset ---\n";
+$out1 = [];
+exec("git fetch origin master 2>&1 && git reset --hard origin/master 2>&1", $out1, $ret1);
+echo implode("\n", $out1) . "\nReturn Code: {$ret1}\n\n";
 
-echo "--- DEPLOY COMPLETE ---";
-?>
+// 2. Clear caches
+echo "--- Step 2: Clear & Re-cache Application ---\n";
+$out2 = [];
+exec("php artisan optimize:clear 2>&1", $out2, $ret2);
+echo implode("\n", $out2) . "\n\n";
+
+// 3. Migrate database
+echo "--- Step 3: Run Database Migrations ---\n";
+$out3 = [];
+exec("php artisan migrate --force 2>&1", $out3, $ret3);
+echo implode("\n", $out3) . "\n\n";
+
+echo "=== DEPLOY FINISHED SUCCESSFULLY ===";
+

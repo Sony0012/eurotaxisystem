@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euro Taxi Management System - Complete User Roles & Features Manual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --teal: #0d9488;
+            --gray-900: #111827;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --accent-blue: #2563eb;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f172a;
+            color: var(--gray-800);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 50px 60px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        .logo-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            color: var(--primary-dark);
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: var(--gray-600);
+            font-size: 17px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+        .meta-tag {
+            background: var(--gray-100);
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+        .role-section {
+            margin-bottom: 45px;
+            padding-bottom: 35px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .role-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 20px;
+            padding-bottom: 0;
+        }
+        .role-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--accent-blue);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+        .role-title {
+            color: var(--primary);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .role-code {
+            background: #eff6ff;
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #bfdbfe;
+        }
+        .scope-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 22px;
+            font-size: 14.5px;
+        }
+        .scope-label {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-right: 6px;
+        }
+        .section-subhead {
+            color: var(--teal);
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .bullet-item {
+            position: relative;
+            padding-left: 24px;
+            font-size: 14px;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+        .bullet-item::before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--accent-blue);
+            font-weight: 900;
+            font-size: 18px;
+            line-height: 1;
+        }
+        .bullet-strong {
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .footer {
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 13px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+        .print-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px 0;
+            }
+            .print-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <div class="container">
+        <header class="header">
+            <div class="logo-badge">Official System Documentation</div>
+            <h1>EURO TAXI MANAGEMENT SYSTEM</h1>
+            <div class="subtitle">Complete User Roles, Scope of Authority, and Innermost Feature Guide (User Manual)</div>
+            <div class="meta-info">
+                <span class="meta-tag">📅 Generated: September 04, 2026</span>
+                <span class="meta-tag">🚀 Version: 2.0 Enterprise Cloud Fleet</span>
+            </div>
+        </header>
+
+        <!-- 1. SUPER ADMIN -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">1. SUPER ADMIN / FLEET OWNER</div>
+                <div class="role-code">role: super_admin</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                The highest authority in the Euro Taxi System with absolute, unrestricted 'God-Mode' control over all 21 modules, system security, database backups, user access rights, financial ledgers, and emergency fleet operations.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Super Admin / Owner Panel (<code>/super-admin</code>)</li>
+                <li class="bullet-item">Executive Dashboard (<code>/</code>)</li>
+                <li class="bullet-item">Unit Fleet Management (<code>/units</code> and <code>/units/flagged</code>)</li>
+                <li class="bullet-item">Driver Management Hub (<code>/driver-management</code>, <code>/banned</code>, <code>/terms</code>, <code>/debts</code>)</li>
+                <li class="bullet-item">Live GPS Fleet Tracking (<code>/live-tracking</code>)</li>
+                <li class="bullet-item">Franchise & Decision Management (<code>/decision-management</code>)</li>
+                <li class="bullet-item">Boundaries Remittance & Pricing Rules (<code>/boundaries</code>, <code>/boundary-rules</code>)</li>
+                <li class="bullet-item">Maintenance & Spare Parts (<code>/maintenance</code>, <code>/inventory-management</code>, <code>/spare-parts</code>, <code>/suppliers</code>)</li>
+                <li class="bullet-item">Metro Manila Number Coding (<code>/coding</code>)</li>
+                <li class="bullet-item">Driver Behavior, Rewards & SOS Incidents (<code>/driver-behavior/*</code>)</li>
+                <li class="bullet-item">Office & Administrative Expenses (<code>/office-expenses</code>)</li>
+                <li class="bullet-item">Staff Salary & Payroll Management (<code>/salary</code>)</li>
+                <li class="bullet-item">Predictive Analytics & Financial Intelligence (<code>/analytics</code>, <code>/analytics/history</code>)</li>
+                <li class="bullet-item">Unit Profitability & AI Decision Support (<code>/unit-profitability</code>)</li>
+                <li class="bullet-item">General Staff Directory (<code>/staff</code>, <code>/staff/admin</code>, <code>/staff/drivers</code>)</li>
+                <li class="bullet-item">Support Desk & Driver Ticket Chat (<code>/support-center</code>)</li>
+                <li class="bullet-item">Announcements & Fleet Advisories (<code>/announcements</code>)</li>
+                <li class="bullet-item">System Activity & Security Audit Logs (<code>/activity-logs</code>)</li>
+                <li class="bullet-item">Master Archive Vault (<code>/archive</code>)</li>
+                <li class="bullet-item">My Account & Security Profile (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Exclusive Capabilities (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Super Admin Control Center:</span> Has 6 dedicated management tabs (Overview, Users, Audit History, Classifications, Roles, System Security).</li>
+                <li class="bullet-item"><span class="bullet-strong">Account Approvals & Rejections:</span> Review pending employee registrations, view full profile and email OTP verification, and approve or reject accounts with 1-click.</li>
+                <li class="bullet-item"><span class="bullet-strong">Instant Account Lock / Disable:</span> Temporarily disable or ban any user account with a customized disciplinary reason log.</li>
+                <li class="bullet-item"><span class="bullet-strong">Granular Page-Level Access Matrix:</span> Check/uncheck permissions across 18 individual system pages for each staff account.</li>
+                <li class="bullet-item"><span class="bullet-strong">Role & Classification Customizer:</span> Add, edit, or archive custom organizational roles and incident severity tiers (Minor, Moderate, Severe, Critical).</li>
+                <li class="bullet-item"><span class="bullet-strong">Master Archive Security:</span> Configure the master archive password required to restore or permanently purge soft-deleted records.</li>
+                <li class="bullet-item"><span class="bullet-strong">Owner Feedback Inbox:</span> Private mailbox receiving direct suggestions, grievances, and feedback submitted by employees.</li>
+                <li class="bullet-item"><span class="bullet-strong">Emergency Vehicle Immobilizer:</span> Remote engine kill switch to disable stolen or high-risk taxi units directly via GPS.</li>
+            </ul>
+        </section>
+
+        <!-- 2. OPERATIONS MANAGER -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">2. OPERATIONS MANAGER</div>
+                <div class="role-code">role: manager</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Directs daily fleet operations, driver disciplinary enforcement, operational expense approvals, franchise case decisions, and fleet financial profitability analysis.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Executive Dashboard (<code>/</code>)</li>
+                <li class="bullet-item">Unit Management & Flagged Units (<code>/units</code>, <code>/units/flagged</code>)</li>
+                <li class="bullet-item">Driver Management & Dues Breakdown (<code>/driver-management</code>, <code>/banned</code>, <code>/terms</code>, <code>/debts</code>)</li>
+                <li class="bullet-item">Live GPS Tracking Hub (<code>/live-tracking</code>)</li>
+                <li class="bullet-item">Franchise & Regulatory Decision Management (<code>/decision-management</code>)</li>
+                <li class="bullet-item">Boundaries Remittance & Boundary Rules (<code>/boundaries</code>, <code>/boundary-rules</code>)</li>
+                <li class="bullet-item">Maintenance & Spare Parts (<code>/maintenance</code>, <code>/inventory-management</code>)</li>
+                <li class="bullet-item">Driver Behavior & SOS Incident Management (<code>/driver-behavior/*</code>)</li>
+                <li class="bullet-item">Office Expense Approvals (<code>/office-expenses</code>)</li>
+                <li class="bullet-item">Predictive Analytics & Ledger History (<code>/analytics</code>, <code>/analytics/history</code>)</li>
+                <li class="bullet-item">Unit Profitability & AI DSS Insights (<code>/unit-profitability</code>)</li>
+                <li class="bullet-item">Support Center (<code>/support-center</code>)</li>
+                <li class="bullet-item">Announcements (<code>/announcements</code>)</li>
+                <li class="bullet-item">Activity Logs (<code>/activity-logs</code>)</li>
+                <li class="bullet-item">My Account (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Driver Lockout & Settlement Manager:</span> Open the Dues & Lockout Details modal for banned/suspended drivers, inspect the sticky itemized breakdown table, adjust lockout terms (Permanent Ban vs. 7-day Suspension), or restore the driver.</li>
+                <li class="bullet-item"><span class="bullet-strong">Auto-Ban Policy Configurator:</span> Set the threshold for Overdue Unreturned Vehicle Limits (in days) to automatically trigger vehicle lockouts at shift deadlines.</li>
+                <li class="bullet-item"><span class="bullet-strong">Expense Approvals / Rejection Workflow:</span> Review submitted office expenses, inspect attached receipts, and click Approve or Reject.</li>
+                <li class="bullet-item"><span class="bullet-strong">Franchise Hearing Board:</span> Review LTFRB franchise applications, hearing schedules, and decide to Approve or Reject franchise cases.</li>
+                <li class="bullet-item"><span class="bullet-strong">AI Decision Support System (DSS):</span> Generate AI-powered recommendations per vehicle to determine whether to repair, reassign, or retire units based on profit vs. maintenance cost.</li>
+                <li class="bullet-item"><span class="bullet-strong">Live Fleet Map & Remote Engine Kill:</span> Track speeds, routes, and remotely cut vehicle engines during theft or boundary abscondment.</li>
+            </ul>
+        </section>
+
+        <!-- 3. DISPATCHER -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">3. DISPATCHER</div>
+                <div class="role-code">role: dispatcher</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Manages daily vehicle road deployment, driver shift coordination, Metro Manila number coding compliance, real-time GPS tracking, and roadside emergency SOS incident response.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Executive Dashboard (<code>/</code>)</li>
+                <li class="bullet-item">Live GPS Tracking (<code>/live-tracking</code>)</li>
+                <li class="bullet-item">Metro Manila Number Coding Management (<code>/coding</code>)</li>
+                <li class="bullet-item">Unit Fleet Status & Overdue Units (<code>/units</code>, <code>/units/flagged</code>)</li>
+                <li class="bullet-item">Driver Behavior & Accident Reports (<code>/driver-behavior/*</code>)</li>
+                <li class="bullet-item">Driver Support Desk (<code>/support-center</code>)</li>
+                <li class="bullet-item">Fleet Announcements (<code>/announcements</code>)</li>
+                <li class="bullet-item">Internal Staff Chat (<code>/chat</code>)</li>
+                <li class="bullet-item">My Account (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Interactive GPS Fleet Radar:</span> Real-time map displaying all active taxis with color-coded status (Moving, Idle, Offline), speed gauges, and odometer readings.</li>
+                <li class="bullet-item"><span class="bullet-strong">Number Coding Automation:</span> Daily automated check of vehicle license plate ending numbers against Metro Manila MMDA coding rules.</li>
+                <li class="bullet-item"><span class="bullet-strong">Coding Day Reassignment & Swap:</span> Reassign coding schedules or allocate replacement vehicles for drivers whose units are on coding day.</li>
+                <li class="bullet-item"><span class="bullet-strong">SOS Emergency Alarm Hub:</span> Real-time alert listener that plays alarm chimes when a driver presses the mobile app SOS Panic Button with live coordinates.</li>
+                <li class="bullet-item"><span class="bullet-strong">Accident & Rescue Dispatcher:</span> View photo submissions of road accidents, inspect damage assessments, and dispatch towing or mobile mechanics.</li>
+                <li class="bullet-item"><span class="bullet-strong">2-Way Driver Support Messaging:</span> Real-time chat with drivers on the road to assist with route issues, shift extensions, or technical problems.</li>
+            </ul>
+        </section>
+
+        <!-- 4. SECRETARY -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">4. SECRETARY / ADMINISTRATIVE OFFICER</div>
+                <div class="role-code">role: secretary</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Oversees general office administration, employee HR records, operational expense entries, monthly salary and payroll computation, driver contract archiving, and regulatory documents.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Executive Dashboard (<code>/</code>)</li>
+                <li class="bullet-item">Office Expenses Management (<code>/office-expenses</code>)</li>
+                <li class="bullet-item">Staff Salary & Payroll Processing (<code>/salary</code>)</li>
+                <li class="bullet-item">General Staff Records (<code>/staff</code>, <code>/staff/admin</code>, <code>/staff/drivers</code>)</li>
+                <li class="bullet-item">Driver Terms & Contract Vault (<code>/driver-management/terms</code>)</li>
+                <li class="bullet-item">Franchise & Regulatory Documents (<code>/decision-management</code>)</li>
+                <li class="bullet-item">Announcements Management (<code>/announcements</code>)</li>
+                <li class="bullet-item">Internal Staff Chat (<code>/chat</code>)</li>
+                <li class="bullet-item">My Account (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Expense Logging with Receipt Uploads:</span> Create categorized expense entries (Utilities, Fuel, Office Supplies, Building Maintenance) with photo proof.</li>
+                <li class="bullet-item"><span class="bullet-strong">Salary & Payroll Calculation Engine:</span> Input base pay, overtime hours, holiday multipliers, and deductions for staff and mechanics.</li>
+                <li class="bullet-item"><span class="bullet-strong">Official Payslip & Report Generator:</span> Export and print monthly payroll breakdown sheets and individualized employee payslips.</li>
+                <li class="bullet-item"><span class="bullet-strong">Driver Contract Vault:</span> Upload scanned PDFs and image files of signed driver lease contracts, promissory notes, and government clearances.</li>
+                <li class="bullet-item"><span class="bullet-strong">Staff Directory Management:</span> Maintain emergency contact info, government IDs (SSS, PhilHealth, Pag-IBIG), and employment statuses.</li>
+                <li class="bullet-item"><span class="bullet-strong">Company Memo Broadcaster:</span> Publish company advisories and pinned notices visible across all web and mobile apps.</li>
+            </ul>
+        </section>
+
+        <!-- 5. CASHIER / OPERATIONS STAFF -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">5. CASHIER / OPERATIONS STAFF</div>
+                <div class="role-code">role: staff</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Handles front-counter cashiering, daily boundary remittance collection from drivers, driver debt installment processing, minor disciplinary logging, and spare parts stock checks.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Executive Dashboard (<code>/</code>)</li>
+                <li class="bullet-item">Daily Boundaries & Remittance Counter (<code>/boundaries</code>)</li>
+                <li class="bullet-item">Driver Debts & Dues Settlement (<code>/driver-management/debts</code>)</li>
+                <li class="bullet-item">Driver Behavior Incident Logging (<code>/driver-behavior/incidents</code>)</li>
+                <li class="bullet-item">Spare Parts Stock Inquiries (<code>/inventory-management</code>)</li>
+                <li class="bullet-item">Internal Staff Chat (<code>/chat</code>)</li>
+                <li class="bullet-item">Fleet Announcements (<code>/announcements</code>)</li>
+                <li class="bullet-item">My Account (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Daily Boundary Collection Counter:</span> Log driver remittances by selecting driver, assigned plate, target rate, and payment amount.</li>
+                <li class="bullet-item"><span class="bullet-strong">Smart Shortage & Advance Detection:</span> Automatically flags short boundaries (unpaid remainder auto-added to debt ledger) or advance payments.</li>
+                <li class="bullet-item"><span class="bullet-strong">Digital Collection Receipt:</span> Generates instant printable boundary remittance vouchers with timestamps and collector signatures.</li>
+                <li class="bullet-item"><span class="bullet-strong">Debt Installment Processor:</span> Accept partial or full debt payments from drivers, with instant balance subtraction in the database.</li>
+                <li class="bullet-item"><span class="bullet-strong">Driver Incident Entry:</span> Log minor passenger complaints, taxi cleanliness infractions, or traffic tickets.</li>
+                <li class="bullet-item"><span class="bullet-strong">Real-Time Spare Parts Stock Lookup:</span> Search spare parts inventory to verify stock levels (In Stock, Low Stock, Out of Stock).</li>
+            </ul>
+        </section>
+
+        <!-- 6. MECHANIC -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">6. MECHANIC / MAINTENANCE CREW</div>
+                <div class="role-code">role: mechanic</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Responsible for physical vehicle repairs, preventive maintenance service (PMS), parts requisition from inventory, and vehicle road-readiness certification.
+            </div>
+
+            <div class="section-subhead">A. Pages and Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Maintenance Job Orders (<code>/maintenance</code>)</li>
+                <li class="bullet-item">Spare Parts Inventory & Purchasing (<code>/inventory-management</code>, <code>/spare-parts</code>, <code>/suppliers</code>)</li>
+                <li class="bullet-item">Unit Fleet Health Inspection (<code>/units</code>)</li>
+                <li class="bullet-item">Fleet Announcements (<code>/announcements</code>)</li>
+                <li class="bullet-item">Internal Staff Chat (<code>/chat</code>)</li>
+                <li class="bullet-item">My Account (<code>/my-account</code>)</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">Job Order Workflow:</span> Create repair work orders, select repair category (Engine, Brakes, Transmission, Suspension, Electrical, Body), and assign mechanics.</li>
+                <li class="bullet-item"><span class="bullet-strong">Maintenance Status Toggles:</span> Transition repair orders across stages: Pending -> In Progress -> Quality Testing -> Completed.</li>
+                <li class="bullet-item"><span class="bullet-strong">Spare Parts Auto-Deduction Requisition:</span> Requisition parts during repair, automatically subtracting the quantity from stock.</li>
+                <li class="bullet-item"><span class="bullet-strong">Dynamic Vector Autocorrect Search:</span> Search parts with phonetic and fuzzy matching, view item specifications and reference photos.</li>
+                <li class="bullet-item"><span class="bullet-strong">Vehicle Health Reset:</span> Conduct post-repair safety checks and reset the vehicle health score to 100% to remove flagged status.</li>
+            </ul>
+        </section>
+
+        <!-- 7. DRIVER -->
+        <section class="role-section">
+            <div class="role-header">
+                <div class="role-title">7. MOBILE APP TAXI DRIVER</div>
+                <div class="role-code">role: driver</div>
+            </div>
+            <div class="scope-box">
+                <span class="scope-label">Scope of Authority (Nasasakupan):</span>
+                Drivers operating taxi units on the road using the Android/Capacitor Mobile App ecosystem.
+            </div>
+
+            <div class="section-subhead">A. Mobile App Screens & Modules Handled:</div>
+            <ul class="bullet-list">
+                <li class="bullet-item">Driver Dashboard & Shift Overview</li>
+                <li class="bullet-item">Live Gross Earnings & Remittance History</li>
+                <li class="bullet-item">Outstanding Debts & Missed Boundary Breakdown Ledger</li>
+                <li class="bullet-item">Weekly Incentive & Performance Scorecard</li>
+                <li class="bullet-item">Emergency SOS Panic Button & Roadside Rescue</li>
+                <li class="bullet-item">Accident Reporting Module</li>
+                <li class="bullet-item">2-Way Support Ticket Chat</li>
+                <li class="bullet-item">Fleet Announcements & Bulletins</li>
+                <li class="bullet-item">Driver Profile & Document Clearances</li>
+            </ul>
+
+            <div class="section-subhead">B. Innermost Features & Functions (Pinaka Loob-Looban):</div>
+            <ul class="bullet-list">
+                <li class="bullet-item"><span class="bullet-strong">OTP Mobile Authentication:</span> Secure mobile registration with SMS/Email OTP verification.</li>
+                <li class="bullet-item"><span class="bullet-strong">Assigned Vehicle Status:</span> Real-time view of assigned taxi plate number, daily boundary rate, and coding schedule.</li>
+                <li class="bullet-item"><span class="bullet-strong">Itemized Dues Ledger:</span> View exact dates, missed boundary charges, and outstanding balances.</li>
+                <li class="bullet-item"><span class="bullet-strong">Weekly Incentive Tracker:</span> Track completed shifts to qualify for weekly driver cash bonuses.</li>
+                <li class="bullet-item"><span class="bullet-strong">One-Touch SOS Panic Button:</span> Instantly broadcasts emergency distress signals with real-time GPS coordinates to dispatchers.</li>
+                <li class="bullet-item"><span class="bullet-strong">Accident Submission Form:</span> Capture vehicle damage photos, log third-party details, and upload police report notes.</li>
+                <li class="bullet-item"><span class="bullet-strong">In-App 2-Way Chat:</span> Direct messaging with dispatchers and administrative support.</li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            Euro Taxi System Enterprise Manual &bull; Confidential & Proprietary
+        </footer>
+    </div>
+</body>
+</html>

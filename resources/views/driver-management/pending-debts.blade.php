@@ -105,56 +105,128 @@
     <div id="driver-modal-box">
         {{-- Modal header injected by JS --}}
         <div id="driver-modal-header"></div>
-        {{-- Sub-header --}}
-        <div id="driver-modal-subheader" class="hidden px-6 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-            <span class="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
-                <i data-lucide="list" class="w-3.5 h-3.5"></i>
-                Liability Breakdown
-            </span>
-            <span id="driver-modal-count" class="text-[10px] font-bold text-gray-400"></span>
+        
+        {{-- Sub-header with Segmented Switch (Active Liabilities vs Settlement History) --}}
+        <div id="driver-modal-subheader" class="hidden px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl border border-slate-300/60 shadow-inner">
+                <button id="dmodal-tab-active" onclick="switchDriverModalTab('active')" type="button"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm border border-slate-200/60 cursor-pointer">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-500"></i>
+                    <span>Active Liabilities</span>
+                    <span id="dmodal-active-badge" class="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-rose-100 text-rose-700 leading-none">0</span>
+                </button>
+                <button id="dmodal-tab-history" onclick="switchDriverModalTab('history')" type="button"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/50 cursor-pointer">
+                    <i data-lucide="history" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>Settlement History</span>
+                    <span id="dmodal-history-badge" class="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 leading-none">0</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-slate-400 text-[11px] font-semibold">
+                <span id="dmodal-view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-500">Active Records</span>
+                <span>•</span>
+                <span id="driver-modal-count" class="text-[11px] font-bold text-slate-500"></span>
+            </div>
         </div>
-        {{-- Scrollable rows --}}
-        <div id="driver-modal-body" class="bg-white divide-y divide-gray-100"></div>
+
+        {{-- Scrollable Container --}}
+        <div id="driver-modal-body" class="bg-white overflow-y-auto flex-1">
+            <div id="dmodal-active-section" class="divide-y divide-gray-100"></div>
+            <div id="dmodal-history-section" class="hidden divide-y divide-gray-100"></div>
+        </div>
     </div>
 </div>
 
 <div class="w-full mx-auto space-y-6 pb-20 relative z-10">
 
-    {{-- ══════════════════════
-         STATS
-    ══════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+    {{-- ── Hero Header Panel with SVG Decorative Mesh & Glassmorphic Stats ── --}}
+    <div class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 rounded-[2.25rem] p-6 sm:p-8 overflow-hidden shadow-2xl border border-slate-800">
+        <!-- SVG Decorative Mesh / Glow -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-rose-600/15 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <svg class="absolute right-0 bottom-0 w-96 h-96 opacity-5 pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0Z" stroke="white" stroke-width="2" stroke-dasharray="8 8"/>
+            <path d="M100 30C61.3401 30 30 61.3401 30 100C30 138.66 61.3401 170 100 170C138.66 170 170 138.66 170 100C170 61.3401 138.66 30 100 30Z" stroke="white" stroke-width="1.5"/>
+            <path d="M100 60C77.9086 60 60 77.9086 60 100C60 122.091 77.9086 140 100 140C122.091 140 140 122.091 140 100C140 77.9086 122.091 60 100 60Z" stroke="white" stroke-width="1"/>
+        </svg>
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-red-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="users" class="w-5 h-5 text-red-500"></i>
+        <div class="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 via-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/25 shrink-0 border border-white/20">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Financial Liabilities</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> Live Audit
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
+                        Track and manage driver accident charges, parts shortages, and boundary liabilities in real time.
+                    </p>
+                </div>
             </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Debtors</p>
-                <p class="text-3xl font-black text-gray-900 leading-none mt-0.5" id="stat-debtors">—</p>
-            </div>
-        </div>
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-rose-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-rose-500"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Outstanding</p>
-                <p class="text-2xl font-black text-rose-600 leading-none mt-0.5" id="stat-total-pending">₱0.00</p>
-            </div>
-        </div>
+            {{-- Stats row with modern glassmorphism & SVG icons --}}
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 shrink-0 w-full lg:w-auto">
+                {{-- Active Debtors --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-rose-500/10 hover:bg-rose-500/15 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-rose-500/25 backdrop-blur-md shadow-lg shadow-rose-500/5 min-w-[140px]">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-rose-300 uppercase tracking-widest block">Active Debtors</span>
+                        <span class="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight" id="stat-debtors">—</span>
+                    </div>
+                </div>
 
-        <div class="stat-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 relative overflow-hidden">
-            <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-emerald-50 blur-xl pointer-events-none"></div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 z-10">
-                <i data-lucide="piggy-bank" class="w-5 h-5 text-emerald-500"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Collected</p>
-                <p class="text-2xl font-black text-emerald-600 leading-none mt-0.5" id="stat-collections">₱0.00</p>
+                {{-- Total Outstanding --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-red-500/15 hover:bg-red-500/20 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-red-500/30 backdrop-blur-md shadow-lg shadow-red-500/10 min-w-[170px]">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-red-300 uppercase tracking-widest block">Total Outstanding</span>
+                        <span class="text-xl sm:text-2xl font-black text-white tracking-tight" id="stat-total-pending">₱0.00</span>
+                    </div>
+                </div>
+
+                {{-- Total Collected --}}
+                <div class="flex-1 sm:flex-initial flex items-center gap-3.5 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all px-4 sm:px-5 py-3.5 rounded-2xl border border-emerald-500/25 backdrop-blur-md shadow-lg shadow-emerald-500/5 min-w-[160px]">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
+                            <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+                            <circle cx="16" cy="11" r="1"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-emerald-300 uppercase tracking-widest block">Total Collected</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-400 tracking-tight" id="stat-collections">₱0.00</span>
+                    </div>
+                </div>
+
+                {{-- Print PDF Report Button (Pop-up print without opening new tab) --}}
+                <button type="button" onclick="triggerPrintDebtsPdf()" id="btnPrintPdf"
+                    class="flex items-center gap-2 px-4 sm:px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-red-600/30 transition-all active:scale-95 cursor-pointer shrink-0 border border-white/20">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Print PDF</span>
+                    <span class="sm:hidden">Print</span>
+                </button>
             </div>
         </div>
     </div>
@@ -192,7 +264,7 @@
                     <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
                 </div>
                 <input type="text" id="searchInput" name="driver_search_xq9"
-                    autocomplete="new-password" readonly
+                    autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"
                     placeholder="Search driver or plate…"
                     class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-slate-400 focus:ring-0 outline-none transition-all cursor-text">
             </div>
@@ -451,47 +523,46 @@ function renderCards(searchTerm = currentSearchTerm, page = 1) {
 
     /* 3. Render cards */
     paginatedData.forEach(driver => {
-        const initials   = driver.driver_name.trim().split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+        const photoUrl   = driver.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
         const totalDebt  = parseFloat(driver.total_remaining) +
                            driver.debts.reduce((s,d) => s + parseFloat(d.total_paid), 0);
         const totalPaid  = driver.debts.reduce((s,d) => s + parseFloat(d.total_paid), 0);
         const paidPct    = totalDebt > 0 ? Math.min(100,(totalPaid / totalDebt * 100)) : 0;
         const remaining  = parseFloat(driver.total_remaining);
 
-        const firstMeta  = debtMeta(driver.debts[0] || {});
-        const colors = ['#0f172a','#1e3a5f','#7c3aed','#0369a1','#065f46','#92400e','#991b1b'];
-        const avatarBg = colors[driver.driver_name.charCodeAt(0) % colors.length];
-
         html += `
-        <div class="driver-card bg-white border-2 border-gray-200 rounded-2xl p-5 select-none"
+        <div class="driver-card bg-white border border-slate-200/90 rounded-2xl p-5 select-none transition-all duration-200 hover:border-amber-400 hover:shadow-lg group flex flex-col justify-between"
              id="dcard-${driver.driver_id}"
              onclick="openDriverPanel(${driver.driver_id})">
 
-            {{-- Top row: avatar + name --}}
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-white font-black text-sm shadow-md"
-                     style="background:${avatarBg};">
-                    ${initials}
+            {{-- Top row: Actual Driver Profile Photo + Name + Unit Plate --}}
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 shrink-0 shadow-sm cursor-pointer group-hover:scale-105 transition-transform"
+                     onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${photoUrl}'); }"
+                     title="Click to view driver photo">
+                    <img src="${photoUrl}" alt="${driver.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-sm font-black text-gray-900 truncate">${driver.driver_name}</h4>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <i data-lucide="car" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                        <span class="text-[11px] font-bold text-gray-400 truncate">${driver.unit_plate || 'No Unit Assigned'}</span>
+                    <h4 class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors truncate">${driver.driver_name}</h4>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-slate-50 text-slate-600 border border-slate-200/80">
+                            <i data-lucide="car" class="w-3 h-3 text-slate-400"></i>
+                            ${driver.unit_plate || 'No Unit'}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <div class="border-t border-gray-100 mb-4"></div>
+            <div class="border-t border-slate-100 mb-3.5"></div>
 
             <div class="space-y-3">
                 <div class="flex justify-between items-end">
                     <div>
-                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Outstanding Balance</p>
-                        <p class="text-xl font-black text-red-600">₱${remaining.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Outstanding Balance</p>
+                        <p class="text-xl font-black text-red-600 tracking-tight">₱${remaining.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
                     </div>
                     <div class="text-right">
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200">
                             ${driver.debts.length} item${driver.debts.length > 1 ? 's' : ''}
                         </span>
                     </div>
@@ -499,17 +570,17 @@ function renderCards(searchTerm = currentSearchTerm, page = 1) {
 
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Settlement Progress</span>
-                        <span class="text-[10px] font-black text-gray-500">${paidPct.toFixed(0)}%</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Settlement Progress</span>
+                        <span class="text-[10px] font-black text-slate-700">${paidPct.toFixed(0)}%</span>
                     </div>
-                    <div class="pbar-track">
-                        <div class="pbar-fill" style="width:${paidPct}%"></div>
+                    <div class="pbar-track bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="pbar-fill h-full rounded-full bg-gradient-to-r from-red-500 via-orange-500 to-emerald-500 transition-all duration-500" style="width:${paidPct}%"></div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 pt-1">
-                    <i data-lucide="hand-click" class="w-3 h-3 text-slate-400"></i>
-                    <span class="text-[10px] font-bold text-slate-400">Click to view &amp; pay liabilities</span>
+                <div class="flex items-center justify-between pt-1 text-slate-400 group-hover:text-slate-700 transition-colors">
+                    <span class="text-[10px] font-bold">Click to view &amp; pay liabilities</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </div>
         </div>`;
@@ -590,125 +661,288 @@ function openDriverPanel(driverId) {
 /* ─── ESC key closes modal ───────────────────────────── */
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+let currentModalDriver = null;
+let currentDriverModalTab = 'active';
+
+/* ─── Switch Driver Modal Tabs ────────────────────────── */
+function switchDriverModalTab(tab) {
+    currentDriverModalTab = tab;
+    const btnActive = document.getElementById('dmodal-tab-active');
+    const btnHistory = document.getElementById('dmodal-tab-history');
+    const secActive = document.getElementById('dmodal-active-section');
+    const secHistory = document.getElementById('dmodal-history-section');
+    const viewTitle = document.getElementById('dmodal-view-title');
+    const modalCount = document.getElementById('driver-modal-count');
+
+    if (!btnActive || !btnHistory || !secActive || !secHistory) return;
+
+    if (tab === 'active') {
+        btnActive.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm border border-slate-200/60 cursor-pointer";
+        btnHistory.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/50 cursor-pointer";
+        secActive.classList.remove('hidden');
+        secHistory.classList.add('hidden');
+        if (viewTitle) viewTitle.textContent = "Active Records";
+        if (modalCount && currentModalDriver) {
+            const count = (currentModalDriver.debts || []).length;
+            modalCount.textContent = `${count} pending item${count !== 1 ? 's' : ''}`;
+        }
+    } else {
+        btnHistory.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm border border-slate-200/60 cursor-pointer";
+        btnActive.className = "px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/50 cursor-pointer";
+        secHistory.classList.remove('hidden');
+        secActive.classList.add('hidden');
+        if (viewTitle) viewTitle.textContent = "Settlement History & Payments";
+        if (modalCount && currentModalDriver) {
+            const histCount = (currentModalDriver.settled_debts || []).length + (currentModalDriver.expense_payments || []).length;
+            modalCount.textContent = `${histCount} settled record${histCount !== 1 ? 's' : ''}`;
+        }
+    }
+    lucide.createIcons();
+}
+
+function formatModalDateTime(dateStr, timeStr) {
+    if (!dateStr && !timeStr) return '---';
+    try {
+        const val = dateStr || timeStr;
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+            const dStr = d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+            const tStr = d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: true });
+            return `${dStr} • ${tStr}`;
+        }
+    } catch(e) {}
+    return dateStr || timeStr || '---';
+}
+
 /* ─── Render modal content ──────────────────────────── */
 function renderModal(driver) {
+    currentModalDriver = driver;
     const initials = driver.driver_name.trim().split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
     const colors   = ['#0f172a','#1e3a5f','#7c3aed','#0369a1','#065f46','#92400e','#991b1b'];
     const avatarBg = colors[driver.driver_name.charCodeAt(0) % colors.length];
-    const totalPaid = driver.debts.reduce((s,d)=>s+parseFloat(d.total_paid),0);
-    const totalDebt = parseFloat(driver.total_remaining) + totalPaid;
+    
+    const activeDebts = driver.debts || [];
+    const settledDebts = driver.settled_debts || [];
+    const expensePayments = driver.expense_payments || [];
+
+    const totalPaid = activeDebts.reduce((s,d)=>s+parseFloat(d.total_paid || 0),0);
+    const totalDebt = parseFloat(driver.total_remaining || 0) + totalPaid;
     const paidPct   = totalDebt > 0 ? Math.min(100,(totalPaid/totalDebt*100)) : 0;
 
-    /* Build debt item rows */
-    let rows = '';
-    driver.debts.forEach((debt, idx) => {
-        const meta    = debtMeta(debt);
-        const charge  = parseFloat(debt.total_charge);
-        const paid    = parseFloat(debt.total_paid);
-        const balance = parseFloat(debt.remaining_balance);
-        const pct     = charge > 0 ? Math.min(100,(paid/charge*100)).toFixed(0) : 0;
-        const dateStr = new Date(debt.timestamp || debt.date)
-            .toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
-
-        rows += `
-        <div class="debt-row border-b border-gray-100 last:border-b-0">
-            <div class="p-6 flex flex-col lg:flex-row gap-6">
-
-                {{-- Left: type + desc --}}
-                <div class="flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center gap-2 mb-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${meta.badge}">
-                            <i data-lucide="${meta.icon}" class="w-3 h-3"></i>
-                            ${meta.label}
-                        </span>
-                        <span class="text-[10px] font-bold text-gray-400">${dateStr}</span>
-                        <span class="text-[10px] font-bold text-gray-300">•</span>
-                        <span class="text-[10px] font-bold text-gray-400">Item #${idx + 1}</span>
-                    </div>
-                    <p class="text-sm font-bold text-gray-800 leading-snug mb-4">${debt.description}</p>
-
-                    {{-- Amounts row --}}
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Total Charge</p>
-                            <p class="text-sm font-black text-gray-800">₱${charge.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
-                        </div>
-                        <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-0.5">Amount Paid</p>
-                            <p class="text-sm font-black text-emerald-700">₱${paid.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
-                        </div>
-                        <div class="bg-red-50 rounded-xl p-3 border border-red-100">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-red-500 mb-0.5">Remaining</p>
-                            <p class="text-sm font-black text-red-700">₱${balance.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
-                        </div>
-                    </div>
-
-                    {{-- Progress --}}
-                    <div class="flex items-center gap-2 mt-3">
-                        <div class="pbar-track flex-1">
-                            <div class="pbar-fill" style="width:${pct}%"></div>
-                        </div>
-                        <span class="text-[10px] font-black text-gray-400 shrink-0">${pct}% paid</span>
-                    </div>
-                </div>
-
-                {{-- Right: payment box --}}
-                <div class="lg:w-56 shrink-0">
-                    <div class="bg-white border-2 border-gray-200 rounded-2xl p-4 h-full flex flex-col justify-between">
-                        <div>
-                            <p class="text-[9px] font-black uppercase tracking-widest text-red-500 mb-1">Balance to Pay</p>
-                            <p class="text-2xl font-black text-red-600 leading-none mb-4">₱${balance.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
-                        </div>
-                        <form onsubmit="return handlePaymentSubmit(event, this, '${driver.driver_name}', '${meta.label}', ${balance}, ${debt.id})"
-                              class="space-y-2">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Enter Payment Amount</p>
-                            <div class="flex gap-2">
-                                <div class="relative flex-1">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">₱</span>
-                                    <input type="number" name="payment_amount"
-                                        step="0.01" min="0.01" max="${balance}" required
-                                        placeholder="0.00"
-                                        oninput="if(parseFloat(this.value)>${balance}) this.value=${balance};"
-                                        class="pay-input w-full pl-7 pr-2 py-2.5 text-sm font-black border border-gray-200 rounded-xl">
-                                </div>
-                                <button type="submit"
-                                    class="px-4 py-2.5 bg-slate-900 hover:bg-red-600 text-white text-xs font-black rounded-xl transition-colors whitespace-nowrap shadow-sm">
-                                    Pay
-                                </button>
-                            </div>
-                            <button type="button"
-                                onclick="const i=this.closest('form').querySelector('input[name=payment_amount]');i.value=${balance};"
-                                class="w-full text-[10px] font-black text-slate-500 hover:text-red-600 transition-colors text-center py-1">
-                                Pay full balance
-                            </button>
-                        </form>
-                    </div>
-                </div>
+    /* 1. Build Active Liabilities Rows */
+    let activeRows = '';
+    if (activeDebts.length === 0) {
+        activeRows = `
+        <div class="p-12 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-3 text-emerald-500">
+                <i data-lucide="check-circle-2" class="w-7 h-7"></i>
             </div>
+            <h4 class="text-sm font-black text-slate-800">No Active Liabilities</h4>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto font-medium">This driver has zero outstanding balance. All previous records are cleared.</p>
         </div>`;
-    });
+    } else {
+        activeDebts.forEach((debt, idx) => {
+            const meta    = debtMeta(debt);
+            const charge  = parseFloat(debt.total_charge || 0);
+            const paid    = parseFloat(debt.total_paid || 0);
+            const balance = parseFloat(debt.remaining_balance || 0);
+            const pct     = charge > 0 ? Math.min(100,(paid/charge*100)).toFixed(0) : 0;
+            const dateStr = formatModalDateTime(debt.timestamp, debt.date);
 
-    /* Inject into modal elements */
+            activeRows += `
+            <div class="debt-row border-b border-gray-100 last:border-b-0">
+                <div class="p-6 flex flex-col lg:flex-row gap-6">
+
+                    {{-- Left: type + desc --}}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${meta.badge}">
+                                <i data-lucide="${meta.icon}" class="w-3 h-3"></i>
+                                ${meta.label}
+                            </span>
+                            <span class="text-[10px] font-bold text-gray-400">${dateStr}</span>
+                            <span class="text-[10px] font-bold text-gray-300">•</span>
+                            <span class="text-[10px] font-bold text-gray-400">Item #${idx + 1}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-800 leading-snug mb-4">${debt.description || 'No description provided'}</p>
+
+                        {{-- Amounts row --}}
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Total Charge</p>
+                                <p class="text-sm font-black text-gray-800">₱${charge.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                            </div>
+                            <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-0.5">Amount Paid</p>
+                                <p class="text-sm font-black text-emerald-700">₱${paid.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                            </div>
+                            <div class="bg-red-50 rounded-xl p-3 border border-red-100">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-red-500 mb-0.5">Remaining</p>
+                                <p class="text-sm font-black text-red-700">₱${balance.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                            </div>
+                        </div>
+
+                        {{-- Progress --}}
+                        <div class="flex items-center gap-2 mt-3">
+                            <div class="pbar-track flex-1">
+                                <div class="pbar-fill" style="width:${pct}%"></div>
+                            </div>
+                            <span class="text-[10px] font-black text-gray-400 shrink-0">${pct}% paid</span>
+                        </div>
+                    </div>
+
+                    {{-- Right: payment box --}}
+                    <div class="lg:w-56 shrink-0">
+                        <div class="bg-white border-2 border-gray-200 rounded-2xl p-4 h-full flex flex-col justify-between">
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-red-500 mb-1">Balance to Pay</p>
+                                <p class="text-2xl font-black text-red-600 leading-none mb-4">₱${balance.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                            </div>
+                            <form onsubmit="return handlePaymentSubmit(event, this, '${driver.driver_name.replace(/'/g, "\\'")}', '${meta.label}', ${balance}, ${debt.id})"
+                                  class="space-y-2">
+                                <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Enter Payment Amount</p>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">₱</span>
+                                        <input type="number" name="payment_amount"
+                                            step="0.01" min="0.01" max="${balance}" required
+                                            placeholder="0.00"
+                                            oninput="if(parseFloat(this.value)>${balance}) this.value=${balance};"
+                                            class="pay-input w-full pl-7 pr-2 py-2.5 text-sm font-black border border-gray-200 rounded-xl">
+                                    </div>
+                                    <button type="submit"
+                                        class="px-4 py-2.5 bg-slate-900 hover:bg-red-600 text-white text-xs font-black rounded-xl transition-colors whitespace-nowrap shadow-sm cursor-pointer">
+                                        Pay
+                                    </button>
+                                </div>
+                                <button type="button"
+                                    onclick="const i=this.closest('form').querySelector('input[name=payment_amount]');i.value=${balance};"
+                                    class="w-full text-[10px] font-black text-slate-500 hover:text-red-600 transition-colors text-center py-1 cursor-pointer">
+                                    Pay full balance
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    /* 2. Build Settlement History & Past Transactions Rows */
+    let historyRows = '';
+    const totalHistoryCount = settledDebts.length + expensePayments.length;
+
+    if (totalHistoryCount === 0) {
+        historyRows = `
+        <div class="p-12 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <i data-lucide="history" class="w-7 h-7"></i>
+            </div>
+            <h4 class="text-sm font-black text-slate-800">No Past Settlement History Yet</h4>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto font-medium">When this driver settles any liabilities or pays at the cashier, complete timestamped transaction records will appear here.</p>
+        </div>`;
+    } else {
+        // Render Settled Debts
+        settledDebts.forEach((sDebt, sIdx) => {
+            const meta = debtMeta(sDebt);
+            const totalCharge = parseFloat(sDebt.total_charge || 0);
+            const totalPaid = parseFloat(sDebt.total_paid || totalCharge);
+            const settledDateStr = formatModalDateTime(sDebt.settled_at || sDebt.updated_at || sDebt.timestamp || sDebt.created_at, sDebt.date);
+            const incidentDateStr = sDebt.date ? new Date(sDebt.date).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' }) : '';
+
+            historyRows += `
+            <div class="p-6 bg-slate-50/50 hover:bg-slate-50 transition-colors border-b border-gray-100 last:border-b-0">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                                ${meta.label} Settled
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                                ${settledDateStr}
+                            </span>
+                            ${incidentDateStr ? `<span class="text-[10px] font-semibold text-slate-400">(Incident: ${incidentDateStr})</span>` : ''}
+                        </div>
+                        <p class="text-sm font-bold text-slate-800 leading-snug">${sDebt.description || 'Settled liability charge'}</p>
+                    </div>
+
+                    <div class="flex items-center gap-4 shrink-0 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
+                        <div class="text-left lg:text-right">
+                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Settled</p>
+                            <p class="text-base sm:text-lg font-black text-emerald-600">₱${totalPaid.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            Fully Paid
+                        </span>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        // Render Cash In Payments (Expenses)
+        expensePayments.forEach((ep) => {
+            const pAmount = parseFloat(ep.amount || 0);
+            const pDateStr = formatModalDateTime(ep.created_at, ep.date);
+
+            historyRows += `
+            <div class="p-6 bg-teal-50/30 hover:bg-teal-50/50 transition-colors border-b border-gray-100 last:border-b-0">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-teal-50 text-teal-800 border border-teal-200">
+                                <i data-lucide="receipt" class="w-3 h-3 text-teal-600"></i>
+                                Cash Recovery Inflow
+                            </span>
+                            <span class="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                                ${pDateStr}
+                            </span>
+                            ${ep.payment_method ? `<span class="px-2 py-0.5 text-[9px] font-black rounded-md bg-white text-slate-600 border border-slate-200">${ep.payment_method}</span>` : ''}
+                        </div>
+                        <p class="text-sm font-bold text-slate-800 leading-snug">${ep.description || 'Cash payment received'}</p>
+                    </div>
+
+                    <div class="flex items-center gap-4 shrink-0 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-teal-100">
+                        <div class="text-left lg:text-right">
+                            <p class="text-[9px] font-black uppercase tracking-widest text-teal-600">Amount Received</p>
+                            <p class="text-base sm:text-lg font-black text-teal-700">₱${pAmount.toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                        </div>
+                        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase bg-teal-100 text-teal-800 border border-teal-300 shadow-sm">
+                            <i data-lucide="arrow-down-left" class="w-3.5 h-3.5 text-teal-600"></i>
+                            Cash-In
+                        </span>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    /* 3. Inject Header & Sections */
+    const photoUrl = driver.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
     document.getElementById('driver-modal-header').innerHTML = `
-        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5 flex items-center justify-between">
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 flex items-center justify-between border-b border-slate-700">
             <div class="flex items-center gap-4">
-                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-black text-sm border-2 border-white/20"
-                     style="background:${avatarBg}80;">
-                    ${initials}
+                <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-800 shrink-0 shadow-md cursor-pointer group hover:scale-105 transition-transform"
+                     onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${photoUrl}'); }"
+                     title="Click to view driver photo">
+                    <img src="${photoUrl}" alt="${driver.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="text-base font-black text-white">${driver.driver_name}</h3>
-                        <span class="px-2 py-0.5 bg-white/10 text-white text-[9px] font-black uppercase rounded-full border border-white/20">
-                            ${driver.debts.length} Liabilit${driver.debts.length > 1 ? 'ies' : 'y'}
+                        <h3 class="text-base sm:text-lg font-black text-white">${driver.driver_name}</h3>
+                        <span class="px-2.5 py-0.5 bg-amber-400/20 text-amber-300 text-[9px] font-black uppercase rounded-full border border-amber-400/30">
+                            ${activeDebts.length} Active Liabilit${activeDebts.length > 1 ? 'ies' : 'y'}
                         </span>
                     </div>
-                    <div class="flex items-center gap-3 mt-0.5">
-                        <span class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
-                            <i data-lucide="car" class="w-3 h-3"></i> ${driver.unit_plate || 'No Unit'}
+                    <div class="flex items-center gap-3 mt-1">
+                        <span class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> ${driver.unit_plate || 'No Unit Assigned'}
                         </span>
-                        <span class="text-gray-600">•</span>
-                        <span class="text-[10px] font-bold text-gray-400">${paidPct.toFixed(0)}% settled overall</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-[11px] font-bold text-slate-300">${paidPct.toFixed(0)}% settled overall</span>
                     </div>
                 </div>
             </div>
@@ -716,19 +950,23 @@ function renderModal(driver) {
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <p class="text-[9px] font-black uppercase tracking-widest text-red-300">Total Outstanding</p>
-                    <p class="text-2xl font-black text-white">₱${parseFloat(driver.total_remaining).toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
+                    <p class="text-2xl font-black text-white tracking-tight">₱${parseFloat(driver.total_remaining || 0).toLocaleString('en-PH',{minimumFractionDigits:2})}</p>
                 </div>
                 <button onclick="closeModal()"
-                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors border border-white/20">
-                    <i data-lucide="x" class="w-4 h-4 text-white"></i>
+                    class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors border border-white/20 text-white cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>`;
 
-    document.getElementById('driver-modal-count').textContent = `${driver.debts.length} pending item${driver.debts.length > 1 ? 's' : ''}`;
-    document.getElementById('driver-modal-subheader').classList.remove('hidden');
-    document.getElementById('driver-modal-body').innerHTML = rows;
+    document.getElementById('dmodal-active-badge').textContent = activeDebts.length;
+    document.getElementById('dmodal-history-badge').textContent = totalHistoryCount;
 
+    document.getElementById('dmodal-active-section').innerHTML = activeRows;
+    document.getElementById('dmodal-history-section').innerHTML = historyRows;
+    document.getElementById('driver-modal-subheader').classList.remove('hidden');
+
+    switchDriverModalTab('active');
     lucide.createIcons();
 }
 
@@ -863,19 +1101,22 @@ function renderGroupedList(items, type) {
                         <p class="text-xs font-bold text-gray-600 leading-snug line-clamp-2">${item.description}</p>
                     </div>`;
             } else {
+                const sPhoto = item.profile_photo_url || '{{ asset('image/avatars/driver.svg') }}';
                 html += `
-                    <div class="bg-white border border-gray-100 rounded-xl p-5 flex items-center gap-4 hover:border-emerald-200 hover:shadow-md transition-all relative overflow-hidden group">
-                        <div class="absolute inset-y-0 left-0 w-1 bg-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 hover:border-emerald-300 hover:shadow-md transition-all relative overflow-hidden group">
+                        <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-100 shrink-0 shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('${sPhoto}'); }"
+                             title="Click to view driver photo">
+                            <img src="${sPhoto}" alt="${item.driver_name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h5 class="text-sm font-black text-gray-900 truncate">
-                                ${item.driver_name} <span class="text-[10px] font-bold text-gray-400 ml-1">${item.unit_plate||''}</span>
+                            <h5 class="text-sm font-black text-slate-900 truncate">
+                                ${item.driver_name} <span class="text-[10px] font-bold text-slate-400 ml-1">(${item.unit_plate||'No Unit'})</span>
                             </h5>
-                            <p class="text-xs text-gray-500 truncate mt-0.5">${item.description}</p>
+                            <p class="text-xs text-slate-500 truncate mt-0.5">${item.description}</p>
                             <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mt-1.5 flex items-center gap-1">
-                                <i data-lucide="clock" class="w-3 h-3"></i> Settled ${new Date(item.date).toLocaleDateString('en-PH')}
+                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> Settled ${new Date(item.date).toLocaleDateString('en-PH')}
                             </p>
                         </div>
                     </div>`;
@@ -947,6 +1188,96 @@ function fetchDebtHistory() {
         document.getElementById('loading-history').innerHTML =
             `<div class="text-center py-10 text-red-500 font-bold text-sm">Failed to load history.</div>`;
     });
+}
+
+/* ─── Image Modal Lightbox ────────────────────────────── */
+function openImageModal(src) {
+    if (!src) return;
+    let modal = document.getElementById('imagePreviewModalOverlay');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'imagePreviewModalOverlay';
+        modal.className = 'fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300';
+        modal.onclick = function(e) {
+            if (e.target === modal) closeImageModal();
+        };
+        modal.innerHTML = `
+            <button type="button" class="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors group cursor-pointer" onclick="closeImageModal()">
+                <i data-lucide="x" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+            </button>
+            <div class="relative w-full max-w-[90vw] h-[90vh] flex justify-center items-center p-4">
+                <img id="imagePreviewModalImg" src="" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl scale-95 transition-transform duration-300 border border-white/10" />
+            </div>
+        `;
+        document.body.appendChild(modal);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    const img = document.getElementById('imagePreviewModalImg');
+    img.src = src;
+    
+    modal.classList.remove('hidden');
+    void modal.offsetWidth;
+    modal.classList.remove('opacity-0');
+    img.classList.remove('scale-95');
+    img.classList.add('scale-100');
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imagePreviewModalOverlay');
+    const img = document.getElementById('imagePreviewModalImg');
+    if (modal) {
+        modal.classList.add('opacity-0');
+        if (img) {
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+        }
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+}
+
+/* ─── Trigger Pop-up Print without opening a new tab ─── */
+function triggerPrintDebtsPdf() {
+    const btn = document.getElementById('btnPrintPdf');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> <span>Preparing...</span>';
+    }
+
+    let printFrame = document.getElementById('debtPrintIframe');
+    if (!printFrame) {
+        printFrame = document.createElement('iframe');
+        printFrame.id = 'debtPrintIframe';
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        printFrame.style.visibility = 'hidden';
+        document.body.appendChild(printFrame);
+    }
+
+    printFrame.onload = function() {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (window.lucide) lucide.createIcons();
+        }
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            } catch (e) {
+                console.error('Print iframe error:', e);
+            }
+        }, 300);
+    };
+
+    printFrame.src = '{{ route("driver-management.debts.print") }}?preview=1';
 }
 </script>
 @endpush

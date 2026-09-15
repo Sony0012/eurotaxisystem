@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SparePart extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = ['name', 'price', 'stock_quantity', 'supplier'];
+    protected $fillable = ['name', 'category', 'price', 'stock_quantity', 'supplier', 'image_url'];
 }

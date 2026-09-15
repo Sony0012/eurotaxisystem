@@ -25,6 +25,7 @@ class Unit extends Model
         'color',
         'unit_type',
         'coding_day',
+        'coding_updated_at',
         'driver_id',
         'secondary_driver_id',
         'current_turn_driver_id',
@@ -34,7 +35,9 @@ class Unit extends Model
         'imei',
         'gps_provider',
         'gps_password',
+        'gps_enabled',
         'dashcam_enabled',
+        'engine_status',
         'latitude',
         'longitude',
         'current_location',
@@ -52,7 +55,7 @@ class Unit extends Model
 
     public function primaryDriver()
     {
-        return $this->belongsTo(Driver::class, 'driver_id');
+        return $this->belongsTo(Driver::class, 'driver_id')->whereNotIn('driver_status', ['banned', 'suspended']);
     }
 
     /**
@@ -61,12 +64,12 @@ class Unit extends Model
      */
     public function driver()
     {
-        return $this->belongsTo(Driver::class, 'driver_id');
+        return $this->belongsTo(Driver::class, 'driver_id')->whereNotIn('driver_status', ['banned', 'suspended']);
     }
 
     public function secondaryDriver()
     {
-        return $this->belongsTo(Driver::class, 'secondary_driver_id');
+        return $this->belongsTo(Driver::class, 'secondary_driver_id')->whereNotIn('driver_status', ['banned', 'suspended']);
     }
 
     public function boundaries()

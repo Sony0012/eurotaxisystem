@@ -3,7 +3,7 @@
      Matching the user-provided screenshot aesthetic.
      ═══════════════════════════════════════════════════════════════ --}}
 
-<div class="overflow-x-auto bg-gray-50/50 px-2 md:px-4 py-3">
+<div id="unitsTableScrollContainer" class="overflow-x-auto bg-gray-50/50 px-2 md:px-4 py-3">
     <table class="min-w-full text-sm modern-table-sep">
         <thead>
             <tr>
@@ -44,7 +44,7 @@
                 {{-- Grouped card: main row + health bar share one tbody --}}
                 <tbody class="modern-card-tbody">
                 {{-- Main Data Row --}}
-                <tr class="{{ $has_maintenance_data ? 'modern-row-has-sub' : 'modern-row' }} cursor-pointer group" onclick="viewUnitDetails({{ $unit->id }})">
+                <tr class="{{ $has_maintenance_data ? 'modern-row-has-sub' : 'modern-row' }} cursor-pointer group" onclick="viewUnitDetails({{ $unit->uuid }})">
                     {{-- Plate Number Info --}}
                     <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap">
                         <div class="flex flex-col">
@@ -62,36 +62,84 @@
                             <span class="text-xs md:text-sm font-black text-gray-900">{{ $unit->make }} {{ $unit->model }}</span>
                             <span class="text-[10px] md:text-xs font-bold text-gray-400">{{ $unit->year }}</span>
                             <div class="mt-1.5">
-                                <span class="px-1.5 md:px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] md:text-[9px] font-black uppercase rounded border border-blue-100">New</span>
+                                @php
+                                    $uType = $unit->unit_type ?? 'new';
+                                    $typeLabel = ucwords(str_replace('_', ' ', $uType));
+                                    $typeClass = $uType === 'boundary_hulog'
+                                        ? 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold'
+                                        : 'bg-blue-50 text-blue-600 border-blue-100';
+                                @endphp
+                                <span class="px-1.5 md:px-2 py-0.5 text-[8px] md:text-[9px] font-black uppercase rounded border {{ $typeClass }}">{{ $typeLabel }}</span>
                             </div>
                         </div>
                     </td>
 
                     {{-- Assigned Drivers --}}
-                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap hidden md:table-cell">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D1:</span>
-                                <span class="text-[11px] font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->driver_id && $primary_driver)
-                                        @php $d1 = explode('|', $primary_driver); @endphp
-                                        {{ $d1[0] }}
-                                    @else
-                                        No D1
-                                    @endif
-                                </span>
+                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap hidden md:table-cell align-middle">
+                        @php
+                            $d1Name = '';
+                            $d1Contact = '';
+                            if ($unit->driver_id && !empty($primary_driver)) {
+                                $d1Parts = explode('|', $primary_driver);
+                                $d1Name = trim($d1Parts[0] ?? '');
+                                $d1Contact = trim($d1Parts[1] ?? '');
+                            }
+
+                            $d2Name = '';
+                            $d2Contact = '';
+                            if ($unit->secondary_driver_id && !empty($secondary_driver)) {
+                                $d2Parts = explode('|', $secondary_driver);
+                                $d2Name = trim($d2Parts[0] ?? '');
+                                $d2Contact = trim($d2Parts[1] ?? '');
+                            }
+
+                            $d1Photo = $unit->primary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                            $d2Photo = $unit->secondary_driver_photo_url ?? asset('image/avatars/driver.svg');
+                        @endphp
+                        <div class="flex items-center justify-between gap-3 max-w-[260px] my-auto">
+                            {{-- Driver Text Names on the LEFT --}}
+                            <div class="flex flex-col gap-0.5 min-w-0 flex-1 justify-center">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-tight">D1:</span>
+                                    <span class="text-xs font-bold {{ $unit->driver_id ? 'text-gray-900' : 'text-gray-400 italic' }} truncate">
+                                        {{ $unit->driver_id && $d1Name ? $d1Name : 'No D1' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-tight">D2:</span>
+                                    <span class="text-xs font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-400 italic' }} truncate">
+                                        {{ $unit->secondary_driver_id && $d2Name ? $d2Name : 'No D2' }}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">D2:</span>
-                                <span class="text-[11px] font-bold {{ $unit->secondary_driver_id ? 'text-gray-900' : 'text-gray-300 italic' }}">
-                                    @if($unit->secondary_driver_id && $secondary_driver)
-                                        @php $d2 = explode('|', $secondary_driver); @endphp
-                                        {{ $d2[0] }}
-                                    @else
-                                        No D2
+
+                            {{-- Avatar stack on the RIGHT side (larger avatars with overlapping ring) --}}
+                            @if($unit->driver_id || $unit->secondary_driver_id)
+                                <div class="flex -space-x-3.5 overflow-hidden shrink-0 items-center justify-center">
+                                    @if($unit->driver_id)
+                                        <div class="relative inline-block w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d1Photo }}'); }"
+                                             title="D1: {{ $d1Name ?: 'Primary Driver' }} (Click to view photo)">
+                                            <img src="{{ $d1Photo }}" alt="{{ $d1Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                        </div>
                                     @endif
-                                </span>
-                            </div>
+                                    @if($unit->secondary_driver_id)
+                                        <div class="relative inline-block w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-2 ring-white border-2 border-amber-400 bg-slate-100 shadow-sm cursor-pointer group hover:z-10 transition-all"
+                                             onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $d2Photo }}'); }"
+                                             title="D2: {{ $d2Name ?: 'Secondary Driver' }} (Click to view photo)">
+                                            <img src="{{ $d2Photo }}" alt="{{ $d2Name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-150" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                        </div>
+                                    @elseif($unit->driver_id)
+                                        <div class="relative inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full ring-2 ring-white bg-slate-50 border-2 border-dashed border-slate-300 text-[10px] font-black text-slate-400 shadow-2xs" title="No D2 assigned">
+                                            <span>D2</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-50/90 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 shrink-0 shadow-2xs" title="No drivers assigned">
+                                    <i data-lucide="user-x" class="w-5 h-5 text-slate-400"></i>
+                                </div>
+                            @endif
                         </div>
                     </td>
 
@@ -118,54 +166,19 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative">
+                    <td class="px-2 md:px-6 py-3 md:py-5 whitespace-nowrap text-center relative" onclick="event.stopPropagation()">
                         <button type="button"
                             class="p-1 md:p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-colors focus:outline-none inline-flex items-center justify-center"
-                            onclick="toggleUnitDropdown('unit-dropdown-{{ $unit->id }}', event)"
+                            onclick="toggleUnitDropdown('unit-dropdown-{{ $unit->uuid }}', event)"
                             title="Actions">
                             <i data-lucide="more-vertical" class="w-4 h-4 md:w-5 md:h-5"></i>
                         </button>
-
-                        <div id="unit-dropdown-{{ $unit->id }}"
-                            class="unit-action-dropdown hidden absolute right-4 mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
-                            {{-- Edit --}}
-                            <button type="button"
-                                class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
-                                onclick="event.stopPropagation(); document.getElementById('unit-dropdown-{{ $unit->id }}').classList.add('hidden'); editUnit({{ $unit->id }})">
-                                <i data-lucide="edit-2" class="w-4 h-4"></i> Edit Unit
-                            </button>
-                            {{-- Reset Service Overdue --}}
-                            @if($has_maintenance_data)
-                            <form method="POST" action="{{ route('units.reset-health', $unit->id) }}"
-                                onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
-                                class="m-0 p-0">
-                                @csrf
-                                <button type="submit"
-                                    onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2 border-t border-gray-50">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
-                                </button>
-                            </form>
-                            @endif
-
-                            {{-- Archive --}}
-                            <form method="POST" action="{{ route('units.destroy', $unit->id) }}"
-                                onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
-                                class="m-0 p-0">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    onclick="event.stopPropagation()"
-                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2 border-t border-gray-50">
-                                    <i data-lucide="archive" class="w-4 h-4"></i> Archive Unit
-                                </button>
-                            </form>
-                        </div>
                     </td>
                 </tr>
 
                 {{-- Maintenance Bar Row (Sub-Row — stays inside same tbody card) --}}
                 @if($has_maintenance_data)
-                    <tr class="modern-sub-row cursor-pointer" onclick="viewUnitDetails({{ $unit->id }})">
+                    <tr class="modern-sub-row cursor-pointer" onclick="viewUnitDetails({{ $unit->uuid }})">
                         <td colspan="6" class="px-2 md:px-6 pb-4 pt-0">
                             @include('units.partials._maintenance_health_bar', ['unit' => $unit])
                         </td>
@@ -188,6 +201,47 @@
             @endforelse
         </table>
 </div>
+
+{{-- Floating Action Dropdowns rendered outside table to escape stacking contexts, transforms, and overflow --}}
+@foreach($units as $unit)
+    @php
+        $has_maintenance_data = (int)($unit->gps_device_count ?? 0) > 0 || !empty($unit->imei);
+    @endphp
+    <div id="unit-dropdown-{{ $unit->uuid }}"
+        class="unit-action-dropdown hidden fixed w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-1.5 z-[999999]">
+        {{-- Edit --}}
+        <button type="button"
+            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2.5"
+            onclick="event.stopPropagation(); closeAllUnitDropdowns(); editUnit({{ $unit->uuid }})">
+            <i data-lucide="edit-2" class="w-4 h-4 text-gray-500"></i> Edit Unit
+        </button>
+        {{-- Reset Service Overdue --}}
+        @if($has_maintenance_data)
+        <form method="POST" action="{{ route('units.reset-health', $unit->uuid) }}"
+            onsubmit="return confirm('Reset service overdue for unit {{ $unit->plate_number }}? This will reset the maintenance counter to zero based on current GPS odometer.');"
+            class="m-0 p-0">
+            @csrf
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-green-600 hover:bg-green-50 transition-colors flex items-center gap-2.5 border-t border-gray-100">
+                <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i> Reset Service
+            </button>
+        </form>
+        @endif
+
+        {{-- Archive --}}
+        <form method="POST" action="{{ route('units.destroy', $unit->uuid) }}"
+            onsubmit="return confirm('Archive unit {{ $unit->plate_number }}? It will be moved to the Archive page.');"
+            class="m-0 p-0">
+            @csrf @method('DELETE')
+            <button type="submit"
+                onclick="event.stopPropagation()"
+                class="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2.5 border-t border-gray-100">
+                <i data-lucide="archive" class="w-4 h-4 text-amber-600"></i> Archive Unit
+            </button>
+        </form>
+    </div>
+@endforeach
 
 {{-- Modern Pagination --}}
 @if($pagination['total_pages'] > 1)
@@ -214,5 +268,6 @@
         </div>
     </div>
 @endif
+
 
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTutorial } from '../context/TutorialContext';
 
 interface SpotlightRect {
@@ -26,17 +26,19 @@ const TutorialOverlay: React.FC = () => {
     return () => clearTimeout(t);
   }, [isActive, currentStep]);
 
-  // Auto-navigate to step route
-  const history = useHistory();
+  // Auto-navigate to step route — use window.location for guaranteed navigation
   const location = useLocation();
 
   useEffect(() => {
     if (isActive && steps[currentStep]?.route) {
-      if (location.pathname !== steps[currentStep].route) {
-        history.replace(steps[currentStep].route as string);
+      const targetRoute = steps[currentStep].route as string;
+      if (location.pathname !== targetRoute) {
+        // Force a hard navigation — tutorial state is persisted in localStorage
+        // so it will resume on the new page automatically
+        window.location.href = targetRoute;
       }
     }
-  }, [isActive, currentStep, steps, history, location.pathname]);
+  }, [isActive, currentStep, steps, location.pathname]);
 
   // Calculate spotlight & tooltip position continuously to handle scrolling
   useEffect(() => {

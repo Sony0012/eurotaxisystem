@@ -24,6 +24,9 @@
         
         <div class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
             @forelse($drivers as $driver)
+                @php
+                    $driverIsOnline = $driver->is_online || ($driver->last_seen_at && \Carbon\Carbon::parse($driver->last_seen_at)->diffInMinutes(now()) <= 5);
+                @endphp
                 <a href="{{ route('support.index', ['driver_id' => $driver->id]) }}" 
                    class="flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 {{ isset($selectedDriver) && $selectedDriver->id == $driver->id ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-200 translate-x-1' : 'hover:bg-white hover:shadow-md text-gray-700' }}">
                     <div class="relative flex-shrink-0">
@@ -42,6 +45,7 @@
                                 {{ strtoupper(substr($driver->full_name ?? 'D', 0, 1)) }}
                             @endif
                         </div>
+                        <span class="driver-online-badge absolute bottom-0 right-0 w-3 h-3 {{ $driverIsOnline ? 'bg-emerald-500' : 'bg-gray-300' }} border-2 border-white rounded-full" data-driver-id="{{ $driver->id }}"></span>
                         @if($driver->unread_count > 0)
                             <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white">
                                 {{ $driver->unread_count }}
@@ -73,6 +77,9 @@
     <!-- Right: Chat Window -->
     <div class="flex-1 flex flex-col bg-white">
         @if($selectedDriver)
+            @php
+                $isDriverOnline = isset($isDriverOnline) ? $isDriverOnline : false;
+            @endphp
             <!-- Chat Header -->
             <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur-md z-10">
                 <div class="flex items-center gap-3">
@@ -81,9 +88,9 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-black text-gray-900">{{ $selectedDriver->full_name }}</h3>
-                        <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                            Online (Driver App)
+                        <p id="chatHeaderStatus" class="text-[10px] {{ $isDriverOnline ? 'text-emerald-500' : 'text-gray-400' }} font-bold uppercase tracking-widest flex items-center gap-1.5">
+                            <span id="chatHeaderDot" class="w-1.5 h-1.5 {{ $isDriverOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400' }} rounded-full"></span>
+                            <span id="chatHeaderStatusText">{{ $isDriverOnline ? 'Online (Driver App)' : ($driverLastSeen ? 'Active ' . $driverLastSeen : 'Offline') }}</span>
                         </p>
                     </div>
                 </div>
@@ -122,10 +129,30 @@
                                 @endif
                                 {{ $msg->message }}
                             </div>
+                            @if($msg->sender_type == 'admin')
+                                <div class="flex items-center justify-end gap-1 mt-1 text-right message-status-container" data-status-id="{{ $msg->id }}">
+                                    @if($msg->is_read)
+                                        <span class="inline-flex items-center gap-1 text-[10px] text-blue-500 font-bold" title="Seen by driver">
+                                            <svg class="w-3.5 h-3.5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></svg>
+                                            Seen
+                                        </span>
+                                    @elseif($isDriverOnline)
+                                        <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 font-medium" title="Delivered to driver device">
+                                            <svg class="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></svg>
+                                            Delivered
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 font-medium" title="Sent to server">
+                                            <svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                            Sent
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @empty
-                    <div class="h-full flex flex-col items-center justify-center text-center p-8">
+                    <div id="emptyChatPlaceholder" class="h-full flex flex-col items-center justify-center text-center p-8">
                         <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mb-4">
                             <i data-lucide="message-square" class="w-8 h-8 text-yellow-600"></i>
                         </div>
@@ -135,9 +162,9 @@
                 @endforelse
             </div>
 
-            <!-- Message Input -->
+            <!-- Message Input (No global loader on submit) -->
             <div class="p-4 bg-white border-t border-gray-100">
-                <form id="chatForm" action="{{ route('support.send') }}" method="POST" class="flex items-end gap-2">
+                <form id="chatForm" action="{{ route('support.send') }}" method="POST" data-no-loader="true" class="flex items-end gap-2">
                     @csrf
                     <input type="hidden" name="driver_id" value="{{ $selectedDriver->id }}">
                     
@@ -242,8 +269,9 @@
         const sendIcon = document.getElementById('sendIcon');
         
         const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-        let lastMessageCount = @json($chatMessages ? count($chatMessages) : 0);
         const selectedDriverId = @json($selectedDriver ? $selectedDriver->id : null);
+        let driverIsOnline = @json(isset($isDriverOnline) && $isDriverOnline ? true : false);
+        let lastMessageCount = @json($chatMessages ? count($chatMessages) : 0);
         let originalTitle = document.title;
         let unreadTotal = 0;
 
@@ -251,10 +279,63 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
+        // --- Status Badge Helper (Messenger-Style) ---
+        window.renderStatusBadge = function(status) {
+            if (status === 'sending') {
+                return `
+                    <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 font-medium" title="Sending message...">
+                        <svg class="w-2.5 h-2.5 animate-spin text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        Sending...
+                    </span>
+                `;
+            } else if (status === 'sent') {
+                return `
+                    <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 font-medium" title="Sent to server">
+                        <svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Sent
+                    </span>
+                `;
+            } else if (status === 'delivered') {
+                return `
+                    <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 font-medium" title="Delivered to driver device">
+                        <svg class="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6L7 17l-5-5"/>
+                            <path d="M22 10l-7.5 7.5L13 16"/>
+                        </svg>
+                        Delivered
+                    </span>
+                `;
+            } else if (status === 'seen') {
+                return `
+                    <span class="inline-flex items-center gap-1 text-[10px] text-blue-500 font-bold" title="Seen by driver">
+                        <svg class="w-3.5 h-3.5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6L7 17l-5-5"/>
+                            <path d="M22 10l-7.5 7.5L13 16"/>
+                        </svg>
+                        Seen
+                    </span>
+                `;
+            } else if (status === 'failed') {
+                return `
+                    <button type="button" class="retry-send-btn inline-flex items-center gap-1 text-[10px] text-red-500 font-bold hover:underline cursor-pointer" title="Tap to retry">
+                        <svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        Failed. Tap to retry
+                    </button>
+                `;
+            }
+            return '';
+        };
+
         // --- Sidebar Driver Search & Anti-Autofill ---
         const searchInput = document.getElementById('driver_search_query');
         if (searchInput) {
-            // 1. Live Sidebar Filtering
             searchInput.addEventListener('input', function() {
                 const query = this.value.toLowerCase().trim();
                 const driverLinks = document.querySelectorAll('.custom-scrollbar a');
@@ -272,45 +353,49 @@
                 });
             });
 
-            // 2. Extra Insurance: Clear browser autofill if it bypasses our HTML blocks
             const clearAutofill = () => {
                 if (searchInput.value.includes('@') || searchInput.value === 'sonysunico02@gmail.com') {
                     searchInput.value = '';
                 }
             };
             
-            // Run immediately, after 50ms, and on initial focus to catch delayed browser autofill
             clearAutofill();
             setTimeout(clearAutofill, 50);
             setTimeout(clearAutofill, 150);
             searchInput.addEventListener('focus', clearAutofill, { once: true });
         }
 
-        // --- Polling for New Messages ---
+        // --- Polling for Active Chat Messages ---
         if (selectedDriverId) {
             setInterval(async () => {
                 try {
                     const response = await fetch(`/support-center/${selectedDriverId}/messages`);
                     const data = await response.json();
                     
-                    if (data.success && data.messages.length !== lastMessageCount) {
+                    if (data.success) {
+                        // Update driver online state
+                        if (typeof data.driver_is_online !== 'undefined') {
+                            driverIsOnline = Boolean(data.driver_is_online);
+                            updateChatHeaderStatus(driverIsOnline, data.driver_last_seen);
+                        }
+
+                        // Check for new driver messages to chime sound
                         if (data.messages.length > lastMessageCount) {
                             const newMsgs = data.messages.slice(lastMessageCount);
                             const hasDriverMsg = newMsgs.some(m => m.sender_type === 'driver');
-                            
                             if (hasDriverMsg) {
-                                notifSound.play().catch(e => console.log('Sound blocked by browser'));
+                                notifSound.play().catch(e => console.log('Sound blocked'));
                                 flashTitle('New Message!');
                             }
                         }
 
-                        renderMessages(data.messages);
+                        reconcileMessages(data.messages);
                         lastMessageCount = data.messages.length;
                     }
                 } catch (e) {
                     console.error('Polling failed', e);
                 }
-            }, 1000); // Poll every 1 second for active chat
+            }, 1000); // Poll every 1s for real-time responsiveness
         }
 
         // --- Polling for Driver List Status ---
@@ -324,7 +409,7 @@
             } catch (e) {
                 console.error('Status polling failed', e);
             }
-        }, 3000); // Poll every 3 seconds for sidebar status
+        }, 3000);
 
         function flashTitle(text) {
             let count = 0;
@@ -337,49 +422,175 @@
             }, 500);
         }
 
-        function renderMessages(messages) {
-            chatContainer.innerHTML = '';
-            messages.forEach(msg => {
-                const isSystem = msg.sender_type === 'admin';
-                const div = document.createElement('div');
-                div.className = `flex ${isSystem ? 'justify-end' : 'justify-start'}`;
-                div.setAttribute('data-msg-id', msg.id);
-                
-                const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                div.innerHTML = `
-                    <div class="max-w-[70%] group">
-                        <div class="flex items-center gap-2 mb-1 ${isSystem ? 'flex-row-reverse' : ''}">
-                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">${time}</span>
-                            ${isSystem ? `
-                                <div class="relative inline-block dropdown-container">
-                                    <button type="button" onclick="toggleDropdown(this)" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" title="More options">
-                                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
-                                    </button>
-                                    <div class="dropdown-menu absolute right-0 top-full mt-1 hidden bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[170px] z-50">
-                                        <button type="button" onclick="openUnsendModal(${msg.id}, this)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i> Remove
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <div class="px-4 py-3 rounded-2xl text-sm shadow-sm ${isSystem ? 'bg-yellow-600 text-white rounded-tr-none' : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'}">
-                            ${msg.attachment ? `
-                                <div class="mb-2 rounded-xl overflow-hidden border border-gray-100">
-                                    <img src="/${msg.attachment}" class="max-w-full max-h-64 object-cover cursor-pointer" onclick="window.open(this.src, '_blank')">
-                                </div>
-                            ` : ''}
-                            ${msg.message || ''}
-                        </div>
-                    </div>
-                `;
-                chatContainer.appendChild(div);
-            });
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            lucide.createIcons();
+        function updateChatHeaderStatus(isOnline, lastSeen) {
+            const headerDot = document.getElementById('chatHeaderDot');
+            const headerText = document.getElementById('chatHeaderStatusText');
+            const headerStatus = document.getElementById('chatHeaderStatus');
+            if (!headerDot || !headerText || !headerStatus) return;
+
+            if (isOnline) {
+                headerDot.className = 'w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse';
+                headerStatus.className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest flex items-center gap-1.5';
+                headerText.textContent = 'Online (Driver App)';
+            } else {
+                headerDot.className = 'w-1.5 h-1.5 bg-gray-400 rounded-full';
+                headerStatus.className = 'text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5';
+                headerText.textContent = lastSeen ? `Active ${lastSeen}` : 'Offline';
+            }
         }
 
+        function updateDriverList(drivers) {
+            let currentTotalUnread = 0;
+            drivers.forEach(driver => {
+                currentTotalUnread += parseInt(driver.unread_count || 0);
+                const driverLink = document.querySelector(`a[href*="driver_id=${driver.id}"]`);
+                if (!driverLink) return;
+
+                const latestMsgP = driverLink.querySelector('p');
+                if (latestMsgP) {
+                    latestMsgP.innerText = driver.latest_message || 'No messages yet';
+                }
+
+                // Update online badge
+                const onlineDot = driverLink.querySelector('.driver-online-badge');
+                if (onlineDot) {
+                    if (driver.is_online_computed) {
+                        onlineDot.className = 'driver-online-badge absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full';
+                    } else {
+                        onlineDot.className = 'driver-online-badge absolute bottom-0 right-0 w-3 h-3 bg-gray-300 border-2 border-white rounded-full';
+                    }
+                }
+
+                // Handle unread badge visibility
+                const avatarContainer = driverLink.querySelector('.relative');
+                if (avatarContainer) {
+                    let existingBadge = avatarContainer.querySelector('.bg-red-500');
+                    if (driver.unread_count > 0) {
+                        if (!existingBadge) {
+                            existingBadge = document.createElement('span');
+                            existingBadge.className = 'absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white';
+                            avatarContainer.appendChild(existingBadge);
+                        }
+                        existingBadge.innerText = driver.unread_count;
+                    } else if (existingBadge) {
+                        existingBadge.remove();
+                    }
+                }
+            });
+
+            if (currentTotalUnread > unreadTotal) {
+                if (!selectedDriverId) {
+                    notifSound.play().catch(e => console.log('Sound blocked'));
+                    flashTitle('New Chat!');
+                }
+            }
+            unreadTotal = currentTotalUnread;
+        }
+
+        // --- Smooth Message Reconciliation (No Screen Flicker) ---
+        function reconcileMessages(messages) {
+            if (!chatContainer) return;
+
+            // Remove placeholder if present
+            const placeholder = document.getElementById('emptyChatPlaceholder');
+            if (placeholder && messages.length > 0) {
+                placeholder.remove();
+            }
+
+            const currentScrollAtBottom = (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < 80;
+            const existingMsgMap = new Map();
+            chatContainer.querySelectorAll('[data-msg-id]').forEach(el => {
+                existingMsgMap.set(parseInt(el.getAttribute('data-msg-id')), el);
+            });
+
+            messages.forEach(msg => {
+                const msgId = parseInt(msg.id);
+                if (existingMsgMap.has(msgId)) {
+                    // Update existing message status if admin
+                    const el = existingMsgMap.get(msgId);
+                    if (msg.sender_type === 'admin') {
+                        const statusContainer = el.querySelector('.message-status-container');
+                        if (statusContainer) {
+                            let targetStatus = 'sent';
+                            if (msg.is_read) {
+                                targetStatus = 'seen';
+                            } else if (driverIsOnline) {
+                                targetStatus = 'delivered';
+                            }
+                            const currentHtml = statusContainer.innerHTML.trim();
+                            const newHtml = renderStatusBadge(targetStatus).trim();
+                            if (currentHtml !== newHtml) {
+                                statusContainer.innerHTML = newHtml;
+                            }
+                        }
+                    }
+                    existingMsgMap.delete(msgId);
+                } else {
+                    // New message to append
+                    const isSystem = msg.sender_type === 'admin';
+                    let initialStatus = 'sent';
+                    if (msg.is_read) {
+                        initialStatus = 'seen';
+                    } else if (driverIsOnline) {
+                        initialStatus = 'delivered';
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = `flex ${isSystem ? 'justify-end' : 'justify-start'}`;
+                    div.setAttribute('data-msg-id', msg.id);
+
+                    const time = msg.time || (msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now');
+                    
+                    div.innerHTML = `
+                        <div class="max-w-[70%] group">
+                            <div class="flex items-center gap-2 mb-1 ${isSystem ? 'flex-row-reverse' : ''}">
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">${time}</span>
+                                ${isSystem ? `
+                                    <div class="relative inline-block dropdown-container">
+                                        <button type="button" onclick="toggleDropdown(this)" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" title="More options">
+                                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-0 top-full mt-1 hidden bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[170px] z-50">
+                                            <button type="button" onclick="openUnsendModal(${msg.id}, this)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="px-4 py-3 rounded-2xl text-sm shadow-sm ${isSystem ? 'bg-yellow-600 text-white rounded-tr-none' : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'}">
+                                ${msg.attachment ? `
+                                    <div class="mb-2 rounded-xl overflow-hidden border border-gray-100">
+                                        <img src="/${msg.attachment}" class="max-w-full max-h-64 object-cover cursor-pointer" onclick="window.open(this.src, '_blank')">
+                                    </div>
+                                ` : ''}
+                                ${msg.message || ''}
+                            </div>
+                            ${isSystem ? `
+                                <div class="flex items-center justify-end gap-1 mt-1 text-right message-status-container" data-status-id="${msg.id}">
+                                    ${renderStatusBadge(initialStatus)}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    chatContainer.appendChild(div);
+                    if (window.lucide) lucide.createIcons();
+                }
+            });
+
+            // If some message was removed (unsent) on server, clean it up
+            existingMsgMap.forEach((el) => {
+                if (!el.dataset.temp) {
+                    el.remove();
+                }
+            });
+
+            if (currentScrollAtBottom) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        // --- Dropdown Toggle & Close Handlers ---
         window.toggleDropdown = function(btn) {
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 if (menu !== btn.nextElementSibling) {
@@ -397,6 +608,7 @@
             }
         });
 
+        // --- Unsend Modal Logic ---
         let currentMessageToUnsend = null;
         let currentUnsendBtnElement = null;
 
@@ -404,17 +616,13 @@
             currentMessageToUnsend = id;
             currentUnsendBtnElement = btn;
             
-            // Hide dropdown
             btn.closest('.dropdown-menu').classList.add('hidden');
-            
-            // Reset radio to default (for_everyone)
             document.querySelector('input[name="unsend_type"][value="for_everyone"]').checked = true;
             
             const modal = document.getElementById('unsendModal');
             const container = document.getElementById('unsendModalContainer');
             
             modal.classList.remove('hidden');
-            // Small delay to allow display:block to apply before animation
             setTimeout(() => {
                 container.classList.remove('scale-95', 'opacity-0');
                 container.classList.add('scale-100', 'opacity-100');
@@ -435,7 +643,7 @@
             }, 200);
         };
 
-        document.getElementById('confirmUnsendBtn').addEventListener('click', async function() {
+        document.getElementById('confirmUnsendBtn')?.addEventListener('click', async function() {
             if (!currentMessageToUnsend || !currentUnsendBtnElement) return;
             
             const selectedType = document.querySelector('input[name="unsend_type"]:checked').value;
@@ -443,10 +651,8 @@
             
             closeUnsendModal();
             
-            // Find the top-level message wrapper using data-msg-id or by traversing to the root flex div
             let msgDiv = document.querySelector(`[data-msg-id="${msgId}"]`);
             if (!msgDiv) {
-                // Fallback: traverse up from the button
                 msgDiv = currentUnsendBtnElement.closest('[data-msg-id]') || currentUnsendBtnElement.closest('#chatMessages > div');
             }
             if (msgDiv) msgDiv.style.opacity = '0.5';
@@ -473,7 +679,6 @@
                         msgDiv.style.padding = '0';
                         setTimeout(() => msgDiv.remove(), 300);
                     }
-                    // Decrement so polling doesn't re-render the deleted message
                     lastMessageCount = Math.max(0, lastMessageCount - 1);
                 } else {
                     alert(data.message || 'Failed to unsend message');
@@ -486,124 +691,141 @@
             }
         });
 
-        function updateDriverList(drivers) {
-            let currentTotalUnread = 0;
-            drivers.forEach(driver => {
-                currentTotalUnread += parseInt(driver.unread_count || 0);
-                const badge = document.querySelector(`a[href*="driver_id=${driver.id}"] .bg-red-500`);
-                const latestMsgP = document.querySelector(`a[href*="driver_id=${driver.id}"] p`);
-                
-                if (latestMsgP) {
-                    latestMsgP.innerText = driver.latest_message || 'No messages yet';
-                }
-
-                // Handle badge visibility
-                const driverLink = document.querySelector(`a[href*="driver_id=${driver.id}"] .relative`);
-                if (driverLink) {
-                    let existingBadge = driverLink.querySelector('.bg-red-500');
-                    if (driver.unread_count > 0) {
-                        if (!existingBadge) {
-                            existingBadge = document.createElement('span');
-                            existingBadge.className = 'absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white';
-                            driverLink.appendChild(existingBadge);
-                        }
-                        existingBadge.innerText = driver.unread_count;
-                    } else if (existingBadge) {
-                        existingBadge.remove();
-                    }
-                }
-            });
-
-            if (currentTotalUnread > unreadTotal) {
-                if (!selectedDriverId) { // Only sound if not currently in a chat, or logic could be refined
-                    notifSound.play().catch(e => console.log('Sound blocked'));
-                    flashTitle('New Chat!');
-                }
-            }
-            unreadTotal = currentTotalUnread;
-        }
-
-        // --- AJAX Form Submission ---
+        // --- Optimistic Messenger-Style Chat Send Action ---
         if (chatForm) {
-            // Allow sending by pressing Enter
             messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     if (messageInput.value.trim() !== '') {
-                        sendButton.click();
+                        chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
                     }
                 }
             });
 
-            chatForm.addEventListener('submit', async (e) => {
+            async function performSendMessage(text, targetTempDiv) {
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('driver_id', selectedDriverId);
+                formData.append('message', text);
+
+                try {
+                    const response = await fetch(chatForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const resData = await response.json();
+
+                    if (response.ok && resData.success) {
+                        const newMsgId = resData.data.id;
+                        if (typeof resData.driver_is_online !== 'undefined') {
+                            driverIsOnline = Boolean(resData.driver_is_online);
+                        }
+
+                        targetTempDiv.removeAttribute('data-temp');
+                        targetTempDiv.setAttribute('data-msg-id', newMsgId);
+                        targetTempDiv.style.opacity = '1';
+
+                        const statusContainer = targetTempDiv.querySelector('.message-status-container');
+                        if (statusContainer) {
+                            statusContainer.setAttribute('data-status-id', newMsgId);
+                            const nextStatus = driverIsOnline ? 'delivered' : 'sent';
+                            statusContainer.innerHTML = renderStatusBadge(nextStatus);
+                        }
+
+                        // Attach dropdown menu
+                        const headerBar = targetTempDiv.querySelector('.flex.items-center.gap-2.mb-1');
+                        if (headerBar && !headerBar.querySelector('.dropdown-container')) {
+                            const dropdownHtml = `
+                                <div class="relative inline-block dropdown-container">
+                                    <button type="button" onclick="toggleDropdown(this)" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100" title="More options">
+                                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                                    </button>
+                                    <div class="dropdown-menu absolute right-0 top-full mt-1 hidden bg-white rounded-xl shadow-lg border border-gray-100 py-1 min-w-[170px] z-50">
+                                        <button type="button" onclick="openUnsendModal(${newMsgId}, this)" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            headerBar.insertAdjacentHTML('beforeend', dropdownHtml);
+                            if (window.lucide) lucide.createIcons();
+                        }
+
+                        lastMessageCount++;
+                    } else {
+                        // Mark as failed
+                        const statusContainer = targetTempDiv.querySelector('.message-status-container');
+                        if (statusContainer) {
+                            statusContainer.innerHTML = renderStatusBadge('failed');
+                            attachRetryListener(targetTempDiv, text);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Send request failed', e);
+                    const statusContainer = targetTempDiv.querySelector('.message-status-container');
+                    if (statusContainer) {
+                        statusContainer.innerHTML = renderStatusBadge('failed');
+                        attachRetryListener(targetTempDiv, text);
+                    }
+                }
+            }
+
+            function attachRetryListener(tempDiv, text) {
+                const retryBtn = tempDiv.querySelector('.retry-send-btn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', function() {
+                        const statusContainer = tempDiv.querySelector('.message-status-container');
+                        if (statusContainer) {
+                            statusContainer.innerHTML = renderStatusBadge('sending');
+                        }
+                        performSendMessage(text, tempDiv);
+                    }, { once: true });
+                }
+            }
+
+            chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const message = messageInput.value.trim();
-            if (!message) return;
+                if (!message) return;
 
-            // --- OPTIMISTIC UI: Append message immediately ---
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const tempDiv = document.createElement('div');
-            tempDiv.className = 'flex justify-end opacity-70';
-            tempDiv.innerHTML = `
-                <div class="max-w-[70%] group">
-                    <div class="flex items-center gap-2 mb-1 flex-row-reverse">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">${time} (sending...)</span>
+                // Remove placeholder if present
+                const placeholder = document.getElementById('emptyChatPlaceholder');
+                if (placeholder) placeholder.remove();
+
+                // Optimistically render bubble immediately
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'flex justify-end';
+                tempDiv.setAttribute('data-temp', 'true');
+                tempDiv.innerHTML = `
+                    <div class="max-w-[70%] group">
+                        <div class="flex items-center gap-2 mb-1 flex-row-reverse">
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">${time}</span>
+                        </div>
+                        <div class="px-4 py-3 rounded-2xl text-sm shadow-sm bg-yellow-600 text-white rounded-tr-none">
+                            ${message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                        </div>
+                        <div class="flex items-center justify-end gap-1 mt-1 text-right message-status-container">
+                            ${renderStatusBadge('sending')}
+                        </div>
                     </div>
-                    <div class="px-4 py-3 rounded-2xl text-sm shadow-sm bg-yellow-600 text-white rounded-tr-none">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            chatContainer.appendChild(tempDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+                `;
+                chatContainer.appendChild(tempDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            const formData = new FormData(chatForm);
+                // Reset input box immediately
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
 
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            sendButton.disabled = true;
-
-            try {
-                    // Debug: Log FormData entries
-                    const fdEntries = [];
-                    for (let pair of formData.entries()) {
-                        fdEntries.push(`${pair[0]}: ${pair[1]}`);
-                    }
-                    console.log('FormData submitted:', fdEntries);
-                    
-                    try {
-                        const response = await fetch(chatForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                        });
-                        
-                        if (response.ok) {
-                            const msgRes = await fetch(`/support-center/${selectedDriverId}/messages`);
-                            const msgData = await msgRes.json();
-                            if (msgData.success) {
-                                renderMessages(msgData.messages);
-                                lastMessageCount = msgData.messages.length;
-                            }
-                        } else {
-                            const errorJson = await response.json();
-                            const errorMsg = errorJson.errors?.message?.join(' ') || await response.text();
-                            tempDiv.innerHTML = `<div class="px-4 py-3 rounded-2xl text-sm bg-red-100 text-red-800">Error ${response.status}: ${errorMsg.substring(0, 200)}</div>`;
-                        }
-                    } catch (e) {
-                        console.error('Send failed', e);
-                        tempDiv.innerHTML = '<span class="text-[9px] text-red-500 font-bold">Failed to send network error.</span>';
-                    } finally {
-                        sendButton.disabled = false;
-                    }
-            } catch (e) {
-                console.error('Send failed', e);
-                tempDiv.innerHTML = '<span class="text-[9px] text-red-500 font-bold">Failed to send network error.</span>';
-            } finally {
-                sendButton.disabled = false;
-            }
-        });
-    }
+                // Send in background without blocking screen
+                performSendMessage(message, tempDiv);
+            });
+        }
     });
 </script>
 @endsection

@@ -1,5 +1,24 @@
 <?php
 
+// Ensure bootstrap/cache and storage directories exist and are writable
+foreach ([
+    __DIR__ . '/bootstrap/cache',
+    __DIR__ . '/../bootstrap/cache',
+    __DIR__ . '/storage/framework/cache',
+    __DIR__ . '/storage/framework/sessions',
+    __DIR__ . '/storage/framework/views',
+    __DIR__ . '/storage/logs',
+    __DIR__ . '/../storage/framework/cache',
+    __DIR__ . '/../storage/framework/sessions',
+    __DIR__ . '/../storage/framework/views',
+    __DIR__ . '/../storage/logs',
+] as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    @chmod($dir, 0777);
+}
+
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 

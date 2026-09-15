@@ -29,6 +29,24 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('en');
         date_default_timezone_set('Asia/Manila');
 
+        // Ensure all required framework storage directories exist and are writable
+        try {
+            foreach ([
+                storage_path('framework/views'),
+                storage_path('framework/cache'),
+                storage_path('framework/cache/data'),
+                storage_path('framework/sessions'),
+                storage_path('logs'),
+                storage_path('app/public'),
+                app()->bootstrapPath('cache'),
+            ] as $dir) {
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0777, true);
+                }
+                @chmod($dir, 0777);
+            }
+        } catch (\Throwable $e) {}
+
         // Suspensions are no longer auto-lifted. 
         // Drivers with expired suspensions will remain in 'suspended' status 
         // until manually activated by an admin (to verify if they will return to work).

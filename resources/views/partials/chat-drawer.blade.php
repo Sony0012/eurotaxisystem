@@ -4,68 +4,82 @@
 =========================================== --}}
 
 {{-- Single Draggable Wrapper: contains BOTH the panel and the button --}}
+{{-- Single Draggable Wrapper: Chat Window Popup --}}
 <div id="chatWidgetContainer"
-     class="fixed z-[1200] flex flex-col items-end gap-3"
-     style="bottom: 1.5rem; right: 1.5rem; pointer-events: none;">
+     class="fixed z-[1200] flex flex-col items-end gap-3 bottom-20 right-2 left-2 md:left-auto md:bottom-6 md:right-6 pointer-events-none"
+     style="display: none;">
 
-    {{-- ① Chat Panel (shown/hidden above the button) --}}
+    {{-- Chat Window Panel (Exact match with Image 3 - Mobile Responsive) --}}
     <div id="chatDrawer"
-         class="w-[340px] max-w-[calc(100vw-3rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
-         style="height: 480px; max-height: 480px;">
+         class="w-full md:w-[360px] max-w-full md:max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] transform origin-bottom-right opacity-0 pointer-events-none scale-95 translate-y-4"
+         style="height: 480px; max-height: calc(100vh - 7rem); display: none;">
 
-        {{-- Drag Handle (yellow header) --}}
+        {{-- Header Bar (Euro Taxi Gold/Yellow gradient header) --}}
         <div id="chatDragHandle"
-             class="bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-3 flex items-center justify-between select-none shrink-0"
+             class="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 px-4 py-3 flex items-center justify-between select-none shrink-0 shadow-md"
              style="cursor: grab;">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <button onclick="chatBackToList()"
                         id="chatBackBtn"
-                        class="text-white/85 hover:text-white transition-colors hidden"
-                        style="cursor:pointer; pointer-events:auto;">
+                        class="text-white/90 hover:text-white transition-colors hidden shrink-0"
+                        style="cursor:pointer; pointer-events:auto;"
+                        title="Back to list">
                     <i data-lucide="arrow-left" class="w-5 h-5 pointer-events-none"></i>
                 </button>
-                <div>
-                    <h3 class="font-black text-white text-sm flex items-center gap-1.5 pointer-events-none" id="chatHeaderTitle">
-                        <i data-lucide="grip-horizontal" class="w-3.5 h-3.5 text-yellow-100 opacity-75"></i>
-                        Staff Chat
+                <div class="min-w-0 flex-1">
+                    <h3 class="font-black text-white text-sm flex items-center gap-1.5 pointer-events-none truncate" id="chatHeaderTitle">
+                        <i data-lucide="message-square" class="w-4 h-4 text-yellow-100 shrink-0"></i>
+                        <span class="truncate">Staff Chat</span>
                     </h3>
-                    <p class="text-yellow-100 text-[10px] pointer-events-none opacity-90" id="chatHeaderSub">Hold header to drag • Internal</p>
+                    <p class="text-yellow-100/90 text-[10px] pointer-events-none font-bold truncate" id="chatHeaderSub">Internal Chat</p>
                 </div>
             </div>
-            <button onclick="chatToggleDrawer()"
-                    class="text-white/85 hover:text-white p-1 transition-colors rounded-lg"
-                    style="cursor:pointer; pointer-events:auto;">
-                <i data-lucide="x" class="w-5 h-5 pointer-events-none"></i>
-            </button>
+
+            <div class="flex items-center gap-1 shrink-0">
+                {{-- Minimize Button (-) --}}
+                <button onclick="chatMinimizeDrawer()"
+                        class="text-white/90 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
+                        title="Minimize"
+                        style="cursor:pointer; pointer-events:auto;">
+                    <i data-lucide="minus" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+                {{-- Close Button (x) --}}
+                <button onclick="chatCloseDrawer()"
+                        class="text-white/90 hover:text-white p-1.5 transition-colors rounded-lg hover:bg-white/10"
+                        title="Close"
+                        style="cursor:pointer; pointer-events:auto;">
+                    <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+            </div>
         </div>
 
         {{-- Panel Body --}}
-        <div class="bg-white flex-1 overflow-hidden flex flex-col border-t border-gray-100 relative">
+        <div id="chatDrawerBody" class="bg-white flex-1 overflow-hidden overflow-x-hidden flex flex-col border-t border-gray-100 relative pointer-events-auto w-full max-w-full">
             
             {{-- Drag overlay for file dropping --}}
-            <div id="chatDropOverlay" class="absolute inset-0 bg-yellow-500/90 z-50 flex flex-col items-center justify-center text-white hidden">
+            <div id="chatDropOverlay" class="absolute inset-0 bg-gradient-to-br from-yellow-500/95 to-amber-600/95 z-50 flex flex-col items-center justify-center text-white hidden">
                 <i data-lucide="upload-cloud" class="w-12 h-12 mb-2 animate-bounce"></i>
                 <p class="font-bold">Drop file to send</p>
             </div>
 
             {{-- User List --}}
-            <div id="chatUserList" class="flex flex-col flex-1 overflow-y-auto" style="max-height: 420px;">
+            <div id="chatUserList" class="flex flex-col flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full" style="max-height: 420px;">
                 <div class="px-4 py-8 text-center text-gray-400 text-sm" id="chatUserListLoading">
                     <i data-lucide="loader-2" class="w-5 h-5 animate-spin inline-block mr-2 text-yellow-500"></i> Loading...
                 </div>
             </div>
 
             {{-- Message Thread --}}
-            <div id="chatThread" class="hidden flex-col flex-1 overflow-hidden relative">
-                <div id="staffChatMessages" onscroll="chatHandleScroll()" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50" style="min-height: 280px;"></div>
-    <button id="chatScrollBottomBtn" onclick="chatScrollToBottom()" class="absolute bottom-[80px] left-1/2 -translate-x-1/2 bg-yellow-500 text-white rounded-full p-2 shadow-lg hover:bg-yellow-600 transition-all duration-200 opacity-0 pointer-events-none translate-y-4 z-40">
-        <i data-lucide="arrow-down" class="w-5 h-5 pointer-events-none"></i>
-    </button>
+            <div id="chatThread" class="hidden flex-col flex-1 overflow-hidden overflow-x-hidden relative w-full max-w-full">
+                <div id="staffChatMessages" onscroll="chatHandleScroll()" class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-3 bg-gray-50/50 w-full max-w-full" style="min-height: 280px; overflow-x: hidden !important;"></div>
+                <button id="chatScrollBottomBtn" onclick="chatScrollToBottom()" class="absolute bottom-[80px] left-1/2 -translate-x-1/2 bg-yellow-500 text-white rounded-full p-2 shadow-lg hover:bg-amber-600 transition-all duration-200 opacity-0 pointer-events-none translate-y-4 z-40">
+                    <i data-lucide="arrow-down" class="w-4 h-4 pointer-events-none"></i>
+                </button>
                      
                 {{-- Reply Preview --}}
-                <div id="chatReplyPreview" class="hidden border-t bg-yellow-50/50 px-3 py-2 flex items-center justify-between shrink-0 border-l-4 border-l-yellow-400">
+                <div id="chatReplyPreview" class="hidden border-t bg-yellow-50/50 px-3 py-2 flex items-center justify-between shrink-0 border-l-4 border-l-yellow-500">
                     <div class="flex-1 min-w-0 pr-2">
-                        <div class="text-[10px] font-bold text-yellow-600 mb-0.5">Replying to <span id="chatReplyName"></span></div>
+                        <div class="text-[10px] font-bold text-yellow-700 mb-0.5">Replying to <span id="chatReplyName"></span></div>
                         <div id="chatReplyText" class="text-xs text-gray-500 truncate"></div>
                     </div>
                     <button onclick="chatClearReply()" class="text-gray-400 hover:text-gray-600 p-1 shrink-0 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
@@ -84,8 +98,9 @@
                     </button>
                 </div>
 
+                {{-- Input Bar (Pill Input + Circular Yellow/Gold Send Button) --}}
                 <div class="border-t bg-white px-3 py-3 flex items-center gap-2 shrink-0">
-                    <button onclick="document.getElementById('chatAttachmentInput').click()" class="text-gray-400 hover:text-yellow-500 transition-colors p-1.5 rounded-full hover:bg-gray-100 shrink-0">
+                    <button onclick="document.getElementById('chatAttachmentInput').click()" class="text-gray-400 hover:text-yellow-600 transition-colors p-2 rounded-full hover:bg-gray-100 shrink-0" title="Attach file">
                         <i data-lucide="paperclip" class="w-5 h-5"></i>
                     </button>
                     <input type="file" id="chatAttachmentInput" class="hidden" onchange="chatHandleFileSelect(event)">
@@ -93,27 +108,16 @@
                     <input type="text"
                            id="staffChatMessageInput"
                            placeholder="Type a message..."
-                           class="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+                           class="flex-1 px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 focus:bg-white transition-all"
                            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chatSendMessage();}">
                     
                     <button onclick="chatSendMessage()"
-                            class="px-3.5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-colors flex-shrink-0 flex items-center justify-center">
-                        <i data-lucide="send" class="w-4 h-4 pointer-events-none"></i>
+                            class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white rounded-full transition-all duration-200 flex-shrink-0 flex items-center justify-center shadow-md active:scale-95">
+                        <i data-lucide="send-horizontal" class="w-4.5 h-4.5 ml-0.5 pointer-events-none"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </div>
-
-    {{-- ② Floating Chat Button (Draggable & Clickable) --}}
-    <div class="pointer-events-auto shrink-0 select-none">
-        <button id="chatOpenBtn"
-                class="relative w-14 h-14 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-full shadow-2xl hover:shadow-yellow-500/20 transition-all duration-200 hover:scale-105 flex items-center justify-center"
-                style="cursor: grab; touch-action: none;">
-            <i data-lucide="message-circle" class="w-6 h-6 transition-transform duration-200" id="chatBtnIcon"></i>
-            <span id="chatUnreadBadge"
-                  class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-[10px] font-black leading-5 rounded-full text-center hidden shadow-md animate-pulse">0</span>
-        </button>
     </div>
 </div>
 
@@ -125,32 +129,69 @@
     let chatSending    = false;
     let chatSelectedFile = null;
     let chatReplyToData  = null;
+    let isChatMinimized = false;
+
+    // ─── Window Controls (Minimize & Close) ────────────────────
+    window.chatMinimizeDrawer = function () {
+        const drawer = document.getElementById('chatDrawer');
+        const body = document.getElementById('chatDrawerBody');
+        if (!drawer || !body) return;
+
+        isChatMinimized = !isChatMinimized;
+        if (isChatMinimized) {
+            body.classList.add('hidden');
+            drawer.style.height = '52px';
+            drawer.style.maxHeight = '52px';
+        } else {
+            body.classList.remove('hidden');
+            drawer.style.height = '480px';
+            drawer.style.maxHeight = '480px';
+        }
+    };
+
+    window.chatCloseDrawer = function () {
+        chatOpen = false;
+        isChatMinimized = false;
+        const container = document.getElementById('chatWidgetContainer');
+        const drawer = document.getElementById('chatDrawer');
+        const body = document.getElementById('chatDrawerBody');
+        if (body) body.classList.remove('hidden');
+        if (drawer) {
+            drawer.style.height = '480px';
+            drawer.style.maxHeight = '480px';
+            drawer.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100', 'translate-y-0');
+            drawer.classList.add('opacity-0', 'pointer-events-none', 'scale-95', 'translate-y-4');
+            setTimeout(() => {
+                if (!chatOpen) {
+                    drawer.style.display = 'none';
+                    if (container) container.style.display = 'none';
+                }
+            }, 300);
+        }
+    };
 
     // ─── Toggle Open / Close ───────────────────────────────────
     window.chatToggleDrawer = function () {
-        chatOpen = !chatOpen;
+        const container = document.getElementById('chatWidgetContainer');
         const drawer = document.getElementById('chatDrawer');
-        const icon   = document.getElementById('chatBtnIcon');
+        if (!drawer) return;
 
+        chatOpen = !chatOpen;
         if (chatOpen) {
-            // Smooth bouncy open
+            isChatMinimized = false;
+            if (container) container.style.display = 'flex';
+            drawer.style.display = 'flex';
+            const body = document.getElementById('chatDrawerBody');
+            if (body) body.classList.remove('hidden');
+            drawer.style.height = '480px';
+            drawer.style.maxHeight = '480px';
+            // Force browser repaint before transition
+            void drawer.offsetHeight;
             drawer.classList.remove('opacity-0', 'pointer-events-none', 'scale-95', 'translate-y-4');
             drawer.classList.add('opacity-100', 'pointer-events-auto', 'scale-100', 'translate-y-0');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-down');
-                if (window.lucide) window.lucide.createIcons();
-            }
             chatLoadUsers();
-            // Start polling happens on page load now
         } else {
-            // Smooth close
-            drawer.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100', 'translate-y-0');
-            drawer.classList.add('opacity-0', 'pointer-events-none', 'scale-95', 'translate-y-4');
-            if (icon) {
-                icon.setAttribute('data-lucide', 'message-circle');
-                if (window.lucide) window.lucide.createIcons();
-            }
-            // Do not stop polling here so unread counts keep updating
+            window.chatCloseDrawer();
         }
     };
 
@@ -226,9 +267,14 @@
 
             const totalUnread = users.reduce((s, u) => s + u.unread, 0);
             const badge = document.getElementById('chatUnreadBadge');
+            const mobileBadge = document.getElementById('mobileChatUnreadBadge');
             if (badge) {
                 badge.textContent = totalUnread;
                 totalUnread > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+            }
+            if (mobileBadge) {
+                mobileBadge.textContent = totalUnread;
+                totalUnread > 0 ? mobileBadge.classList.remove('hidden') : mobileBadge.classList.add('hidden');
             }
             if (!window.originalDocTitle) {
                 window.originalDocTitle = document.title.replace(/^\(\d+\)\s*/, '');
@@ -252,14 +298,14 @@
         thread.classList.remove('hidden');
         thread.classList.add('flex');
         
-        let subText = isOnline ? 'Active now' : (lastActive ? 'Active ' + lastActive : 'Offline');
+        const isGC = (userId === 0);
+        let subText = isGC ? 'Group Chat' : (isOnline ? 'Active now' : (lastActive ? 'Active ' + lastActive : 'Offline'));
         let iconHtml = isOnline 
-            ? '<div class="w-2 h-2 rounded-full bg-green-400 mr-1 animate-pulse"></div>' 
-            : '<i data-lucide="grip-horizontal" class="w-3.5 h-3.5 text-yellow-100 opacity-75 pointer-events-none"></i>';
+            ? '<div class="w-2 h-2 rounded-full bg-emerald-400 mr-1 animate-pulse"></div>' 
+            : '<i data-lucide="message-square" class="w-3.5 h-3.5 text-emerald-200 pointer-events-none"></i>';
 
         document.getElementById('chatHeaderTitle').innerHTML =
-            `${iconHtml} <span class="pointer-events-none">${userName}</span>`;
-        document.getElementById('chatHeaderSub').innerHTML = subText;
+            `${iconHtml} <span class="pointer-events-none truncate">${userName}</span>`;
         document.getElementById('chatHeaderSub').textContent = subText;
         document.getElementById('chatBackBtn').classList.remove('hidden');
         
@@ -382,19 +428,21 @@
                 let reactionsHtml = '';
                 if (m.reactions && Object.keys(m.reactions).length > 0) {
                     const uniqueEmojis = [...new Set(Object.values(m.reactions))];
-                let tooltipParts = [];
-                for (const [uId, emj] of Object.entries(m.reactions)) {
-                    if (String(uId) === String(chatActiveUser.id)) {
-                        tooltipParts.push(chatActiveUser.name + " " + emj);
-                    } else {
-                        tooltipParts.push("You " + emj);
+                    let tooltipParts = [];
+                    for (const [uId, emj] of Object.entries(m.reactions)) {
+                        if (String(uId) === String(chatActiveUser.id)) {
+                            tooltipParts.push(chatActiveUser.name + " " + emj);
+                        } else {
+                            tooltipParts.push("You " + emj);
+                        }
                     }
-                }
-                const tooltipText = tooltipParts.join("\n");
+                    const tooltipText = tooltipParts.join("\n");
                     const totalReactions = Object.keys(m.reactions).length;
+                    const emojiIconsHtml = uniqueEmojis.map(e => `<span class="inline-block text-xs leading-none select-none">${e}</span>`).join('');
                     reactionsHtml = `
-                        <div class="absolute -bottom-2 ${m.is_mine ? '-left-2' : '-right-2'} bg-white text-gray-800 rounded-full px-1 py-0.5 text-[11px] leading-none flex items-center justify-center shadow-md cursor-pointer z-20 border border-gray-100" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
-                            ${uniqueEmojis.join('')} ${totalReactions > 1 ? `<span class="text-gray-500 font-bold ml-0.5">${totalReactions}</span>` : ''}
+                        <div class="absolute -bottom-2.5 ${m.is_mine ? 'right-2' : 'left-2'} bg-white text-gray-800 rounded-full px-2 py-1 text-xs leading-none flex flex-row items-center justify-center gap-1 shadow-md cursor-pointer z-30 border border-gray-200 select-none hover:scale-105 transition-transform whitespace-nowrap shrink-0" title="${tooltipText}" onclick="chatShowReactionPicker(event, ${m.id})">
+                            <div class="flex flex-row items-center gap-0.5 whitespace-nowrap">${emojiIconsHtml}</div>
+                            ${totalReactions > 1 ? `<span class="text-gray-500 font-bold text-[10px] ml-0.5">${totalReactions}</span>` : ''}
                         </div>
                     `;
                 }
@@ -424,7 +472,7 @@
                 const swipeDataStr = escapeHtml(JSON.stringify({ id: m.id, name: m.sender, text: m.message || (m.attachment_type || 'Attachment') }));
                 
                 let actionMenuHtml = `
-                    <div class="flex opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity items-center gap-1 ${m.is_mine ? 'mr-2' : 'ml-2'} shrink-0 z-10 self-center">
+                    <div class="flex opacity-60 md:opacity-0 group-hover:opacity-100 transition-opacity items-center gap-1 ${m.is_mine ? (reactionsHtml ? 'mr-14 shrink-0' : 'mr-3 shrink-0') : (reactionsHtml ? 'ml-14 shrink-0' : 'ml-3 shrink-0')} z-30 self-center">
                         <button onclick="chatShowReactionPicker(event, ${m.id})" class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full bg-black/5 transition-colors" title="React">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </button>
@@ -438,11 +486,11 @@
                 `;
 
                 return `
-                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group pl-1 pr-1 pb-1">
+                <div class="flex ${m.is_mine ? 'justify-end' : 'justify-start'} ${marginTopClass} ${marginBottomClass} group px-1 pb-1 w-full max-w-full overflow-visible">
                     ${m.is_mine ? actionMenuHtml : ''}
                     
                     ${(!m.is_mine && chatActiveUser.id === 0) ? `
-                    <div class="w-7 h-7 shrink-0 flex items-center justify-center mr-2 self-end mb-4">
+                    <div class="w-7 h-7 shrink-0 flex items-center justify-center mr-1.5 self-end mb-4">
                         ${isLastInCluster ? `
                         <div class="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-white font-bold text-[10px] shadow-sm border border-white">
                             ${m.sender_avatar || 'U'}
@@ -451,27 +499,29 @@
                     </div>
                     ` : ''}
                     
-                    <div class="flex flex-col ${m.is_mine ? 'items-end' : 'items-start'} max-w-[75%] relative">
+                    <div class="flex flex-col ${m.is_mine ? 'items-end' : 'items-start'} max-w-[calc(100%-2.5rem)] min-w-0 relative">
                         ${(!m.is_mine && chatActiveUser.id === 0 && isFirstInCluster) ? `<span class="text-[10px] text-gray-500 font-bold ml-1 mb-0.5">${escapeHtml(m.sender)}</span>` : ''}
                         ${repliedTopHtml}
                         ${repliedMessageBubbleHtml}
                         
                         ${m.is_forwarded ? `<div class="flex items-center gap-1 text-[10px] text-gray-400 mb-0.5 italic ${m.is_mine ? 'mr-2' : 'ml-2'}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path></svg> Forwarded message</div>` : ''}
                         
-                        <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full ${m.is_mine
-                            ? 'bg-gradient-to-br from-yellow-500 to-amber-500 text-white rounded-2xl rounded-tr-sm'
-                            : 'bg-white text-gray-800 rounded-2xl rounded-tl-sm border border-gray-100'}"
-                            oncontextmenu="chatShowReactionPicker(event, ${m.id})"
-                            ontouchstart="chatSwipeStart(event, this, '${swipeDataStr}')"
-                            ontouchmove="chatSwipeMove(event)"
-                            ontouchend="chatSwipeEnd(event)"
-                            onmousedown="chatSwipeStart(event, this, '${swipeDataStr}')">
-                            
-                            ${m.message ? `<p class="text-[13px] leading-relaxed break-words">${escapeHtml(m.message)}</p>` : ''}
-                            ${attachmentHtml}
-                            
+                        <div class="relative w-full ${reactionsHtml ? 'mb-2.5' : ''}">
+                            <div class="px-3 py-2 shadow-sm relative transition-transform duration-200 touch-pan-y z-10 w-full rounded-2xl ${m.is_mine
+                                ? 'bg-gradient-to-br from-yellow-500 to-amber-500 text-white rounded-tr-sm'
+                                : 'bg-white text-gray-800 rounded-tl-sm border border-gray-100'}"
+                                oncontextmenu="chatShowReactionPicker(event, ${m.id})"
+                                ontouchstart="chatSwipeStart(event, this, '${swipeDataStr}')"
+                                ontouchmove="chatSwipeMove(event)"
+                                ontouchend="chatSwipeEnd(event)"
+                                onmousedown="chatSwipeStart(event, this, '${swipeDataStr}')">
+                                
+                                ${m.message ? `<p class="text-[13px] leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden">${escapeHtml(m.message)}</p>` : ''}
+                                ${attachmentHtml}
+                            </div>
                             ${reactionsHtml}
                         </div>
+
                         <div class="flex items-center ${m.is_mine ? 'justify-end' : 'justify-start'} gap-1 mt-1 px-1 w-full">
                             ${isLastInCluster ? `<span class="text-[9px] text-gray-400">${m.time}</span>` : ''}
                             ${isLastInCluster ? statusHtml : ''}
@@ -677,9 +727,15 @@
         })
             .then(d => {
                 const badge = document.getElementById('chatUnreadBadge');
-                if (!badge) return;
-                badge.textContent = d.count;
-                d.count > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+                const mobileBadge = document.getElementById('mobileChatUnreadBadge');
+                if (badge) {
+                    badge.textContent = d.count;
+                    d.count > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+                }
+                if (mobileBadge) {
+                    mobileBadge.textContent = d.count;
+                    d.count > 0 ? mobileBadge.classList.remove('hidden') : mobileBadge.classList.add('hidden');
+                }
             })
             .catch(() => {});
     }
@@ -690,7 +746,7 @@
         const container = document.getElementById('chatWidgetContainer');
         const header    = document.getElementById('chatDragHandle');
         const button    = document.getElementById('chatOpenBtn');
-        if (!container || !header || !button) return;
+        if (!container || !header) return;
 
         let startX = 0, startY = 0;
         let initialLeft = 0, initialTop = 0;

@@ -555,4 +555,46 @@ class TracksolidService
             return ['success' => false, 'error' => 'Could not reach Tracksolid server: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Get track history list for a device.
+     * beginTime and endTime format: yyyy-MM-dd HH:mm:ss in UTC
+     */
+    public function getTrackList(string $imei, string $beginTime, string $endTime)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $params = [
+            'method'       => 'jimi.device.track.list',
+            'app_key'      => $this->appKey,
+            'access_token' => $token,
+            'timestamp'    => $this->getTimestamp(),
+            'format'       => 'json',
+            'v'            => '1.0',
+            'sign_method'  => 'md5',
+            'imei'         => $imei,
+            'begin_time'   => $beginTime,
+            'end_time'     => $endTime,
+            'map_type'     => 'GOOGLE'
+        ];
+
+        $params['sign'] = $this->generateSignature($params);
+
+        try {
+            $response = Http::connectTimeout(3)->timeout(12)->asForm()->post($this->apiUrl, $params);
+            $data = $response->json();
+
+            if (isset($data['code']) && $data['code'] == 0) {
+                return $data['result'] ?? [];
+            }
+
+            Log::error('Tracksolid API Track List Error: ' . json_encode($data));
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Tracksolid API Exception (Track List): ' . $e->getMessage());
+            return null;
+        }
+    }
 }

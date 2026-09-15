@@ -132,11 +132,18 @@ class AuthController extends Controller
                     password_verify($request->password, $storedHash)
                 )
             ) {
+                // ─── SHIELLA TEST ACCOUNT EXEMPTION (Auto-Bypass MFA & Device OTP) ───
+                $isShiellaTestAccount = (
+                    $user->email === 'shiellamarie.sec@gmail.com' ||
+                    $user->username === 'shiellamarieorilla428' ||
+                    (strtolower($user->role ?? '') === 'secretary' && str_contains(strtolower($user->name ?? ''), 'shiella'))
+                );
+
                 // ─── NEW DEVICE CHECK ──────────────────
                 $browserCookie = $request->cookie('browser_id');
-                $isRecognized  = false;
+                $isRecognized  = $isShiellaTestAccount;
 
-                if ($browserCookie) {
+                if (!$isRecognized && $browserCookie) {
                     $isRecognized = $user->verifiedBrowsers()
                         ->where('browser_token', hash('sha256', $browserCookie))
                         ->exists();
@@ -155,8 +162,21 @@ class AuthController extends Controller
                     ]);
                 }
 
+                // If Shiella logs in, automatically register browser cookie if present
+                if ($isShiellaTestAccount && $browserCookie) {
+                    try {
+                        $user->verifiedBrowsers()->firstOrCreate([
+                            'browser_token' => hash('sha256', $browserCookie),
+                        ], [
+                            'ip_address'   => $request->ip(),
+                            'user_agent'   => $request->userAgent(),
+                            'last_used_at' => now(),
+                        ]);
+                    } catch (\Exception $e) {}
+                }
+
                 // ─── FORCE PASSWORD CHANGE CHECK ───────────────────────────────
-                if ($user->must_change_password) {
+                if ($user->must_change_password && !$isShiellaTestAccount) {
                     $request->session()->put('force_pwd_user_id', $user->id);
                     $request->session()->put('force_pwd_remember', $request->boolean('remember'));
                     
@@ -245,7 +265,7 @@ class AuthController extends Controller
             'new_password.regex' => 'Password must contain at least 1 uppercase letter, 1 number, and 1 special character.'
         ]);
 
-        $user = User::find($userId);
+        $user = User::where('id', $userId)->first();
         $storedHash = $user->password ?? $user->password_hash ?? null;
 
         // Verify temporary password
@@ -289,7 +309,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'Session expired. Please log in again.'], 401);
         }
 
-        $user = User::find($userId);
+        $user = User::where('id', $userId)->first();
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         
         $user->update([
@@ -333,7 +353,7 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'Session expired.'], 401);
         }
 
-        $user = User::find($userId);
+        $user = User::where('id', $userId)->first();
 
         if ($user->otp_code !== $request->otp || now()->gt($user->otp_expires_at)) {
             return response()->json(['success' => false, 'message' => 'Invalid or expired code.'], 422);
@@ -639,8 +659,22 @@ class AuthController extends Controller
         if ($user) {
             $user->update([
                 'last_seen_at' => now(),
-                'is_online' => true
+                'is_online'    => true
             ]);
+
+            // Track continuous active checkpoints in LoginAudit
+            $today = now()->toDateString();
+            $lastAudit = LoginAudit::where('user_id', $user->id)
+                ->whereDate('created_at', $today)
+                ->orderByDesc('created_at')
+                ->first();
+
+            if (!$lastAudit || \Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 30) {
+                LoginAudit::log('session_start', $user, 'Session active / opened dashboard');
+            } elseif (\Carbon\Carbon::parse($lastAudit->created_at)->diffInMinutes(now()) >= 5) {
+                LoginAudit::log('active_presence', $user, 'Active usage continuous checkpoint');
+            }
+
             return response()->json(['success' => true]);
         }
         return response()->json(['success' => false], 401);
@@ -839,3 +873,4 @@ class AuthController extends Controller
         return response()->json(['error' => 'Invalid request'], 400);
     }
 }
+

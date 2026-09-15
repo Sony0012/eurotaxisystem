@@ -8,7 +8,6 @@ import {
   cashOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  filterOutline,
 } from 'ionicons/icons';
 import { endpoints } from '../config/api';
 import { cachedGet } from '../utils/cachedGet';
@@ -36,7 +35,6 @@ const getSeverityStyles = (severity: string) => {
   return { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.2)' };
 };
 
-const SEVERITY_FILTERS = ['all', 'critical', 'high', 'medium', 'low'] as const;
 const ITEMS_PER_PAGE = 5;
 
 const Violations: React.FC = () => {
@@ -45,7 +43,6 @@ const Violations: React.FC = () => {
   const [incidents, setIncidents] = useState<IncidentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [severityFilter, setSeverityFilter] = useState<string>('all');
 
   // Month Filter
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -85,32 +82,19 @@ const Violations: React.FC = () => {
   // ── Filter by Month ──
   const monthFiltered = incidents.filter(i => i.incident_date?.startsWith(selectedMonth));
 
-  // ── Filter by Severity ──
-  const filtered = severityFilter === 'all'
-    ? monthFiltered
-    : monthFiltered.filter(i => i.severity.toLowerCase() === severityFilter);
-
   // ── Pagination ──
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(monthFiltered.length / ITEMS_PER_PAGE);
+  const paginated = monthFiltered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   // ── Stats ──
   const totalCharge   = monthFiltered.reduce((s, i) => s + Number(i.remaining_balance || 0), 0);
   const totalOverallCharge = incidents.reduce((s, i) => s + Number(i.remaining_balance || 0), 0);
-  const criticalCount = monthFiltered.filter(i => i.severity.toLowerCase() === 'critical').length;
 
   const gold   = '#eab308';
   const danger = '#ef4444';
   const info   = '#3b82f6';
   const green  = '#22c55e';
 
-  // ── Cycle severity filter ──
-  const cycleSeverityFilter = () => {
-    const idx = SEVERITY_FILTERS.indexOf(severityFilter as any);
-    const next = SEVERITY_FILTERS[(idx + 1) % SEVERITY_FILTERS.length];
-    setSeverityFilter(next);
-    setCurrentPage(1);
-  };
 
   // ── Pagination Component ──
   const PaginationControls = ({ page, total, setPage }: { page: number, total: number, setPage: (p: number) => void }) => {
@@ -219,101 +203,46 @@ const Violations: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* ── Summary: 3 Equal-Sized Cards (Filter, This Month, Total Overall) ── */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '20px' }}>
-                {/* Critical - clickable to cycle severity filter */}
-                <div
-                  onClick={cycleSeverityFilter}
-                  style={{
-                    padding: '12px 10px', background: t.card, ...t.glass, border: t.border, borderRadius: '16px',
-                    boxShadow: severityFilter !== 'all' ? `0 0 0 2px ${getSeverityStyles(severityFilter).color}` : t.cardShadow,
-                    cursor: 'pointer', transition: 'all 0.25s ease', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                    minHeight: '105px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: severityFilter !== 'all' ? getSeverityStyles(severityFilter).bg : 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <IonIcon icon={filterOutline} style={{ fontSize: '14px', color: severityFilter !== 'all' ? getSeverityStyles(severityFilter).color : danger }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '18px', fontWeight: '900', color: severityFilter !== 'all' ? getSeverityStyles(severityFilter).color : (criticalCount > 0 ? danger : t.textPrimary), lineHeight: 1.1 }}>
-                      {severityFilter === 'all' ? criticalCount : filtered.length}
-                    </div>
-                    <div style={{ fontSize: '10px', color: t.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>
-                      {severityFilter === 'all' ? 'Critical' : severityFilter}
-                    </div>
-                  </div>
-                  <div style={{
-                    fontSize: '8px', fontWeight: '900',
-                    color: severityFilter !== 'all' ? getSeverityStyles(severityFilter).color : '#64748b',
-                    textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px'
-                  }}>TAP TO CHANGE</div>
-                </div>
-
+              {/* ── Summary: 2 Cards (This Month + Total Overall) ── */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
                 {/* This Month */}
-                <div style={{ padding: '12px 10px', background: t.card, ...t.glass, border: t.border, borderRadius: '16px', boxShadow: t.cardShadow, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '105px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(234,179,8,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <IonIcon icon={cashOutline} style={{ fontSize: '14px', color: gold }} />
+                <div style={{ padding: '16px', background: t.card, ...t.glass, border: t.border, borderRadius: '16px', boxShadow: t.cardShadow }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(234,179,8,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <IonIcon icon={cashOutline} style={{ fontSize: '16px', color: gold }} />
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: '900', color: t.textPrimary, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      ₱{totalCharge.toLocaleString()}
-                    </div>
-                    <div style={{ fontSize: '10px', color: t.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>
-                      This Month
-                    </div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: t.textPrimary, lineHeight: 1.1 }}>
+                    ₱{totalCharge.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '8px', fontWeight: '800', color: t.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
-                    DEB BALANCE
+                  <div style={{ fontSize: '11px', color: t.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
+                    This Month
                   </div>
                 </div>
 
                 {/* Total Overall */}
-                <div style={{ padding: '12px 10px', background: t.card, ...t.glass, border: t.border, borderRadius: '16px', boxShadow: t.cardShadow, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '105px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <IonIcon icon={cashOutline} style={{ fontSize: '14px', color: danger }} />
+                <div style={{ padding: '16px', background: t.card, ...t.glass, border: t.border, borderRadius: '16px', boxShadow: t.cardShadow }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <IonIcon icon={cashOutline} style={{ fontSize: '16px', color: danger }} />
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '15px', fontWeight: '900', color: danger, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      ₱{totalOverallCharge.toLocaleString()}
-                    </div>
-                    <div style={{ fontSize: '10px', color: t.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>
-                      Total Overall
-                    </div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: danger, lineHeight: 1.1 }}>
+                    ₱{totalOverallCharge.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '8px', fontWeight: '800', color: t.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
-                    DEB BALANCE
+                  <div style={{ fontSize: '11px', color: t.textMuted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
+                    Total Overall
                   </div>
                 </div>
               </div>
 
-              {/* Active filter chip */}
-              {severityFilter !== 'all' && (
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', alignItems: 'center' }}>
-                  <div style={{
-                    padding: '6px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: '800',
-                    background: getSeverityStyles(severityFilter).bg, color: getSeverityStyles(severityFilter).color,
-                    border: `1px solid ${getSeverityStyles(severityFilter).border}`,
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                  }}>
-                    Showing: {severityFilter.toUpperCase()}
-                    <span onClick={() => { setSeverityFilter('all'); setCurrentPage(1); }}
-                      style={{ cursor: 'pointer', fontWeight: '900', fontSize: '14px', lineHeight: 1 }}>×</span>
-                  </div>
-                  <span style={{ fontSize: '11px', color: t.textMuted }}>{filtered.length} records</span>
-                </div>
-              )}
+
 
               {/* ── Violation Cards ── */}
-              {filtered.length === 0 && severityFilter !== 'all' ? (
+              {monthFiltered.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', background: t.card, ...t.glass, border: t.border, borderRadius: '24px' }}>
-                  <div style={{ fontSize: '16px', fontWeight: '800', color: t.textPrimary, marginBottom: '8px' }}>No {severityFilter} violations</div>
-                  <div style={{ color: t.textMuted, fontSize: '13px' }}>Tap the filter card to change severity level.</div>
+                  <div style={{ fontSize: '16px', fontWeight: '800', color: t.textPrimary, marginBottom: '8px' }}>No violations for this month</div>
+                  <div style={{ color: t.textMuted, fontSize: '13px' }}>Select another month above to view records.</div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -381,7 +310,7 @@ const Violations: React.FC = () => {
 
               <PaginationControls page={currentPage} total={totalPages} setPage={setCurrentPage} />
               <div style={{ textAlign: 'center', marginTop: '12px', color: t.textMuted, fontSize: '12px', fontWeight: '600' }}>
-                Showing {filtered.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} records
+                Showing {monthFiltered.length > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0}–{Math.min(currentPage * ITEMS_PER_PAGE, monthFiltered.length)} of {monthFiltered.length} records
               </div>
             </>
           )}

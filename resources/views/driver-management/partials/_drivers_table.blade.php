@@ -12,6 +12,8 @@
                 </th>
                 <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest financial-target-col hidden lg:table-cell">Financial
                     Target</th>
+                <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">
+                    Savings Fund (Pondo)</th>
                 <th class="px-3 md:px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest rating-col hidden lg:table-cell">Rating
                 </th>
                 <th
@@ -28,10 +30,27 @@
                     {{-- Driver Profile --}}
                     <td class="px-3 md:px-6 py-4 md:py-5">
                         <div class="flex items-center gap-2 md:gap-4">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-full {{ $has_shortage ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }} flex items-center justify-center flex-shrink-0 shadow-inner">
-                                <span
-                                    class="text-sm md:text-lg font-black">{{ substr($driver->first_name ?? $driver->full_name, 0, 1) }}{{ substr($driver->last_name ?? '', 0, 1) }}</span>
+                            <div class="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0 cursor-pointer group/avatar"
+                                 onclick="event.stopPropagation(); if(typeof openImageModal === 'function') openImageModal('{{ !empty($driver->profile_photo) ? asset(ltrim($driver->profile_photo, '/')) : asset('image/avatars/driver.svg') }}');"
+                                 title="Click to view full photo">
+                                @if(!empty($driver->profile_photo))
+                                    <img src="{{ asset(ltrim($driver->profile_photo, '/')) }}" 
+                                         alt="{{ $driver->full_name }}" 
+                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-slate-100 group-hover/avatar:scale-105 transition-transform" 
+                                         onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                                @else
+                                    <img src="{{ asset('image/avatars/driver.svg') }}" 
+                                         alt="{{ $driver->full_name }}" 
+                                         class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 {{ $has_shortage ? 'border-red-400' : 'border-amber-300' }} shadow-xs bg-amber-50 group-hover/avatar:scale-105 transition-transform">
+                                @endif
+                                <div class="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity">
+                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-white"></i>
+                                </div>
+                                @if($has_shortage)
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full" title="Has Boundary Shortage"></span>
+                                @elseif($driver->is_active)
+                                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Active Driver"></span>
+                                @endif
                             </div>
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -57,6 +76,17 @@
                                             <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
                                                 ₱{{ number_format($driver->total_pending_debt, 0) }} <span
                                                     class="text-[8px] opacity-70">DEBT</span>
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    @if(isset($driver->driver_fund_balance) && (float)$driver->driver_fund_balance > 0)
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg shadow-2xs"
+                                            title="Accumulated Driver Savings & Maintenance Fund: ₱{{ number_format($driver->driver_fund_balance, 2) }}">
+                                            <i data-lucide="piggy-bank" class="w-3 h-3 text-emerald-600"></i>
+                                            <span class="text-[10px] font-black tracking-tight whitespace-nowrap">
+                                                ₱{{ number_format($driver->driver_fund_balance, 0) }} <span
+                                                    class="text-[8px] opacity-75">PONDO</span>
                                             </span>
                                         </div>
                                     @endif
@@ -157,6 +187,23 @@
                                     {{ $driver->target_label }}
                                 </span>
                             @endif
+                        </div>
+                    </td>
+
+                    {{-- Driver Savings Fund (Pondo) --}}
+                    <td class="px-3 md:px-6 py-4 md:py-5 whitespace-nowrap hidden md:table-cell">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
+                                    <i data-lucide="piggy-bank" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-sm md:text-base font-black text-emerald-800 tracking-tight">
+                                    ₱{{ number_format($driver->driver_fund_balance ?? 0, 2) }}
+                                </span>
+                            </div>
+                            <span class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest pl-7">
+                                Available Fund
+                            </span>
                         </div>
                     </td>
 

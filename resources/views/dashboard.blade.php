@@ -87,22 +87,34 @@
         }
 
         @keyframes drawChart {
-            0% { clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%); opacity: 0; }
-            20% { opacity: 1; }
-            100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+            0% { 
+                clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%); 
+                opacity: 0; 
+            }
+            15% {
+                opacity: 1;
+            }
+            100% { 
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
+                opacity: 1; 
+            }
         }
         .card-hover::after {
             content: '';
             position: absolute;
-            left: 0;
             bottom: 0;
-            width: 100%;
-            height: 75px;
+            left: 0;
+            right: 0;
+            height: 55%;
             background-size: 100% 100%;
             background-repeat: no-repeat;
             opacity: 0;
-            transition: none !important;
             z-index: 0;
+            pointer-events: none;
+            clip-path: polygon(0 0, 0% 0, 0% 100%, 0 100%);
+        }
+        .card-hover.in-view::after {
+            animation: drawChart 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
         }
         .wave-blue::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .wave-emerald::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
@@ -111,8 +123,128 @@
         .wave-indigo::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .wave-rose::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(244,63,94,0.15)" stroke="rgba(244,63,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
         .wave-violet::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-        .card-hover.in-view::after {
-            animation: drawChart 1s ease-out forwards !important;
+
+        @keyframes animatedShinyText {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        .animated-shiny-units-text {
+            background: linear-gradient(110deg, #94a3b8 0%, #e2e8f0 20%, #ffffff 40%, #fbbf24 50%, #ffffff 60%, #e2e8f0 80%, #94a3b8 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-boundary-text {
+            background: linear-gradient(110deg, #6ee7b7 0%, #a7f3d0 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #a7f3d0 80%, #6ee7b7 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-netincome-text {
+            background: linear-gradient(110deg, #818cf8 0%, #c084fc 25%, #ffffff 45%, #fde047 55%, #ffffff 65%, #c084fc 80%, #818cf8 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-expenses-text {
+            background: linear-gradient(110deg, #f43f5e 0%, #fb7185 25%, #ffffff 45%, #fde047 55%, #ffffff 65%, #fb7185 80%, #f43f5e 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-maintenance-text {
+            background: linear-gradient(110deg, #f97316 0%, #fb923c 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #fb923c 80%, #f97316 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-drivers-text {
+            background: linear-gradient(110deg, #0ea5e9 0%, #38bdf8 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #38bdf8 80%, #0ea5e9 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+        .animated-shiny-coding-text {
+            background: linear-gradient(110deg, #c084fc 0%, #e879f9 25%, #ffffff 45%, #fef08a 55%, #ffffff 65%, #e879f9 80%, #c084fc 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            display: inline-block;
+            animation: animatedShinyText 3.5s linear infinite !important;
+            will-change: background-position;
+            transform: translateZ(0);
+            contain: layout style paint;
+        }
+
+        @keyframes blob {
+            0% {
+                transform: translate(-100%, -100%);
+            }
+            25% {
+                transform: translate(20%, -100%);
+            }
+            50% {
+                transform: translate(20%, 20%);
+            }
+            75% {
+                transform: translate(-100%, 20%);
+            }
+            100% {
+                transform: translate(-100%, -100%);
+            }
+        }
+        .animate-blob {
+            animation: blob 5s linear infinite;
+        }
+        .animate-blob-fast {
+            animation: blob 4s linear infinite;
+        }
+        .animate-blob-slow {
+            animation: blob 7s linear infinite;
+        }
+        .animate-blob-reverse {
+            animation: blob 6s linear infinite reverse;
         }
     </style>
 @endpush
@@ -122,85 +254,490 @@
     <script>
         // Inject initial stats for JS to prevent flickering on load
         window.__INITIAL_STATS__ = @json($stats);
+        window.__INITIAL_MAINTENANCE__ = @json($initial_maintenance ?? null);
+
+        // Intersection Observer for scroll-triggered wave animation (same as unit performance)
+        window.initWaveObserver = function() {
+            const cards = document.querySelectorAll('.card-hover');
+            if (!cards || cards.length === 0) return;
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('in-view');
+                        } else {
+                            entry.target.classList.remove('in-view');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                cards.forEach(card => observer.observe(card));
+            } else {
+                cards.forEach(card => card.classList.add('in-view'));
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.initWaveObserver);
+        } else {
+            setTimeout(window.initWaveObserver, 50);
+        }
+        window.addEventListener('load', window.initWaveObserver);
+
+        window.showMaintenanceUnitsModal = function showMaintenanceUnitsModal() {
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            window.currentMaintenanceFilter = 'all';
+            window.updateMaintenanceFilterUI('all');
+            
+            if (window.__INITIAL_MAINTENANCE__) {
+                window.displayMaintenanceUnitsData(window.__INITIAL_MAINTENANCE__);
+            }
+            
+            window.loadMaintenanceUnitsData();
+        };
+
+        window.hideMaintenanceUnitsModal = function hideMaintenanceUnitsModal() {
+            const modal = document.getElementById('maintenanceUnitsModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.showMaintenanceDetailsModal = function showMaintenanceDetailsModal(maintenanceId) {
+            if (!maintenanceId) return;
+            const unitList = window.originalMaintenanceData || (window.__INITIAL_MAINTENANCE__ && window.__INITIAL_MAINTENANCE__.units) || [];
+            const unit = unitList.find(u => u.maintenance_id == maintenanceId || u.id == maintenanceId);
+            if (!unit) return;
+
+            const setSafe = (id, val) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const span = el.querySelector('span');
+                if (span) span.textContent = val;
+                else el.textContent = val;
+            };
+
+            setSafe('mdm-plate', unit.plate_number || 'N/A');
+            setSafe('mdm-type', (unit.maintenance_type || 'Maintenance').toUpperCase());
+            setSafe('mdm-start-date', unit.start_date || 'N/A');
+            setSafe('mdm-end-date', unit.estimated_completion || 'TBD');
+            setSafe('mdm-mechanic', unit.mechanic_name || 'Not specified');
+            setSafe('mdm-driver', unit.driver_name || 'No driver assigned');
+            setSafe('mdm-total-cost', '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}));
+            setSafe('mdm-status-badge', (unit.maintenance_status || 'Ongoing').toUpperCase());
+            
+            const detailModal = document.getElementById('maintenanceDetailsModal');
+            if (detailModal) detailModal.classList.remove('hidden');
+            
+            const partsLoading = document.getElementById('mdm-parts-loading');
+            const partsList = document.getElementById('mdm-parts-list');
+            if (partsLoading) partsLoading.classList.remove('hidden');
+            if (partsList) {
+                partsList.classList.add('hidden');
+                partsList.innerHTML = '';
+            }
+
+            fetch(`/maintenance/${maintenanceId}/parts`, {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (partsLoading) partsLoading.classList.add('hidden');
+                if (partsList) {
+                    partsList.classList.remove('hidden');
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        data.data.forEach(p => {
+                            const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-slate-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
+                            partsList.innerHTML += `
+                                <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] text-slate-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-md shadow-slate-200/40">x${p.quantity}</span>
+                                            ${supplier}
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="text-sm font-bold text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
+                                        <p class="text-[9px] text-slate-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        partsList.innerHTML = `
+                            <li class="py-8 text-center">
+                                <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="package-x" class="w-5 h-5 text-slate-400"></i>
+                                </div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">No specific parts listed</p>
+                                <p class="text-[10px] text-slate-400 mt-1">${unit.description || 'See description for details'}</p>
+                            </li>
+                        `;
+                    }
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            })
+            .catch(err => {
+                if (partsLoading) partsLoading.innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        };
+
+        window.hideMaintenanceDetailsModal = function hideMaintenanceDetailsModal() {
+            const modal = document.getElementById('maintenanceDetailsModal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.updateMaintenanceFilterUI = function updateMaintenanceFilterUI(filter) {
+            const filters = ['all', 'preventive', 'corrective', 'emergency', 'complete'];
+            filters.forEach(f => {
+                const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+                if (btn) {
+                    if (f === filter) {
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-sm cursor-pointer';
+                    } else {
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
+                    }
+                }
+            });
+        };
+
+        window.setMaintenanceFilter = function setMaintenanceFilter(filter) {
+            window.currentMaintenanceFilter = filter;
+            window.updateMaintenanceFilterUI(filter);
+            window.filterMaintenanceUnits();
+            window.loadMaintenanceUnitsData();
+        };
+
+        window.displayMaintenanceUnitsData = function displayMaintenanceUnitsData(data) {
+            const units = (data && data.units) ? data.units : [];
+            const stats = (data && data.stats) ? data.stats : {};
+            
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setTxt('maintenanceUnitsCount', stats.total_maintenance || 0);
+            setTxt('preventiveMaintenanceCount', stats.preventive_maintenance || 0);
+            setTxt('correctiveMaintenanceCount', stats.corrective_maintenance || 0);
+            setTxt('emergencyMaintenanceCount', stats.emergency_maintenance || 0);
+            setTxt('completedTotalCount', stats.completed_total || 0);
+            
+            window.originalMaintenanceData = units;
+            window.maintenanceSortOrder = window.maintenanceSortOrder || 'desc';
+            
+            window.filterMaintenanceUnits();
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
+
+        window.filterMaintenanceUnits = function filterMaintenanceUnits() {
+            const searchInput = document.getElementById('maintenanceSearchInput');
+            const searchTerm = searchInput ? (searchInput.value || '').toLowerCase() : '';
+            const filter = window.currentMaintenanceFilter || 'all';
+            
+            let filteredUnits = [...(window.originalMaintenanceData || (window.__INITIAL_MAINTENANCE__ && window.__INITIAL_MAINTENANCE__.units) || [])];
+            
+            if (filter === 'preventive' || filter === 'corrective' || filter === 'emergency') {
+                filteredUnits = filteredUnits.filter(u => (u.maintenance_type || '').toLowerCase() === filter);
+            } else if (filter === 'complete') {
+                filteredUnits = filteredUnits.filter(u => {
+                    const st = (u.maintenance_status || '').toLowerCase();
+                    return st === 'complete' || st === 'completed';
+                });
+            }
+
+            if (searchTerm) {
+                filteredUnits = filteredUnits.filter(unit => {
+                    const searchableText = [
+                        unit.plate_number || '',
+                        unit.maintenance_type || '',
+                        unit.maintenance_status || '',
+                        unit.description || '',
+                        unit.mechanic_name || '',
+                        unit.driver_name || '',
+                        unit.start_date || '',
+                        unit.end_date || '',
+                        unit.estimated_completion || ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(searchTerm);
+                });
+            }
+
+            filteredUnits.sort((a, b) => {
+                const dateA = new Date((filter === 'complete' ? (a.end_date || a.start_date) : a.start_date) || '1970-01-01');
+                const dateB = new Date((filter === 'complete' ? (b.end_date || b.start_date) : b.start_date) || '1970-01-01');
+                return dateB - dateA;
+            });
+            
+            window.currentFilteredMaintenanceData = filteredUnits;
+            window.renderMaintenanceUnits(filteredUnits);
+        };
+
+        window.renderMaintenanceUnits = function renderMaintenanceUnits(units) {
+            const grid = document.getElementById('maintenanceGrid');
+            if (!grid) return;
+            const filter = window.currentMaintenanceFilter || 'all';
+            
+            if (!units || units.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-gray-100 rounded-full mb-4">
+                                <i data-lucide="wrench" class="w-8 h-8 text-slate-400"></i>
+                            </div>
+                            <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
+                            <p class="text-sm text-slate-400">Try adjusting your search or filter</p>
+                        </div>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+                return;
+            }
+            
+            grid.innerHTML = units.map(unit => {
+                const isComplete = filter === 'complete';
+                const mainDate = isComplete ? (unit.end_date || unit.start_date) : unit.start_date;
+                const statusColor = isComplete ? 'border-green-500' : 'border-orange-500';
+                const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
+                const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
+                const costVal = parseFloat(unit.maintenance_cost) || 0;
+
+                return `
+                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id || unit.id || 0})" class="cursor-pointer bg-[#fffbeb]/35 hover:bg-[#fffbeb]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-amber-300/60 p-4 relative">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="wrench" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-black text-slate-900 tracking-tight">${unit.plate_number || 'N/A'}</h4>
+                                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest">${unit.maintenance_type || 'General'}</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest bg-orange-500/15 text-orange-800 border border-orange-400/40">${unit.maintenance_status || 'Pending'}</span>
+                    </div>
+                    <div class="bg-amber-500/5 rounded-xl p-2.5 border border-amber-200/40 mb-3 text-xs text-slate-700">
+                        <p class="text-[11px] font-bold text-slate-800 truncate">${unit.description || 'No description available'}</p>
+                        <p class="text-[10px] text-amber-800/80 font-bold mt-1">${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}</p>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-900">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-orange-600"></i> ${isComplete ? 'Cost: ₱' + costVal.toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : 'Est: TBD')}</span>
+                        <span class="text-orange-600 hover:underline">View Details &rarr;</span>
+                    </div>
+                </div>
+            `;}).join('');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
+
+        window.loadMaintenanceUnitsData = async function loadMaintenanceUnitsData() {
+            const filter = window.currentMaintenanceFilter || 'all';
+            const url = `/api/maintenance-units?filter=${encodeURIComponent(filter)}&_t=${Date.now()}`;
+            
+            const grid = document.getElementById('maintenanceGrid');
+            if (grid && (!window.originalMaintenanceData || window.originalMaintenanceData.length === 0)) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
+                            <p class="text-sm text-slate-400">Please wait while we fetch maintenance details</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (pe) {
+                    console.error('API returned non-JSON:', text);
+                    window.showMaintenanceError('Server returned invalid response format.');
+                    return;
+                }
+                
+                if (!response.ok || !data.success) {
+                    window.showMaintenanceError((data && data.message) || `Server Error (${response.status})`);
+                    return;
+                }
+                
+                window.displayMaintenanceUnitsData(data);
+            } catch (error) {
+                console.error('Error loading maintenance units data:', error);
+                window.showMaintenanceError(error.message || 'Error loading maintenance units data. Please try again.');
+            }
+        };
+
+        window.clearMaintenanceSearch = function clearMaintenanceSearch() {
+            const input = document.getElementById('maintenanceSearchInput');
+            if (input) input.value = '';
+            window.filterMaintenanceUnits();
+        };
+
+        window.showMaintenanceError = function showMaintenanceError(message, debugInfo = null) {
+            const grid = document.getElementById('maintenanceGrid');
+            if (!grid) return;
+            const debugHtml = debugInfo ? `
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
+                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            ` : '';
+            
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-flex flex-col items-center">
+                        <div class="p-4 bg-red-100 rounded-full mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
+                        </div>
+                        <span class="text-xl text-red-600 font-semibold mb-2">Error Loading Maintenance Data</span>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
+                        <div class="flex gap-2">
+                            <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                Retry
+                            </button>
+                        </div>
+                        ${debugHtml}
+                    </div>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
     </script>
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
         {{-- Total Units --}}
-        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-blue-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Units</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="active_units">{{ $stats['active_units'] }}</p>
-                    <p class="text-blue-400 text-[10px] sm:text-xs font-medium"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-blue-100 rounded-xl sm:rounded-2xl border border-blue-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="car" class="w-5 h-5 sm:w-7 sm:h-7 text-blue-600"></i>
+        <div onclick="showUnitsModal()" class="card-hover wave-blue cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-blue-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-200/80 via-blue-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-blue-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-blue-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Total Units</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="active_units">{{ $stats['active_units'] }}</p>
+                    <p class="text-blue-600 text-[10px] sm:text-xs font-medium group-hover:translate-x-1 transition-transform duration-300"><span class="text-emerald-600 font-bold" data-stat="roi_achieved">{{ $stats['roi_units'] }}</span> ROI Achieved</p>
                 </div>
             </div>
-            <i data-lucide="car" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #2563eb !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Taxi 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Daily Boundary Collection --}}
-        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-emerald-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Boundary Revenue</p>
-                    <div class="flex flex-col">
-                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
+        <div onclick="showDailyBoundaryModal()" class="card-hover wave-emerald cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-emerald-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-emerald-500 via-teal-300 to-green-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-emerald-200/80 via-emerald-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-emerald-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-emerald-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Boundary Revenue</p>
+                    <div class="flex flex-col group-hover:translate-x-1 transition-transform duration-300">
+                        <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="today_boundary">{{ formatCurrency($stats['today_boundary']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-100/50">
-                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
-                        <p class="text-emerald-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-emerald-200/80 group-hover:translate-x-1 transition-transform duration-300">
+                        <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="month_boundary">{{ formatCurrency($stats['month_boundary'] ?? 0) }}</p>
+                        <p class="text-emerald-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl border border-emerald-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600"></i>
-                </div>
             </div>
-            <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #059669 !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Revenue 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Net Income --}}
-        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-green-100 bg-gradient-to-br from-green-50 to-lime-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-green-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Net Income (Kita)</p>
-                    <div class="flex flex-col">
-                        <span class="text-gray-900 text-lg sm:text-2xl font-black leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
+        <div onclick="showNetIncomeModal()" class="card-hover wave-green cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-green-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-fast bg-gradient-to-r from-green-500 via-lime-300 to-emerald-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-green-200/80 via-green-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-green-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-green-700 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Net Income (Kita)</p>
+                    <div class="flex flex-col group-hover:translate-x-1 transition-transform duration-300">
+                        <span class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none mb-0.5" data-stat="net_income">{{ formatCurrency($stats['net_income']) }}</span>
                         <span class="text-[9px] sm:text-[10px] font-bold text-green-600 uppercase">Today</span>
                     </div>
-                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-100/50">
-                        <p class="text-gray-900 text-base sm:text-lg font-black leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
-                        <p class="text-green-500 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">This Month</p>
+                    <div class="mt-2 pt-2 sm:mt-3 sm:pt-3 border-t border-green-200/80 group-hover:translate-x-1 transition-transform duration-300">
+                        <p class="text-slate-800 text-base sm:text-lg font-bold leading-none mb-0.5" data-stat="net_income_month">{{ formatCurrency($stats['net_income_month'] ?? 0) }}</p>
+                        <p class="text-green-700 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest">This Month</p>
                     </div>
                 </div>
-                <div class="p-1.5 sm:p-3 bg-green-100 rounded-xl sm:rounded-2xl border border-green-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="trending-up" class="w-5 h-5 sm:w-7 sm:h-7 text-green-600"></i>
-                </div>
             </div>
-            <i data-lucide="trending-up" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #16a34a !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Profit 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Units Under Maintenance --}}
-        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-orange-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Under Maintenance</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
-                    <p class="text-orange-400 text-[10px] sm:text-xs font-medium truncate" data-stat="maintenance_subtitle">Ongoing units</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-orange-100 rounded-xl sm:rounded-2xl border border-orange-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="wrench" class="w-5 h-5 sm:w-7 sm:h-7 text-orange-600"></i>
+        <div onclick="showMaintenanceUnitsModal()" class="card-hover wave-orange cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-orange-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-orange-500 via-amber-300 to-red-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-orange-200/80 via-amber-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-orange-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-orange-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Under Maintenance</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_units">{{ $stats['maintenance_units'] }}</p>
+                    <p class="text-orange-600 text-[10px] sm:text-xs font-medium truncate group-hover:translate-x-1 transition-transform duration-300" data-stat="maintenance_subtitle">Ongoing units</p>
                 </div>
             </div>
-            <i data-lucide="wrench" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ea580c !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
     </div>
@@ -209,66 +746,87 @@
     <div class="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         {{-- Active Drivers --}}
-        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-indigo-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Active Drivers</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-indigo-100 rounded-xl sm:rounded-2xl border border-indigo-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600"></i>
+        <div onclick="showActiveDriversModal()" class="card-hover wave-indigo cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-indigo-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-slow bg-gradient-to-r from-indigo-600 via-violet-400 to-blue-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-indigo-200/80 via-indigo-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-indigo-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-indigo-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Active Drivers</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="active_drivers">{{ $stats['active_drivers'] }}</p>
                 </div>
             </div>
-            <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #4f46e5 !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Drivers 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Total Expenses Today --}}
-        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-rose-100 bg-gradient-to-br from-rose-50 to-red-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Expenses Today</p>
-                    <p class="text-gray-900 text-lg sm:text-2xl font-black leading-none" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-rose-100 rounded-xl sm:rounded-2xl border border-rose-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="trending-down" class="w-5 h-5 sm:w-7 sm:h-7 text-rose-600"></i>
+        <div onclick="showExpensesModal()" class="card-hover wave-rose cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-rose-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob bg-gradient-to-r from-rose-500 via-red-400 to-pink-500 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-rose-200/80 via-rose-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-rose-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-rose-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Expenses Today</p>
+                    <p class="text-slate-800 text-lg sm:text-2xl font-bold tracking-tight leading-none group-hover:translate-x-1 transition-transform duration-300" data-stat="today_expenses">{{ formatCurrency($stats['total_expenses_today']) }}</p>
                 </div>
             </div>
-            <i data-lucide="trending-down" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #e11d48 !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Expenses 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
         {{-- Coding Units Today --}}
-        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-sm border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50/70">
-            
-            <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-                <div class="flex-1 min-w-0">
-                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Coding Units Today</p>
-                    <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
-                    <p class="text-violet-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
-                </div>
-                <div class="p-1.5 sm:p-3 bg-violet-100 rounded-xl sm:rounded-2xl border border-violet-200 shadow-sm flex-shrink-0">
-                    <i data-lucide="calendar" class="w-5 h-5 sm:w-7 sm:h-7 text-violet-600"></i>
+        <div onclick="showCodingUnitsModal()" class="col-span-2 lg:col-span-1 card-hover wave-violet cursor-pointer group relative overflow-hidden rounded-2xl shadow-lg border border-white/60 p-[3px] bg-slate-100/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-violet-400/80">
+            {{-- Animated Gradient Blob --}}
+            <div class="absolute top-1/2 left-1/2 w-[240px] h-[240px] rounded-full opacity-100 filter blur-[14px] z-0 animate-blob-reverse bg-gradient-to-r from-violet-600 via-fuchsia-400 to-purple-600 pointer-events-none"></div>
+
+            {{-- Glassy Card Content Container --}}
+            <div class="relative w-full h-full bg-white/90 backdrop-blur-xl rounded-[13px] outline outline-1 outline-white/80 p-3.5 sm:p-5 flex items-center justify-between z-10 overflow-hidden">
+                {{-- Higher & More Visible Hover Gradient Overlay --}}
+                <div class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 h-full w-full bg-gradient-to-t from-violet-200/80 via-violet-100/40 to-transparent pointer-events-none rounded-[13px] z-0"></div>
+
+                {{-- Left Accent Pill (from 21st.dev feature hover effect) --}}
+                <div class="absolute left-0 inset-y-0 h-5 group-hover:h-9 w-1.5 rounded-tr-full rounded-br-full bg-slate-300 group-hover:bg-violet-600 transition-all duration-300 origin-center my-auto z-10"></div>
+
+                <div class="flex-1 min-w-0 relative z-10 pl-1.5">
+                    <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:translate-x-1.5 transition-transform duration-300 inline-block">Coding Units Today</p>
+                    <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1 group-hover:translate-x-1 transition-transform duration-300" data-stat="coding_units">{{ $stats['coding_units'] }}</p>
+                    <p class="text-violet-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight group-hover:translate-x-1 transition-transform duration-300">{{ now()->timezone('Asia/Manila')->format('l') }}</p>
                 </div>
             </div>
-            <i data-lucide="calendar" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #7c3aed !important; z-index: 5 !important;"></i>
+            {{-- 3D Graphic Element in Background (21st.dev style) --}}
+            <img src="{{ asset('image/kpi/coding_3d.svg') }}" alt="Coding 3D" class="absolute -right-3 -bottom-3 w-28 h-28 sm:w-32 sm:h-32 object-contain pointer-events-none opacity-40 group-hover:opacity-85 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" style="z-index: 12 !important;">
         </div>
 
     </div>
 
     <!-- Unit Performance (Full Width) -->
-    <div class="mt-4 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
+    <div class="mt-4 bg-white rounded-2xl shadow-md border-2 border-slate-200/90 overflow-hidden">
         <div class="p-4 border-b bg-gray-50/50 flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <div class="p-1.5 bg-blue-100 rounded-lg">
                     <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Unit Performance</h3>
-                    <p class="text-[11px] text-gray-500 mt-0.5 leading-tight">Total actual boundary collections over the <strong>last 30 days</strong> vs their 30-day target.</p>
+                    <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Unit Performance</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Total actual boundary collections over the <strong>last 30 days</strong> vs their 30-day target.</p>
                 </div>
             </div>
-            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
+            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-100">Top 10 Performers</span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-4">
             <div class="lg:col-span-3 p-6">
@@ -278,35 +836,54 @@
             </div>
             <!-- Executive Insight Panel -->
             <div class="bg-gray-50 p-6 border-l border-gray-100 flex flex-col justify-center">
-                <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Executive Insights</h4>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Executive Insights</h4>
                 <div class="space-y-8">
                     <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Fleet Health</p>
                         <div class="flex items-end gap-2">
-                            <p class="text-3xl font-black text-gray-900 leading-none">82%</p>
-                            <p class="text-xs font-bold text-green-600 flex items-center mb-0.5">
-                                <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +2.4%
-                            </p>
+                            <p class="text-3xl font-bold text-slate-800 leading-none" id="insightFleetHealth">{{ $fleet_insights['health_percentage'] ?? 0 }}%</p>
+                            @if(($fleet_insights['has_data'] ?? false))
+                                @if(($fleet_insights['growth_percentage'] ?? 0) >= 0)
+                                    <p class="text-xs font-bold text-emerald-600 flex items-center mb-0.5" id="insightGrowthBadge">
+                                        <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +{{ $fleet_insights['growth_percentage'] }}%
+                                    </p>
+                                @else
+                                    <p class="text-xs font-bold text-rose-600 flex items-center mb-0.5" id="insightGrowthBadge">
+                                        <i data-lucide="trending-down" class="w-3 h-3 mr-0.5"></i> {{ $fleet_insights['growth_percentage'] }}%
+                                    </p>
+                                @endif
+                            @else
+                                <p class="text-[10px] font-bold text-slate-400 flex items-center mb-0.5 px-2 py-0.5 rounded-md bg-slate-200/60" id="insightGrowthBadge">
+                                    0% Base
+                                </p>
+                            @endif
                         </div>
-                        <p class="text-[11px] text-gray-500 mt-2 leading-relaxed font-medium">Most units are meeting over 80% of their monthly boundary targets.</p>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium" id="insightHealthDesc">
+                            {{ $fleet_insights['insight_message'] ?? 'No collections recorded in the last 30 days yet.' }}
+                        </p>
                     </div>
                     
                     <div class="pt-6 border-t border-gray-200">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
-                        <p class="text-base font-black text-gray-900" id="insightTopPlate">--</p>
-                        <p class="text-[11px] text-gray-500 mt-2 font-medium">Consistency in daily collections makes this your most reliable asset.</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Top Performer</p>
+                        @if(!empty($fleet_insights['top_plate']))
+                            <p class="text-base font-bold text-slate-800" id="insightTopPlate">{{ $fleet_insights['top_plate'] }}</p>
+                            <p class="text-[11px] text-slate-500 mt-1 font-medium" id="insightTopDesc">Collected <strong>₱{{ number_format($fleet_insights['top_amount'] ?? 0) }}</strong> over the last 30 days.</p>
+                        @else
+                            <p class="text-base font-bold text-slate-400 italic" id="insightTopPlate">No Active Data</p>
+                            <p class="text-[11px] text-slate-400 mt-1 font-medium" id="insightTopDesc">No boundary collections logged in the last 30 days.</p>
+                        @endif
                     </div>
 
                     <div class="pt-6 border-t border-gray-200">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3">Legend</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-3">Legend</p>
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded bg-blue-500 shadow-sm"></div>
-                                <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Actual Collection</span>
+                                <div class="w-3 h-3 rounded bg-blue-500 shadow-md shadow-slate-200/40"></div>
+                                <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Actual Collection</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="w-3 h-3 rounded border-2 border-amber-500 bg-amber-500/20"></div>
-                                <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Monthly Target</span>
+                                <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Monthly Target</span>
                             </div>
                         </div>
                     </div>
@@ -323,10 +900,10 @@
                     <div class="p-1.5 bg-blue-50 rounded-lg">
                         <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
                     </div>
-                    <h3 class="text-base font-bold text-gray-900 uppercase tracking-tight">Revenue Trend</h3>
+                    <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Revenue Trend</h3>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
+                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
                         7 Days
                     </button>
                     <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
@@ -351,7 +928,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Expense Breakdown & Distribution</h3>
+                <h3 class="text-base font-semibold text-slate-800">Expense Breakdown & Distribution</h3>
             </div>
             <div class="p-4">
                 <canvas id="expenseBreakdownChart" width="400" height="200"></canvas>
@@ -360,7 +937,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Weekly Financial Overview</h3>
+                <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
             </div>
             <div class="p-4">
                 <canvas id="weeklyChart" width="400" height="200"></canvas>
@@ -369,7 +946,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Unit Status Distribution</h3>
+                <h3 class="text-base font-semibold text-slate-800">Unit Status Distribution</h3>
             </div>
             <div class="p-4">
                 <canvas id="unitStatusChart" width="400" height="200"></canvas>
@@ -378,7 +955,7 @@
 
         <div class="bg-white rounded-lg shadow">
             <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-gray-900">Top Performing Drivers</h3>
+                <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
             </div>
             <div class="p-4">
                 <canvas id="topDriversChart" width="400" height="200"></canvas>
@@ -386,142 +963,198 @@
         </div>
     </div>
 
-    <!-- Maintenance Units Modal -->
-<div id="maintenanceUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="wrench" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Units Under Maintenance</h3>
-                        <p class="text-orange-100 text-xs font-medium">Complete maintenance tracking details</p>
-                    </div>
-                </div>
-                <button onclick="hideMaintenanceUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+    <!-- Maintenance Units Modal (NEW 21st.dev Sunset Amber & Cyber Gear Wrench Theme) -->
+<div id="maintenanceUnitsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Dark Sunset Amber & Industrial Obsidian Theme) -->
+        <div class="relative bg-[#180c04] border-b border-amber-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(249,115,22,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+            <!-- Ambient Amber, Orange & Sunset Gold Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-orange-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-amber-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-yellow-600/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span>
+                        Fleet Maintenance Matrix
                     </div>
-                    <input type="search" 
-                        id="maintenanceSearchInput"
-                        placeholder="Search by unit number, plate, or maintenance type..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterMaintenanceUnits()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearMaintenanceSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-maintenance-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Units Under Maintenance
+                        </h1>
                     </div>
+
+                    <button onclick="hideMaintenanceUnitsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
                 </div>
-                <div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-orange-600 shadow-sm">
-                        All
-                    </button>
-                    <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Preventive
-                    </button>
-                    <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Corrective
-                    </button>
-                    <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Emergency
-                    </button>
-                    <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Complete
-                    </button>
+
+                <!-- Bottom Row: Search Bar & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[240px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-orange-300/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="maintenanceSearchInput"
+                            placeholder="Search by unit plate, type, or mechanic..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-amber-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                            onkeyup="filterMaintenanceUnits()"
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearMaintenanceSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-amber-900/60 shadow-inner">
+                        <button onclick="setMaintenanceFilter('all')" id="mFilterAll" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-sm cursor-pointer">All</button>
+                        <button onclick="setMaintenanceFilter('preventive')" id="mFilterPreventive" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Preventive</button>
+                        <button onclick="setMaintenanceFilter('corrective')" id="mFilterCorrective" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Corrective</button>
+                        <button onclick="setMaintenanceFilter('emergency')" id="mFilterEmergency" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Emergency</button>
+                        <button onclick="setMaintenanceFilter('complete')" id="mFilterComplete" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Complete</button>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 border-b border-orange-200 flex-shrink-0">
-                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-                    <!-- Total Maintenance -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="wrench" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="maintenanceUnitsCount">0</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Maintenance</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total In Maintenance -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-orange-200/80 bg-gradient-to-br from-white via-orange-50/50 to-amber-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-orange-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-orange-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">In Repair</div>
+                            <div class="text-xl sm:text-2xl font-black text-orange-600 leading-none mb-0.5 tracking-tight" id="maintenanceUnitsCount">{{ $initial_maintenance['stats']['total_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-orange-600/75 uppercase tracking-tight">Active Ongoing Units</div>
                         </div>
+                        <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Preventive -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="preventiveMaintenanceCount">0</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Preventive</div>
-                            </div>
+
+                    <!-- 2. Preventive Maintenance -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-sky-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-blue-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Preventive</div>
+                            <div class="text-xl sm:text-2xl font-black text-blue-600 leading-none mb-0.5 tracking-tight" id="preventiveMaintenanceCount">{{ $initial_maintenance['stats']['preventive_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Scheduled Checkups</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Preventive" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Corrective -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-amber-100 rounded">
-                                <i data-lucide="wrench" class="w-4 h-4 text-amber-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-amber-600" id="correctiveMaintenanceCount">0</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Corrective</div>
-                            </div>
+
+                    <!-- 3. Corrective & Emergency -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-orange-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Corrective</div>
+                            <div class="text-xl sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="correctiveMaintenanceCount">{{ $initial_maintenance['stats']['corrective_maintenance'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Mechanical Fixes</div>
                         </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Corrective" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Emergency -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-red-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-red-100 rounded">
-                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-red-600" id="emergencyMaintenanceCount">0</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Emergency</div>
-                            </div>
+
+                    <!-- 4. Completed Service -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-teal-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Completed</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="completedTotalCount">{{ $initial_maintenance['stats']['completed_total'] ?? 0 }}</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Ready for Deployment</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Completed" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <!-- Completed -->
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="completedTotalCount">0</div>
-                                <div class="text-[10px] text-gray-600 uppercase tracking-wide font-bold">Complete</div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
-            <!-- Maintenance Units Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="maintenanceGrid">
-                    <!-- Loading State -->
-                    <div class="col-span-full text-center py-16">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading maintenance data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch maintenance details</p>
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="maintTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f97316" />
+                            <stop offset="50%" stop-color="#ea580c" />
+                            <stop offset="100%" stop-color="#fbbf24" />
+                        </linearGradient>
+                        <linearGradient id="maintTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#d97706" />
+                            <stop offset="100%" stop-color="#f97316" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#maintTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#maintTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#maintTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="6" fill="#ea580c" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" fill="#f97316" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="3.5" fill="#fbbf24" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#fbbf24" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#fbbf24" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#maintTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#maintTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="4" fill="#f97316" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#maintTaxiBodyGrad)" stroke-width="3.5" fill="#fbbf24" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Maintenance Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="maintenanceGrid">
+                    @if(!empty($initial_maintenance['units']) && count($initial_maintenance['units']) > 0)
+                        @foreach($initial_maintenance['units'] as $unit)
+                            <div onclick="showMaintenanceDetailsModal({{ $unit['maintenance_id'] ?? $unit['id'] ?? 0 }})" class="cursor-pointer bg-[#fffbeb]/35 hover:bg-[#fffbeb]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-amber-300/60 p-4 relative">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center shadow-xs">
+                                            <i data-lucide="wrench" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-base font-black text-slate-900 tracking-tight">{{ $unit['plate_number'] ?? 'N/A' }}</h4>
+                                            <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest">{{ $unit['maintenance_type'] ?? 'General' }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest bg-orange-500/15 text-orange-800 border border-orange-400/40">{{ $unit['maintenance_status'] ?? 'Pending' }}</span>
+                                </div>
+                                <div class="bg-amber-500/5 rounded-xl p-2.5 border border-amber-200/40 mb-3 text-xs text-slate-700">
+                                    <p class="text-[11px] font-bold text-slate-800 truncate">{{ $unit['description'] ?? 'No description available' }}</p>
+                                    <p class="text-[10px] text-amber-800/80 font-bold mt-1">Started: {{ $unit['start_date'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-900">
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-orange-600"></i> Est: {{ $unit['estimated_completion'] ?? 'TBD' }}</span>
+                                    <span class="text-orange-600 hover:underline">View Details &rarr;</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="col-span-full text-center py-20">
+                            <div class="inline-flex flex-col items-center">
+                                <div class="p-4 bg-orange-500/10 rounded-2xl mb-4 border border-orange-400/30">
+                                    <i data-lucide="wrench" class="w-8 h-8 text-orange-600"></i>
+                                </div>
+                                <span class="text-lg text-slate-800 font-black mb-1">No maintenance units found</span>
+                                <p class="text-xs text-slate-400 font-bold">All units are active and running</p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -538,7 +1171,7 @@
                     <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
+                    <h3 class="text-lg font-bold text-white tracking-wide uppercase" id="mdm-plate">PLATE</h3>
                     <p class="text-[10px] text-orange-100 font-bold uppercase tracking-widest" id="mdm-type">Maintenance Details</p>
                 </div>
             </div>
@@ -550,39 +1183,39 @@
         <!-- Content -->
         <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-gray-50">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Assigned Mechanic</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Assigned Mechanic</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-mechanic">
                         <i data-lucide="user-cog" class="w-4 h-4 text-orange-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Driver</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Driver</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-driver">
                         <i data-lucide="user" class="w-4 h-4 text-blue-500 flex-shrink-0"></i> <span>Name</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Date Started</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Date Started</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-start-date">
                         <i data-lucide="calendar" class="w-4 h-4 text-green-500 flex-shrink-0"></i> <span>Date</span>
                     </p>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Completion</p>
+                <div class="bg-white p-3 rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 flex flex-col justify-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Target Completion</p>
                     <p class="text-sm font-bold text-gray-800 flex items-center gap-2" id="mdm-end-date">
                         <i data-lucide="clock" class="w-4 h-4 text-purple-500 flex-shrink-0"></i> <span>TBD</span>
                     </p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+            <div class="bg-white rounded-xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40 overflow-hidden mb-6">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-                    <i data-lucide="list-checks" class="w-4 h-4 text-gray-500"></i>
-                    <h4 class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Parts & Services Breakdown</h4>
+                    <i data-lucide="list-checks" class="w-4 h-4 text-slate-500"></i>
+                    <h4 class="text-[10px] font-bold text-gray-700 uppercase tracking-widest">Parts & Services Breakdown</h4>
                 </div>
                 <div class="p-0 min-h-[150px]">
-                    <div id="mdm-parts-loading" class="py-12 text-center text-gray-400">
+                    <div id="mdm-parts-loading" class="py-12 text-center text-slate-400">
                         <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3 text-orange-500"></i>
                         <p class="text-[10px] font-bold uppercase tracking-widest">Fetching data...</p>
                     </div>
@@ -595,266 +1228,339 @@
             <!-- Totals -->
             <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100 flex justify-between items-center">
                 <div>
-                    <p class="text-[10px] text-orange-600/70 font-black uppercase tracking-widest">Total Cost</p>
-                    <p class="text-xs font-black uppercase tracking-widest mt-0.5" id="mdm-status-badge">Status</p>
+                    <p class="text-[10px] text-orange-600/70 font-bold uppercase tracking-widest">Total Cost</p>
+                    <p class="text-xs font-bold uppercase tracking-widest mt-0.5" id="mdm-status-badge">Status</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-black text-orange-600" id="mdm-total-cost">₱0.00</p>
+                    <p class="text-2xl font-bold text-orange-600" id="mdm-total-cost">₱0.00</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Active Drivers Modal -->
-<div id="activeDriversModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="users" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Active Drivers</h3>
-                        <p class="text-blue-100 text-xs font-medium">Complete driver management details</p>
-                    </div>
-                </div>
-                <button onclick="hideActiveDriversModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+<!-- Active Drivers Modal (NEW 21st.dev Cyber Electric Cyan & Sapphire Obsidian Theme) -->
+<div id="activeDriversModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Electric Cyan & Sapphire Obsidian Theme) -->
+        <div class="relative bg-[#050f24] border-b border-sky-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(14,165,233,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
-                    </div>
-                    <input type="search" 
-                        id="driversSearchInput"
-                        placeholder="Search by name, license, or contact..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterActiveDrivers()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearDriversSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <button 
-                    onclick="toggleDriversSort()" 
-                    id="driversSortBtn"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-sm flex items-center gap-2 min-w-[90px] justify-center"
-                >
-                    <i data-lucide="sort-asc" id="driversSortIcon" class="w-4 h-4"></i>
-                    <span id="driversSortText">A-Z</span>
-                </button>
+            <!-- Ambient Electric Cyan, Sapphire & Blue Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-sky-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-indigo-600/15 rounded-full blur-2xl pointer-events-none"></div>
 
-                <!-- Category Filter Buttons -->
-                <div class="hidden md:flex items-center gap-1 bg-white/20 backdrop-blur-sm p-1 rounded-xl border border-white/30">
-                    <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm">
-                        All
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                        Pilot & Driver Registry
+                    </div>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-drivers-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Active Drivers
+                        </h1>
+                    </div>
+
+                    <button onclick="hideActiveDriversModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Vacant
-                    </button>
-                    <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Active
-                    </button>
-                    <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10">
-                        Top Performers
-                    </button>
+                </div>
+
+                <!-- Bottom Row: Search Bar, Sort & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[220px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-sky-300/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="driversSearchInput"
+                            placeholder="Search by driver name, license, contact..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-sky-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all"
+                            onkeyup="filterActiveDrivers()"
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearDriversSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button 
+                            onclick="toggleDriversSort()" 
+                            id="driversSortBtn"
+                            class="px-3 py-1.5 bg-slate-900/90 border border-sky-900/60 rounded-xl text-sky-300 hover:text-white hover:bg-sky-950 transition-all text-xs font-bold flex items-center gap-1.5 shadow-inner"
+                        >
+                            <i data-lucide="sort-asc" id="driversSortIcon" class="w-3.5 h-3.5"></i>
+                            <span id="driversSortText">A-Z</span>
+                        </button>
+
+                        <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-sky-900/60 shadow-inner">
+                            <button onclick="setDriversFilter('all')" id="dFilterAll" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-sm cursor-pointer">All</button>
+                            <button onclick="setDriversFilter('vacant')" id="dFilterVacant" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Vacant</button>
+                            <button onclick="setDriversFilter('active')" id="dFilterActive" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Active</button>
+                            <button onclick="setDriversFilter('top')" id="dFilterTop" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Top Performers</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="totalDriversCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Drivers</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Drivers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-sky-200/80 bg-gradient-to-br from-white via-sky-50/50 to-blue-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-sky-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-sky-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Fleet Drivers</div>
+                            <div class="text-xl sm:text-2xl font-black text-sky-600 leading-none mb-0.5 tracking-tight" id="totalDriversCount">0</div>
+                            <div class="text-[9px] font-bold text-sky-600/75 uppercase tracking-tight">Total Enrolled</div>
                         </div>
+                        <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Total Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="user-minus" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="vacantDriversCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Vacant Drivers</div>
-                            </div>
+
+                    <!-- 2. Active With Units -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-teal-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Active Duty</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="activeWithUnitsCount">0</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Dispatched on Road</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Active Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="user-check" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="activeWithUnitsCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Active Drivers</div>
-                            </div>
+
+                    <!-- 3. Vacant Drivers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-purple-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Standby / Vacant</div>
+                            <div class="text-xl sm:text-2xl font-black text-indigo-600 leading-none mb-0.5 tracking-tight" id="vacantDriversCount">0</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Available for Units</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Vacant Drivers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="award" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="topPerformersCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Top Performers</div>
-                            </div>
+
+                    <!-- 4. Top Performers -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-yellow-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Elite Tier</div>
+                            <div class="text-xl sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="topPerformersCount">0</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Top Performance</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Top Performers" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Active Drivers Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="activeDriversGrid">
-                    <!-- Loading State -->
-                    <div class="col-span-full text-center py-16">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading driver data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch driver details</p>
-                        </div>
-                    </div>
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="driverTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0ea5e9" />
+                            <stop offset="50%" stop-color="#0284c7" />
+                            <stop offset="100%" stop-color="#38bdf8" />
+                        </linearGradient>
+                        <linearGradient id="driverTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0369a1" />
+                            <stop offset="100%" stop-color="#0ea5e9" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#driverTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#driverTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#driverTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="6" fill="#0284c7" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" fill="#0ea5e9" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="3.5" fill="#38bdf8" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#38bdf8" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#38bdf8" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#driverTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#driverTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="4" fill="#0ea5e9" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#driverTaxiBodyGrad)" stroke-width="3.5" fill="#38bdf8" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Active Drivers Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="activeDriversGrid">
+                    <!-- Dynamic driver cards populated by renderActiveDrivers -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Coding Units Modal -->
-<div id="codingUnitsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="code" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Coding Units</h3>
-                        <p class="text-purple-100 text-xs font-medium">Complete coding unit management details</p>
-                    </div>
-                </div>
-                <button onclick="hideCodingUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+<!-- Coding Units Modal (NEW 21st.dev Cyber Neon Amethyst & Violet Obsidian Theme) -->
+<div id="codingUnitsModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Neon Amethyst & Violet Obsidian Theme) -->
+        <div class="relative bg-[#130624] border-b border-purple-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(192,132,252,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+            <!-- Ambient Neon Amethyst, Magenta & Violet Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-purple-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-fuchsia-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-pink-600/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                        Coding Dispatch Protocol
                     </div>
-                    <input type="search" 
-                        id="codingSearchInput"
-                        placeholder="Search by unit number, plate, or coding status..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        oninput="filterCodingUnits()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearCodingSearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-coding-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Coding Units
+                        </h1>
                     </div>
+
+                    <button onclick="hideCodingUnitsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
                 </div>
 
-                <!-- Coding Period Filters -->
-                <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                    <button 
-                        id="btn-today-coding" 
-                        onclick="setCodingPeriod('today')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-purple-700"
-                    >
-                        Today
-                    </button>
-                    <button 
-                        id="btn-tomorrow-coding" 
-                        onclick="setCodingPeriod('tomorrow')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Tomorrow
-                    </button>
-                    <button 
-                        id="btn-past-coding" 
-                        onclick="setCodingPeriod('past')"
-                        class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                        Past
-                    </button>
+                <!-- Bottom Row: Search Bar & Segmented Filter Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="relative flex-1 min-w-[240px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-purple-300/60"></i>
+                        </div>
+                        <input type="search" 
+                            id="codingSearchInput"
+                            placeholder="Search by unit plate, type, or status..."
+                            class="w-full pl-10 pr-9 py-1.5 bg-slate-900/90 border border-purple-900/60 rounded-xl text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                            oninput="filterCodingUnits()"
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center">
+                            <button onclick="clearCodingSearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-purple-900/60 shadow-inner">
+                        <button id="btn-today-coding" onclick="setCodingPeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-tomorrow-coding" onclick="setCodingPeriod('tomorrow')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Tomorrow</button>
+                        <button id="btn-past-coding" onclick="setCodingPeriod('past')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Past</button>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-purple-200 flex-shrink-0">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="todayCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Today's Coding</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-5xl mx-auto">
+                    
+                    <!-- 1. Today's Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/50 to-fuchsia-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-purple-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-purple-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Today's Coding</div>
+                            <div class="text-xl sm:text-2xl font-black text-purple-600 leading-none mb-0.5 tracking-tight" id="todayCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-purple-600/75 uppercase tracking-tight">Active Restriction Today</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Today Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="tomorrowCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Tomorrow's Coding</div>
-                            </div>
+
+                    <!-- 2. Tomorrow's Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-purple-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Tomorrow's Coding</div>
+                            <div class="text-xl sm:text-2xl font-black text-indigo-600 leading-none mb-0.5 tracking-tight" id="tomorrowCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Upcoming Next Cycle</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Tomorrow Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-orange-100 rounded">
-                                <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-orange-600" id="pastCodingCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Past Coding</div>
-                            </div>
+
+                    <!-- 3. Past Coding -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-pink-200/80 bg-gradient-to-br from-white via-pink-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-pink-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-pink-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Past Restrictions</div>
+                            <div class="text-xl sm:text-2xl font-black text-pink-600 leading-none mb-0.5 tracking-tight" id="pastCodingCount">0</div>
+                            <div class="text-[9px] font-bold text-pink-600/75 uppercase tracking-tight">Cleared from Coding</div>
                         </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Past Coding" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Coding Units Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="codingGrid">
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="codingTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="50%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#e879f9" />
+                        </linearGradient>
+                        <linearGradient id="codingTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#7e22ce" />
+                            <stop offset="100%" stop-color="#ec4899" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#codingTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#codingTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#codingTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="6" fill="#a855f7" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" fill="#c084fc" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="3.5" fill="#e879f9" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#e879f9" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#e879f9" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#codingTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#codingTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="4" fill="#c084fc" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#codingTaxiBodyGrad)" stroke-width="3.5" fill="#ec4899" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Coding Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6" id="codingGrid">
                     <!-- Loading State -->
                     <div class="col-span-full text-center py-16">
                         <div class="inline-flex flex-col items-center">
                             <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch coding details</p>
+                            <span class="text-lg text-slate-800 font-black mb-1">Loading coding data...</span>
+                            <p class="text-xs text-slate-400 font-bold">Please wait while we fetch coding details</p>
                         </div>
                     </div>
                 </div>
@@ -864,55 +1570,148 @@
 </div>
 
 <!-- Net Income Modal -->
-<div id="netIncomeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+<div id="netIncomeModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Royal Midnight Indigo & Cyber Amethyst Theme) -->
+        <div class="relative bg-[#070a1e] border-b border-indigo-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(129,140,248,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
+            
+            <!-- Ambient Royal Blue, Violet & Fuchsia Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-indigo-500/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-blue-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                        Net Profit Audit
                     </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Net Income Details</h3>
-                        <p class="text-green-100 text-xs font-medium">Complete income and expense breakdown</p>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-netincome-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Net Income Details
+                        </h1>
                     </div>
+
+                    <button onclick="hideNetIncomeModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="printReport()" class="bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg transition-all duration-200 shadow-lg flex items-center gap-2 text-sm font-bold border-2 border-white animate-pulse hover:animate-none">
-                        <i data-lucide="printer" class="w-4 h-4 text-green-700"></i>
+
+                <!-- Bottom Row: Period Segmented Buttons & Print Report -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-indigo-900/60 shadow-inner">
+                        <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Weekly</button>
+                        <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Monthly</button>
+                        <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Yearly</button>
+                    </div>
+
+                    <button onclick="printReport()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/30 text-indigo-200 hover:text-white font-extrabold text-xs flex items-center gap-2 border border-indigo-400/30 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-400"></i>
                         PRINT REPORT
                     </button>
-                    <button onclick="hideNetIncomeModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Search and Date Filter -->
-            <!-- Centered Period Filters (Net Income) -->
-            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
-                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-income" onclick="setIncomePeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-income" onclick="setIncomePeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-income" onclick="setIncomePeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-income" onclick="setIncomePeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Detailed Report Document (Integrated) -->
-            <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="incomeReport">
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Revenue Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Revenue</div>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="reportTotalIncome">₱0.00</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Gross Inflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Total Revenue" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 2. Total Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-rose-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-rose-600 leading-none mb-0.5 tracking-tight" id="reportTotalExpenses">₱0.00</div>
+                            <div class="text-[9px] font-bold text-rose-600/75 uppercase tracking-tight">Operating Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Total Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 3. Net Income & Margin Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50/50 to-violet-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-indigo-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="text-indigo-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none">Net Income</span>
+                                <span id="reportProfitMargin" class="text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">0.0% Margin</span>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900 leading-none mb-0.5 tracking-tight" id="reportNetIncome">₱0.00</div>
+                            <div class="text-[9px] font-bold text-indigo-600/75 uppercase tracking-tight">Net Profit Takeaway</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Net Income" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="netIncomeTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="50%" stop-color="#6366f1" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="netIncomeTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#4f46e5" />
+                            <stop offset="100%" stop-color="#06b6d4" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="6" fill="#6366f1" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" fill="#3b82f6" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#eab308" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#eab308" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#netIncomeTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#netIncomeTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="4" fill="#6366f1" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#netIncomeTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Detailed Report Document (Scrollable Area) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10 print-section" style="transform: translateZ(0);">
+                <div class="max-w-5xl mx-auto relative" id="incomeReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
                             <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
                         </div>
-                        <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Financial Report</h4>
-                        <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="reportPeriodLabelPrint">Period: TODAY</div>
-                        <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL RECORD</div>
+                        <h4 class="text-4xl font-bold uppercase tracking-[0.4em] text-slate-800 mb-2">Financial Report</h4>
+                        <div class="text-base text-gray-600 uppercase font-bold tracking-widest" id="reportPeriodLabelPrint">Period: TODAY</div>
+                        <div class="text-[12px] text-slate-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
                         
                         <!-- Print-Only Summary Box -->
@@ -931,74 +1730,51 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Net Income Summary Section (Screen Only) -->
-                    <div class="mb-8 p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-lg border border-gray-700 text-white relative overflow-hidden no-print">
-                        <!-- Decorative element -->
-                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
-                            <i data-lucide="calculator" class="w-48 h-48 -mt-8 -mr-8"></i>
+                    
+                    <!-- Revenue Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#f0f4ff]/30 hover:bg-[#f0f4ff]/50 backdrop-blur-[2px] rounded-2xl border border-indigo-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-indigo-500/10 px-4 sm:px-6 py-2.5 border-b border-indigo-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-indigo-950 uppercase tracking-wider">Revenue Breakdown</span>
+                            </div>
                         </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                            <!-- Revenue -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</span>
-                                <span class="text-3xl font-black text-emerald-400" id="reportTotalIncome">₱0.00</span>
-                            </div>
-                            
-                            <!-- Expenses -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6 md:pl-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expenses</span>
-                                <span class="text-3xl font-black text-red-400" id="reportTotalExpenses">₱0.00</span>
-                            </div>
-                            
-                            <!-- Net Income -->
-                            <div class="flex flex-col md:pl-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center">
-                                    Net Income 
-                                    <span id="reportProfitMargin" class="ml-2 text-[9px] bg-white/10 px-2 py-0.5 rounded-full text-gray-300">0.0% Margin</span>
-                                </span>
-                                <span class="text-4xl font-black text-white" id="reportNetIncome">₱0.00</span>
-                            </div>
+                        <div id="revenueDetailList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
+                            <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    <!-- Revenue Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg border-x border-t border-gray-200">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Revenue Breakdown</span>
-                        </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg">
-                            <div id="revenueDetailList" class="min-h-[100px] flex flex-col justify-center">
-                                <!-- Dynamically populated -->
+                    <!-- Operating Expenses Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="trending-down" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">Operating Expenses Breakdown</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Operating Expenses Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Operating Expenses Breakdown</span>
-                        </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
+                        <div class="divide-y divide-rose-200/40 bg-transparent">
                             <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                    <span>Maintenance & Repairs Itemized</span>
+                            <div>
+                                <div class="bg-rose-500/5 px-4 sm:px-6 py-1.5 border-b border-rose-200/40 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="wrench" class="w-3 h-3 text-orange-600"></i> Maintenance & Repairs Itemized</span>
                                     <span id="reportMaintenanceTotal" class="text-orange-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="maintenanceDetailList" class="bg-white min-h-[60px] flex flex-col justify-center">
+                                <div id="maintenanceDetailList" class="min-h-[60px] flex flex-col justify-center bg-transparent">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
 
                             <!-- Office Breakdown -->
                             <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                    <span>General Office Expenses Itemized</span>
-                                    <span id="reportGeneralExpensesTotal" class="text-red-500 font-black">Total: ₱0.00</span>
+                                <div class="bg-rose-500/5 px-4 sm:px-6 py-1.5 border-b border-rose-200/40 flex justify-between items-center text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="building" class="w-3 h-3 text-red-600"></i> General Office Expenses Itemized</span>
+                                    <span id="reportGeneralExpensesTotal" class="text-rose-600 font-black">Total: ₱0.00</span>
                                 </div>
-                                <div id="officeExpensesDetailList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg">
+                                <div id="officeExpensesDetailList" class="min-h-[60px] flex flex-col justify-center bg-transparent">
                                     <!-- Dynamically populated -->
                                 </div>
                             </div>
@@ -1007,7 +1783,7 @@
                     
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Financial Statement</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Authenticated Financial Statement</p>
                         <p class="text-[9px] text-gray-300 font-medium tracking-widest">TIMESTAMP: <span id="reportTimestamp"></span></p>
                     </div>
                 </div>
@@ -1017,55 +1793,146 @@
     </div>
 </div>
 
-<!-- Total Expenses Details Modal (NEW) -->
-<div id="expensesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden border border-white/20">
-        <!-- Modal Header -->
-        <div class="p-6 border-b bg-gradient-to-r from-red-600 to-rose-700 flex-shrink-0 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-inner">
-                        <i data-lucide="trending-down" class="w-7 h-7"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-black tracking-tight leading-none mb-1">Total Expenses Today</h3>
-                        <p class="text-red-100 text-[11px] font-bold uppercase tracking-widest opacity-80">Detailed expense records and computation</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="printExpensesNewTab()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-black text-xs uppercase tracking-widest transition-all border border-white/20">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
-                        Print Expenses
-                    </button>
-                    <button onclick="hideExpensesModal()" class="p-2 hover:bg-white/10 text-white rounded-full transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
+<!-- Total Expenses Details Modal (NEW 21st.dev Ruby Obsidian & Cyber Shield Theme) -->
+<div id="expensesModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Deep Crimson & Ruby Obsidian Theme) -->
+        <div class="relative bg-[#140508] border-b border-rose-950/80 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.09] pointer-events-none" style="background-image: radial-gradient(rgba(244,63,94,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Period Filters (Expenses Only) -->
-            <div class="mt-6 flex justify-center bg-black/10 rounded-xl p-1.5 backdrop-blur-sm border border-white/10">
-                <div class="flex gap-1 p-0.5 bg-black/20 rounded-lg shadow-inner">
-                    <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Today</button>
-                    <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Weekly</button>
-                    <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Monthly</button>
-                    <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 py-1.5 text-xs font-black rounded-md transition-all duration-200">Yearly</button>
+            <!-- Ambient Ruby, Crimson & Sunset Gold Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-rose-600/25 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-10 w-48 h-20 bg-amber-600/15 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-400/30 text-rose-300 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                        Expense Outflow Audit
+                    </div>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-expenses-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Total Expenses Details
+                        </h1>
+                    </div>
+
+                    <button onclick="hideExpensesModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Bottom Row: Period Segmented Buttons & Print Report -->
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center p-1 bg-slate-900/90 rounded-xl border border-rose-900/60 shadow-inner">
+                        <button id="btn-today-expenses" onclick="setExpensesPeriod('today')" class="px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm cursor-pointer">Today</button>
+                        <button id="btn-week-expenses" onclick="setExpensesPeriod('week')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Weekly</button>
+                        <button id="btn-month-expenses" onclick="setExpensesPeriod('month')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Monthly</button>
+                        <button id="btn-year-expenses" onclick="setExpensesPeriod('year')" class="px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer">Yearly</button>
+                    </div>
+
+                    <button onclick="printExpensesNewTab()" class="px-3.5 sm:px-4 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-200 hover:text-white font-extrabold text-xs flex items-center gap-2 border border-rose-400/30 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-rose-400"></i>
+                        PRINT EXPENSES
+                    </button>
                 </div>
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Detailed Report Document (Expenses Focused) -->
-            <div class="bg-gray-50 p-4 border-b border-gray-200 flex-shrink-0 print-section overflow-y-auto max-h-[85vh]">
-                <div class="max-w-5xl mx-auto bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative" id="expensesReport">
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── 3D SVG KPI Executive Metrics Strip (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/50 to-red-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-rose-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-rose-600 leading-none mb-0.5 tracking-tight" id="expensesTotalValue">₱0.00</div>
+                            <div class="text-[9px] font-bold text-rose-600/75 uppercase tracking-tight">Total Operating Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/expenses_3d.svg') }}" alt="Total Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 2. Maintenance Outflow Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-orange-200/80 bg-gradient-to-br from-white via-orange-50/50 to-amber-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-orange-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-orange-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Maintenance & Repairs</div>
+                            <div class="text-xl sm:text-2xl font-black text-orange-600 leading-none mb-0.5 tracking-tight" id="expensesMaintenanceTotal">₱0.00</div>
+                            <div class="text-[9px] font-bold text-orange-600/75 uppercase tracking-tight">Fleet Mechanical Care</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                    <!-- 3. General Office Expenses Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-red-200/80 bg-gradient-to-br from-white via-red-50/50 to-rose-100/40 p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-red-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-red-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Office Expenses</div>
+                            <div class="text-xl sm:text-2xl font-black text-red-600 leading-none mb-0.5 tracking-tight" id="expensesOfficeTotal">₱0.00</div>
+                            <div class="text-[9px] font-bold text-red-600/75 uppercase tracking-tight">Administrative Outflow</div>
+                        </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Office Expenses" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="expenseTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f43f5e" />
+                            <stop offset="50%" stop-color="#e11d48" />
+                            <stop offset="100%" stop-color="#f59e0b" />
+                        </linearGradient>
+                        <linearGradient id="expenseTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#be123c" />
+                            <stop offset="100%" stop-color="#f43f5e" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#expenseTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#expenseTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="6" fill="#e11d48" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" fill="#f43f5e" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#f59e0b" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#f59e0b" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#expenseTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#expenseTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="4" fill="#e11d48" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#expenseTaxiBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Detailed Report Document (Scrollable Area) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10 print-section" style="transform: translateZ(0);">
+                <div class="max-w-5xl mx-auto relative" id="expensesReport">
                     <!-- Report Header (Print Only) -->
                     <div class="text-center mb-10 print-only">
                         <div class="flex flex-col items-center mb-4">
-                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2" style="height:64px; width:auto;">
+                            <img src="{{ asset('image/logo.png') }}" alt="Euro Taxi Logo" class="h-16 w-auto mb-2">
                         </div>
-                        <h4 class="text-4xl font-black uppercase tracking-[0.4em] text-gray-900 mb-2">Expense Statement</h4>
-                        <div class="text-base text-gray-600 uppercase font-black tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
-                        <div class="text-[12px] text-gray-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
+                        <h4 class="text-4xl font-bold uppercase tracking-[0.4em] text-slate-800 mb-2">Expense Statement</h4>
+                        <div class="text-base text-gray-600 uppercase font-bold tracking-widest" id="expensesPeriodLabelPrint">Period: TODAY</div>
+                        <div class="text-[12px] text-slate-400 mt-3 font-bold tracking-[0.2em]">EURO TAXI MANAGEMENT SYSTEM • OFFICIAL EXPENSE RECORD</div>
                         <div class="border-t-2 border-gray-100 mt-8 pt-2 h-0 border-dashed"></div>
                         
                         <!-- Print-Only Summary Box -->
@@ -1085,180 +1952,210 @@
                         </div>
                     </div>
                     
-                    <!-- Total Expenses Summary Section (Screen Only) -->
-                    <div class="mb-8 p-6 bg-gradient-to-br from-red-900 to-red-800 rounded-xl shadow-lg border border-red-700 text-white relative overflow-hidden no-print">
-                        <!-- Decorative element -->
-                        <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
-                            <i data-lucide="receipt" class="w-48 h-48 -mt-8 -mr-8"></i>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                            <!-- Maintenance Expenses -->
-                            <div class="flex flex-col border-b md:border-b-0 md:border-r border-red-700 pb-4 md:pb-0 md:pr-6">
-                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1">Maintenance Total</span>
-                                <span class="text-2xl font-black text-white" id="expensesMaintenanceTotal">₱0.00</span>
-                            </div>
-                            
-                            <!-- Office Expenses -->
-                            <div class="flex flex-col md:pl-2">
-                                <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 flex items-center">
-                                    Office Expenses Total 
-                                </span>
-                                <span class="text-2xl font-black text-white" id="expensesOfficeTotal">₱0.00</span>
+                    <!-- Maintenance Expenses Breakdown Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-orange-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">Maintenance & Repairs Breakdown</span>
                             </div>
                         </div>
-
-                        <!-- Grand Total -->
-                        <div class="mt-6 pt-4 border-t border-red-700/50">
-                            <span class="text-xs font-bold text-red-200 uppercase tracking-widest mb-1 block">Total Expenses</span>
-                            <span class="text-5xl font-black text-white drop-shadow-md" id="expensesTotalValue">₱0.00</span>
+                        <div id="expensesMaintenanceList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
+                            <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    <!-- Operating Expenses Section -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center bg-red-50 text-red-900 px-6 py-3 rounded-t-lg border-x border-t border-red-100">
-                            <span class="text-[11px] uppercase font-black tracking-[0.1em]">Detailed Expenses Breakdown</span>
+                    <!-- General Office Expenses Breakdown Section (Ultra-Clear Translucent Glass Card) -->
+                    <div class="mb-5 bg-[#fff1f2]/30 hover:bg-[#fff1f2]/50 backdrop-blur-[2px] rounded-2xl border border-rose-300/60 shadow-sm overflow-hidden transition-all duration-200">
+                        <div class="flex justify-between items-center bg-rose-500/10 px-4 sm:px-6 py-2.5 border-b border-rose-200/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <i data-lucide="building" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-xs font-black text-rose-950 uppercase tracking-wider">General Office Expenses Breakdown</span>
+                            </div>
                         </div>
-                        <div class="border-x border-b border-gray-200 rounded-b-lg p-0">
-                            <!-- Maintenance Breakdown -->
-                            <div class="border-b border-gray-200">
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                    <span>Maintenance & Repairs Itemized</span>
-                                </div>
-                                <div id="expensesMaintenanceList" class="bg-white min-h-[60px] flex flex-col justify-center"></div>
-                            </div>
-
-                            <!-- Office Breakdown -->
-                            <div>
-                                <div class="bg-gray-50 px-6 py-2 border-b border-gray-200 flex justify-between text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                    <span>General Office Expenses Itemized</span>
-                                </div>
-                                <div id="expensesOfficeList" class="bg-white min-h-[60px] flex flex-col justify-center rounded-b-lg"></div>
-                            </div>
+                        <div id="expensesOfficeList" class="min-h-[80px] flex flex-col justify-center bg-transparent">
+                            <!-- Dynamically populated -->
                         </div>
                     </div>
                     
-                    
-
                     <!-- Report Footer (Print Only) -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-100 print-only">
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Authenticated Expense Summary</p>
                         <p class="text-[9px] text-gray-300 font-medium tracking-widest">TIMESTAMP: <span id="expensesTimestamp"></span></p>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 <!-- Daily Boundary Collection Modal -->
-<div id="dailyBoundaryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="p-4 border-b bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 flex-shrink-0">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Daily Boundary Collections</h3>
-                        <p class="text-green-100 text-xs font-medium">Complete boundary collection details</p>
-                    </div>
-                </div>
-                <button onclick="hideDailyBoundaryModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+<div id="dailyBoundaryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden border border-slate-700/30">
+        <!-- Modal Header (21st.dev Cyber Emerald Matrix Dark Glass Theme) -->
+        <div class="relative bg-[#061a12] border-b border-emerald-950/60 p-4 sm:p-5 flex-shrink-0 overflow-hidden">
+            <!-- Micro-grid Dot Pattern Background -->
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(16,185,129,0.9) 1px, transparent 1px); background-size: 16px 16px;"></div>
             
-            <!-- Search and Date Filter -->
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+            <!-- Ambient Emerald & Mint Radial Glows -->
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-16 w-60 h-60 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-3">
+                <!-- Top Row: Title, Pill & Close Action (100% Mathematically Centered Title) -->
+                <div class="relative flex items-center justify-between min-h-[38px]">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-md shadow-xs relative z-10">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Revenue Stream Live
                     </div>
-                    <input type="search" 
-                        id="boundarySearchInput"
-                        placeholder="Search by unit number, driver, or amount..."
-                        class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                        onkeyup="filterBoundaryCollections()"
-                     autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button onclick="clearBoundarySearch()" class="text-white/60 hover:text-white transition-colors">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
+
+                    <!-- 100% Mathematically Centered Title Overlay -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none px-28">
+                        <h1 class="animated-shiny-boundary-text text-base sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-tight text-center truncate">
+                            Daily Boundary Collections
+                        </h1>
+                    </div>
+
+                    <button onclick="hideDailyBoundaryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-sm border border-white/10 relative z-10" title="Close Modal">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Bottom Row: Search Bar & Date Filter -->
+                <div class="flex items-center gap-2.5 sm:gap-3.5">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400/70">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input type="search" 
+                            id="boundarySearchInput"
+                            placeholder="Search by unit number, driver, or amount..."
+                            class="w-full pl-10 pr-9 py-2 bg-slate-900/80 border border-slate-700/80 rounded-xl text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50 transition-all shadow-inner"
+                            onkeyup="filterBoundaryCollections()"
+                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button onclick="clearBoundarySearch()" class="text-slate-400 hover:text-white transition-colors">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-center flex-shrink-0">
+                        <input 
+                            type="date" 
+                            id="boundaryDateFilter"
+                            class="px-3.5 py-2 bg-slate-900/80 border border-slate-700/80 rounded-xl text-emerald-300 text-xs sm:text-sm font-semibold focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50 transition-all shadow-inner cursor-pointer"
+                            onchange="filterBoundaryCollections()"
+                        >
                     </div>
                 </div>
-                <input 
-                    type="date" 
-                    id="boundaryDateFilter"
-                    class="px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                    onchange="filterBoundaryCollections()"
-                >
             </div>
         </div>
         
-        <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-            <!-- Summary Stats -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200 flex-shrink-0">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-green-100 rounded">
-                                <i data-lucide="calendar" class="w-4 h-4 text-green-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-green-600" id="totalBoundaryCount">0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Total Today</div>
-                            </div>
+        <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+            <!-- ─── Compact Summary Metrics Strip with 3D SVG Assets (21st.dev Style) ─── -->
+            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                    
+                    <!-- 1. Total Today Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Today</div>
+                            <div class="text-lg sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="totalBoundaryCount">0</div>
+                            <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">Collections Count</div>
                         </div>
+                        <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Total Today" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-blue-100 rounded">
-                                <i data-lucide="history" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-blue-600" id="uniqueUnitsCount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yesterday Total</div>
-                            </div>
+
+                    <!-- 2. Yesterday Total Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-blue-600 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Yesterday Total</div>
+                            <div class="text-lg sm:text-2xl font-black text-blue-600 leading-none mb-0.5 tracking-tight" id="uniqueUnitsCount">₱0</div>
+                            <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Previous Day</div>
                         </div>
+                        <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="Yesterday Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-purple-100 rounded">
-                                <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-purple-600" id="uniqueDriversCount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Monthly Total</div>
-                            </div>
+
+                    <!-- 3. Monthly Total Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/50 to-purple-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-purple-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-purple-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Monthly Total</div>
+                            <div class="text-lg sm:text-2xl font-black text-purple-600 leading-none mb-0.5 tracking-tight" id="uniqueDriversCount">₱0</div>
+                            <div class="text-[9px] font-bold text-purple-600/75 uppercase tracking-tight">This Month Revenue</div>
                         </div>
+                        <img src="{{ asset('image/kpi/profit_3d.svg') }}" alt="Monthly Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-green-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-2">
-                            <div class="p-1.5 bg-yellow-100 rounded">
-                                <i data-lucide="trending-up" class="w-4 h-4 text-yellow-600"></i>
-                            </div>
-                            <div>
-                                <div class="text-lg font-bold text-yellow-600" id="totalBoundaryAmount">₱0</div>
-                                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">Yearly Total Amount</div>
-                            </div>
+
+                    <!-- 4. Yearly Total Amount Card -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3">
+                        <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                        <div class="relative z-10 pl-2 pr-12">
+                            <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Yearly Total Amount</div>
+                            <div class="text-lg sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="totalBoundaryAmount">₱0</div>
+                            <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">Annual Boundary</div>
                         </div>
+                        <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Yearly Total" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                     </div>
+
                 </div>
             </div>
 
-            <!-- Boundary Collections Grid -->
-            <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4" id="boundaryGrid">
+            <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (High Visibility) -->
+            <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                    <defs>
+                        <linearGradient id="boundaryTaxiBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981" />
+                            <stop offset="50%" stop-color="#059669" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="boundaryTaxiWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#047857" />
+                            <stop offset="100%" stop-color="#34d399" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Speed Lines & Dynamic Motion Trails -->
+                    <path d="M10 135 H150" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                    <path d="M35 150 H210" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                    <path d="M70 162 H340" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                    <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                    <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="6" fill="#059669" fill-opacity="0.08" stroke-linejoin="round" />
+                    <!-- Cockpit Aero Chiseled Canopy -->
+                    <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" fill="#10b981" fill-opacity="0.12" stroke-linejoin="round" />
+                    <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.1" stroke-linejoin="round" />
+                    <!-- Aggressive Headlight Blade & Splitter -->
+                    <path d="M460 120 L498 126 L475 134 Z" fill="#eab308" />
+                    <path d="M470 152 H510 L495 158 H460 Z" fill="#eab308" />
+                    <!-- Futuristic Turbine Wheels -->
+                    <circle cx="180" cy="154" r="26" stroke="url(#boundaryTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="180" cy="154" r="14" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <circle cx="420" cy="154" r="26" stroke="url(#boundaryTaxiWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                    <circle cx="420" cy="154" r="14" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Savage GT Wing / Spoiler -->
+                    <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="4" fill="#059669" fill-opacity="0.2" stroke-linejoin="round" />
+                    <!-- Cyber Taxi Roof Beacon -->
+                    <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#boundaryTaxiBodyGrad)" stroke-width="3.5" fill="#eab308" fill-opacity="0.3" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <!-- Enhanced Boundary Collections Grid (Scrolls Smoothly Above Fixed Watermark) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="boundaryGrid">
                     <!-- Loading State -->
                     <div class="col-span-full text-center py-16">
                         <div class="inline-flex flex-col items-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mb-4"></div>
-                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading boundary collections...</span>
-                            <p class="text-sm text-gray-400">Please wait while we fetch collection details</p>
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-slate-700 font-bold mb-1">Loading boundary collections...</span>
+                            <p class="text-xs text-slate-400">Fetching live revenue records and transaction logs</p>
                         </div>
                     </div>
                 </div>
@@ -1268,139 +2165,197 @@
 </div>
 
 <!-- Units Overview Modal -->
-    <div id="unitsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 h-[95vh] flex flex-col border border-gray-100 overflow-hidden">
-            <!-- Compact Header with Search -->
-            <div class="p-4 border-b bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 flex-shrink-0">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                            <i data-lucide="car" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white leading-tight">Units Overview</h3>
-                            <p class="text-blue-100 text-[10px] font-medium mt-0.5">Fleet Management Dashboard</p>
-                        </div>
-                    </div>
-                    <button onclick="hideUnitsModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
+    <div id="unitsModal" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-7xl w-full mx-auto h-[92vh] sm:h-[95vh] flex flex-col ring-1 ring-white/10 overflow-hidden border border-slate-800/40">
+            <!-- ─── 21st.dev Inspired Dark Glassmorphism Header ─── -->
+            <div class="relative pt-6 pb-5 px-5 sm:px-7 border-b border-slate-800/90 bg-[#090d16] flex-shrink-0 overflow-hidden select-none">
                 
-                <!-- Search and Filter Row -->
-                <div class="flex items-center gap-3 mb-3">
-                    <!-- Compact Search Bar -->
-                    <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-white/60"></i>
+                <!-- Subtle Radial Ambient Glow -->
+                <div class="absolute inset-0 pointer-events-none opacity-70" style="background: radial-gradient(circle at 50% -20%, rgba(245, 158, 11, 0.22), rgba(99, 102, 241, 0.15) 45%, transparent 80%);"></div>
+                
+                <!-- High-Tech Micro-Dot Grid Pattern SVG Background -->
+                <div class="absolute inset-0 opacity-[0.08] pointer-events-none" style="background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+                <!-- Top Row: Completely Unobstructed Shiny Centerpiece -->
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+                        <!-- Left: Minimal Live Badge -->
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-amber-400 shadow-sm backdrop-blur-md">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="text-[11px] font-black uppercase tracking-wider text-slate-200">Fleet Live Matrix</span>
+                            </div>
                         </div>
-                        <input type="search" 
-                            id="unitSearchInput"
-                            placeholder="Search units by number, status, or performance..."
-                            class="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-200 text-sm"
-                            onkeyup="filterUnits()"
-                         autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <button onclick="clearSearch()" class="text-white/60 hover:text-white transition-colors">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+
+                        <!-- Center: Radiant Shiny Title (Unblocked & Front Stage) -->
+                        <div class="flex-1 text-center px-2 overflow-hidden">
+                            <h1 class="animated-shiny-units-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.16em] whitespace-nowrap drop-shadow-lg">
+                                Units Overview
+                            </h1>
+                        </div>
+
+                        <!-- Right: Close Button -->
+                        <div class="flex items-center justify-end flex-shrink-0">
+                            <button onclick="hideUnitsModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/40 text-slate-400 hover:text-rose-300 flex items-center justify-center transition-all duration-200 backdrop-blur-md shadow-sm group">
+                                <i data-lucide="x" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-200"></i>
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Search and Filter Row -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <!-- 21st.dev Style Search Bar -->
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                            <input type="search" 
+                                id="unitSearchInput"
+                                placeholder="Search units by plate number, driver, status..."
+                                class="w-full pl-10 pr-9 py-2.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 shadow-inner"
+                                onkeyup="filterUnits()"
+                                autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" readonly onfocus="this.removeAttribute('readonly');">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button onclick="clearSearch()" class="text-slate-500 hover:text-slate-300 transition-colors">
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                    <!-- Status Filter Buttons -->
-                    <div class="flex bg-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-1">
-                        <button 
-                            id="btn-all-units" 
-                            onclick="setUnitStatusFilter('all')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-white text-blue-700"
-                        >
-                            All
-                        </button>
-                        <button 
-                            id="btn-active-units" 
-                            onclick="setUnitStatusFilter('active')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Active
-                        </button>
-                        <button 
-                            id="btn-maintenance-units" 
-                            onclick="setUnitStatusFilter('maintenance')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Maintenance
-                        </button>
-                        <button 
-                            id="btn-coding-units" 
-                            onclick="setUnitStatusFilter('coding')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10"
-                        >
-                            Coding
-                        </button>
+                        <!-- Status Filter Segmented Buttons -->
+                        <div class="flex bg-slate-900/95 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-inner gap-1 flex-shrink-0">
+                            <button 
+                                id="btn-all-units" 
+                                onclick="setUnitStatusFilter('all')"
+                                class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                            >
+                                All
+                            </button>
+                            <button 
+                                id="btn-active-units" 
+                                onclick="setUnitStatusFilter('active')"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
+                            >
+                                Active
+                            </button>
+                            <button 
+                                id="btn-maintenance-units" 
+                                onclick="setUnitStatusFilter('maintenance')"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
+                            >
+                                Maintenance
+                            </button>
+                            <button 
+                                id="btn-coding-units" 
+                                onclick="setUnitStatusFilter('coding')"
+                                class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80"
+                            >
+                                Coding
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="flex-1 overflow-hidden flex flex-col min-h-0">
-                <!-- Compact Summary Stats -->
-                <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-3 border-b border-gray-200 flex-shrink-0">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-blue-100 rounded">
-                                    <i data-lucide="car" class="w-3.5 h-3.5 text-blue-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-blue-600 leading-tight" id="totalUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Total</div>
-                                </div>
+
+            <div class="flex-1 overflow-hidden flex flex-col min-h-0 bg-slate-100/60 relative">
+                <!-- ─── Compact Summary Metrics Strip with 3D SVG Assets (21st.dev Style) ─── -->
+                <div class="bg-white/90 backdrop-blur-md p-3 sm:p-3.5 border-b border-slate-200/80 flex-shrink-0 shadow-xs relative z-20">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-7xl mx-auto">
+                        
+                        <!-- 1. Total Fleet Card -->
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/50 to-blue-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-blue-600 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1">Total Fleet</div>
+                                <div class="text-lg sm:text-2xl font-black text-slate-800 leading-none mb-0.5 tracking-tight" id="totalUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-blue-600/75 uppercase tracking-tight">Registered Fleet</div>
                             </div>
+                            <img src="{{ asset('image/kpi/taxi_3d.svg') }}" alt="Total Fleet" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-green-100 rounded">
-                                    <i data-lucide="user-x" class="w-3.5 h-3.5 text-green-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-green-600 leading-tight" id="activeUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Vacant (No Driver)</div>
-                                </div>
+
+                        <!-- 2. Vacant Units Card -->
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-emerald-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Vacant Units</div>
+                                <div class="text-lg sm:text-2xl font-black text-emerald-600 leading-none mb-0.5 tracking-tight" id="activeUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-emerald-600/75 uppercase tracking-tight">No Driver Assigned</div>
                             </div>
+                            <img src="{{ asset('image/kpi/drivers_3d.svg') }}" alt="Vacant Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-yellow-100 rounded">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-yellow-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-yellow-600 leading-tight" id="roiUnitsCount">0</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Active Units (With Driver)</div>
-                                </div>
+
+                        <!-- 3. Active (With Driver) Card -->
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-amber-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Active Units</div>
+                                <div class="text-lg sm:text-2xl font-black text-amber-600 leading-none mb-0.5 tracking-tight" id="roiUnitsCount">0</div>
+                                <div class="text-[9px] font-bold text-amber-600/75 uppercase tracking-tight">With Driver</div>
                             </div>
+                            <img src="{{ asset('image/kpi/owner_active_3d.svg') }}" alt="Active Units" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
-                        <div class="bg-white rounded-lg p-2 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-purple-100 rounded">
-                                    <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-base font-bold text-purple-600 leading-tight" id="avgRoiCount">0%</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-tight font-bold">Avg ROI</div>
-                                </div>
+
+                        <!-- 4. Average ROI Card -->
+                        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-violet-200/80 bg-gradient-to-br from-white via-violet-50/50 to-violet-100/40 p-2.5 sm:p-3">
+                            <div class="absolute left-0 inset-y-0 h-6 w-1 rounded-r-full bg-violet-500 my-auto"></div>
+                            <div class="relative z-10 pl-2 pr-12">
+                                <div class="text-violet-700 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1 truncate">Average ROI</div>
+                                <div class="text-lg sm:text-2xl font-black text-violet-600 leading-none mb-0.5 tracking-tight" id="avgRoiCount">0%</div>
+                                <div class="text-[9px] font-bold text-violet-600/75 uppercase tracking-tight">ROI Achieved</div>
                             </div>
+                            <img src="{{ asset('image/kpi/crown_3d.svg') }}" alt="Average ROI" class="absolute -right-2 -bottom-2 w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none opacity-90 drop-shadow-sm">
                         </div>
+
                     </div>
                 </div>
 
-                <!-- Enhanced Units Grid with Maximum Space -->
-                <div class="flex-1 overflow-y-auto p-4 bg-gray-50 min-h-0">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 pb-4" id="unitsGrid">
+                <!-- 🏎️ Fixed Savage Fleet Cyber Taxi Watermark Background (Stays Stationary on Scroll) -->
+                <div class="absolute inset-x-0 bottom-0 top-16 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden px-4" aria-hidden="true" style="transform: translateZ(0);">
+                    <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-[96%] max-w-5xl h-auto opacity-[0.38] transform -rotate-1 select-none pointer-events-none">
+                        <defs>
+                            <linearGradient id="savageBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f59e0b" />
+                                <stop offset="50%" stop-color="#6366f1" />
+                                <stop offset="100%" stop-color="#f59e0b" />
+                            </linearGradient>
+                            <linearGradient id="savageWheelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#d97706" />
+                                <stop offset="100%" stop-color="#4f46e5" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Speed Lines & Dynamic Motion Trails -->
+                        <path d="M10 135 H150" stroke="url(#savageBodyGrad)" stroke-width="4.5" stroke-dasharray="8 6" stroke-linecap="round" />
+                        <path d="M35 150 H210" stroke="url(#savageBodyGrad)" stroke-width="5.5" stroke-dasharray="16 8" stroke-linecap="round" />
+                        <path d="M70 162 H340" stroke="url(#savageBodyGrad)" stroke-width="6.5" stroke-linecap="round" />
+                        <!-- Aggressive Savage GT / Cyber Sedan Silhouette -->
+                        <path d="M110 138 L160 92 Q190 62 250 60 L335 60 Q385 64 415 102 L465 116 Q495 125 505 142 L500 152 Q492 158 470 158 H135 Q115 158 108 146 Z" stroke="url(#savageBodyGrad)" stroke-width="6" fill="#f59e0b" fill-opacity="0.08" stroke-linejoin="round" />
+                        <!-- Cockpit Aero Chiseled Canopy -->
+                        <path d="M235 64 L180 92 H320 L360 64 Z" stroke="url(#savageBodyGrad)" stroke-width="4" fill="#6366f1" fill-opacity="0.12" stroke-linejoin="round" />
+                        <path d="M328 92 L368 66 L402 98 H328 Z" stroke="url(#savageBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.1" stroke-linejoin="round" />
+                        <!-- Aggressive Headlight Blade & Splitter -->
+                        <path d="M460 120 L498 126 L475 134 Z" fill="#f59e0b" />
+                        <path d="M470 152 H510 L495 158 H460 Z" fill="#f59e0b" />
+                        <!-- Futuristic Turbine Wheels -->
+                        <circle cx="180" cy="154" r="26" stroke="url(#savageWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                        <circle cx="180" cy="154" r="14" stroke="url(#savageBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                        <circle cx="420" cy="154" r="26" stroke="url(#savageWheelGrad)" stroke-width="6" fill="#ffffff" fill-opacity="0.35" />
+                        <circle cx="420" cy="154" r="14" stroke="url(#savageBodyGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                        <!-- Savage GT Wing / Spoiler -->
+                        <path d="M100 122 L115 105 H145 L130 122 Z" stroke="url(#savageBodyGrad)" stroke-width="4" fill="#f59e0b" fill-opacity="0.2" stroke-linejoin="round" />
+                        <!-- Cyber Taxi Roof Beacon -->
+                        <path d="M280 52 L290 40 H330 L340 52 Z" stroke="url(#savageBodyGrad)" stroke-width="3.5" fill="#f59e0b" fill-opacity="0.3" stroke-linejoin="round" />
+                    </svg>
+                </div>
+
+                <!-- Enhanced Units Grid (Scrolls Smoothly Above Fixed Watermark) -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0 relative z-10" style="transform: translateZ(0);">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-6" id="unitsGrid">
                         <!-- Enhanced Loading State -->
                         <div class="col-span-full text-center py-16">
                             <div class="inline-flex flex-col items-center">
-                                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-                                <span class="text-lg text-gray-600 font-semibold mb-2">Loading units data...</span>
-                                <p class="text-sm text-gray-400">Please wait while we fetch your fleet information</p>
+                                <div class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent mb-4"></div>
+                                <span class="text-lg text-slate-700 font-bold mb-1">Loading units matrix...</span>
+                                <p class="text-xs text-slate-400">Fetching live fleet status and financial records</p>
                             </div>
                         </div>
                     </div>
@@ -1418,7 +2373,7 @@
                         <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase tracking-tight">Security Flags / Missing Units</h3>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Security Flags / Missing Units</h3>
                         <p class="text-red-100 text-[10px] font-bold uppercase tracking-widest">Fleet Lockdown Management</p>
                     </div>
                 </div>
@@ -1429,19 +2384,24 @@
             <div id="flaggedUnitsList" class="max-h-[70vh] overflow-y-auto p-4 space-y-4 bg-gray-50/50">
                 <div class="text-center py-12">
                     <div class="animate-spin rounded-full h-10 w-10 border-4 border-red-600 border-t-transparent mx-auto mb-3"></div>
-                    <p class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Loading security status...</p>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Loading security status...</p>
                 </div>
             </div>
         </div>
     </div>
 
     @include('driver-management.partials._driver_details_modal')
-@endsection
-@push('scripts')
+
     <script src="{{ asset('js/realtime-dashboard.js') }}"></script>
     <script>
         // Register Chart.js datalabels plugin
-        Chart.register(ChartDataLabels);
+        try {
+            if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
+            }
+        } catch (e) {
+            console.warn('ChartDataLabels plugin not available:', e);
+        }
         
         
         // Weekly Financial Chart
@@ -1712,10 +2672,52 @@
             
             chartObserver.observe(document.getElementById('unitPerformanceChart'));
 
-            // Update Executive Insight: Top Performer
-            if (unitPerformanceData && unitPerformanceData.length > 0) {
-                const topUnit = unitPerformanceData[0]; // Data is sorted by performance descending
-                document.getElementById('insightTopPlate').textContent = topUnit.unit;
+            // Update Executive Insights Dynamically
+            window.updateExecutiveInsights = function(insights) {
+                if (!insights) return;
+                const healthEl = document.getElementById('insightFleetHealth');
+                const growthBadge = document.getElementById('insightGrowthBadge');
+                const healthDesc = document.getElementById('insightHealthDesc');
+                const topPlate = document.getElementById('insightTopPlate');
+                const topDesc = document.getElementById('insightTopDesc');
+
+                if (healthEl) healthEl.textContent = (insights.health_percentage || 0) + '%';
+                
+                if (healthDesc) {
+                    healthDesc.textContent = insights.insight_message || 'No collections recorded in the last 30 days yet.';
+                }
+
+                if (growthBadge) {
+                    if (!insights.has_data) {
+                        growthBadge.className = 'text-[10px] font-bold text-slate-400 flex items-center mb-0.5 px-2 py-0.5 rounded-md bg-slate-200/60';
+                        growthBadge.innerHTML = '0% Base';
+                    } else if ((insights.growth_percentage || 0) >= 0) {
+                        growthBadge.className = 'text-xs font-bold text-emerald-600 flex items-center mb-0.5';
+                        growthBadge.innerHTML = `<i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +${insights.growth_percentage}%`;
+                    } else {
+                        growthBadge.className = 'text-xs font-bold text-rose-600 flex items-center mb-0.5';
+                        growthBadge.innerHTML = `<i data-lucide="trending-down" class="w-3 h-3 mr-0.5"></i> ${insights.growth_percentage}%`;
+                    }
+                }
+
+                if (topPlate) {
+                    if (insights.top_plate) {
+                        topPlate.className = 'text-base font-bold text-slate-800';
+                        topPlate.textContent = insights.top_plate;
+                        if (topDesc) topDesc.innerHTML = `Collected <strong>₱${Number(insights.top_amount || 0).toLocaleString()}</strong> over the last 30 days.`;
+                    } else {
+                        topPlate.className = 'text-base font-bold text-slate-400 italic';
+                        topPlate.textContent = 'No Active Data';
+                        if (topDesc) topDesc.textContent = 'No boundary collections logged in the last 30 days.';
+                    }
+                }
+
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            };
+
+            const initialFleetInsights = @json($fleet_insights ?? null);
+            if (initialFleetInsights) {
+                window.updateExecutiveInsights(initialFleetInsights);
             }
         } catch (error) {
             console.error('Unit Performance Chart Error:', error);
@@ -1724,28 +2726,21 @@
         // Expense Breakdown Chart - Premium Pie
         try {
             const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
-            let expenseBreakdownData = @json($expense_breakdown);
-            let isPlaceholder = false;
-            if (!expenseBreakdownData || expenseBreakdownData.length === 0 ||
-                (Array.isArray(expenseBreakdownData) && expenseBreakdownData.every(d => d.amount === 0))) {
-                isPlaceholder = true;
-                expenseBreakdownData = [
-                    { category: 'Maintenance', amount: 4500 },
-                    { category: 'Fuel & Oil', amount: 3200 },
-                    { category: 'Salaries', amount: 8000 },
-                    { category: 'Parts', amount: 2100 },
-                    { category: 'Others', amount: 1200 }
-                ];
-            }
-            const pieColors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
-            const pieHover = ['#dc2626','#d97706','#059669','#2563eb','#7c3aed','#db2777','#0891b2'];
+            const rawExpenseData = @json($expense_breakdown) || [];
+            const hasExpenses = Array.isArray(rawExpenseData) && rawExpenseData.length > 0 && rawExpenseData.some(d => (Number(d.amount) || 0) > 0);
+            
+            const expLabels = hasExpenses ? rawExpenseData.map(d => d.category) : ['No Expenses Recorded'];
+            const expValues = hasExpenses ? rawExpenseData.map(d => Number(d.amount) || 0) : [0];
+            const pieColors = hasExpenses ? ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4'] : ['#e2e8f0'];
+            const pieHover  = hasExpenses ? ['#dc2626','#d97706','#059669','#2563eb','#7c3aed','#db2777','#0891b2'] : ['#cbd5e1'];
+            
             let isExpenseChartInitialized = false;
             function getExpenseChartConfig() {
                 return {
                     type: 'pie',
                     data: {
-                        labels: expenseBreakdownData.map(d => d.category),
-                        datasets: [{ data: expenseBreakdownData.map(d => 0), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: 12 }]
+                        labels: expLabels,
+                        datasets: [{ data: expValues.map(d => 0), backgroundColor: pieColors, hoverBackgroundColor: pieHover, borderWidth: 3, borderColor: '#fff', hoverOffset: hasExpenses ? 12 : 0 }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
@@ -1755,13 +2750,14 @@
                                 backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12,
                                 callbacks: {
                                     label: function(ctx) {
+                                        if (!hasExpenses) return ' No expenses recorded yet';
                                         const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
                                         const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
                                         return ` ${ctx.label}: ₱${ctx.parsed.toLocaleString()} (${pct}%)`;
                                     }
                                 }
                             },
-                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (val, ctx) => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const pct = total > 0 ? ((val/total)*100).toFixed(0) : 0; return pct > 5 ? pct+'%' : ''; } }
+                            datalabels: { display: hasExpenses, color: '#fff', font: { weight: 'bold', size: 16 }, formatter: (val, ctx) => { let sum = 0; ctx.dataset.data.forEach(n => { sum += Number(n) || 0; }); const v = Number(val) || 0; if (sum === 0 || v === 0) return ''; return Math.round((v / sum) * 100) + '%'; } }
                         },
                         animation: { animateRotate: true, animateScale: true, duration: 1500, easing: 'easeOutQuart' }
                     }
@@ -1775,11 +2771,11 @@
                             window.expenseBreakdownChart = new Chart(expenseBreakdownCtx, getExpenseChartConfig());
                             isExpenseChartInitialized = true;
                         }
-                        window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => d.amount);
+                        window.expenseBreakdownChart.data.datasets[0].data = expValues;
                         window.expenseBreakdownChart.update();
                     } else {
                         if (isExpenseChartInitialized && window.expenseBreakdownChart) {
-                            window.expenseBreakdownChart.data.datasets[0].data = expenseBreakdownData.map(d => 0);
+                            window.expenseBreakdownChart.data.datasets[0].data = expValues.map(d => 0);
                             window.expenseBreakdownChart.update('none');
                         }
                     }
@@ -1788,33 +2784,27 @@
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
-
-
-
         // Top Drivers Chart - Premium Horizontal Bar
         try {
             const topDriversCtx = document.getElementById('topDriversChart').getContext('2d');
-            let topDriversData = @json($top_drivers);
-            let isPlaceholder = false;
-            if (!topDriversData || topDriversData.length === 0 ||
-                (Array.isArray(topDriversData) && topDriversData.every(d => d.score === 0))) {
-                isPlaceholder = true;
-                topDriversData = [
-                    { name: 'Bernardo Silva', score: 28, total: 42000 },
-                    { name: 'Kevin De Bruyne', score: 26, total: 39000 },
-                    { name: 'Erling Haaland', score: 25, total: 37500 },
-                    { name: 'Phil Foden', score: 22, total: 33000 },
-                    { name: 'Rodri Hernandez', score: 20, total: 30000 }
-                ];
-            }
-            const barColors = topDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b');
+            const rawTopDriversData = @json($top_drivers) || [];
+            const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
+            
+            const driverLabels = hasTopDrivers 
+                ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
+                : ['No Shift Records Yet'];
+            const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
+            const barColors = hasTopDrivers 
+                ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
+                : ['#e2e8f0'];
+                
             let isTopDriversChartInitialized = false;
             function getTopDriversChartConfig() {
                 return {
                     type: 'bar',
                     data: {
-                        labels: topDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; }),
-                        datasets: [{ label: 'Reliability Score', data: topDriversData.map(d => 0),
+                        labels: driverLabels,
+                        datasets: [{ label: 'Reliability Score', data: driverScores.map(d => 0),
                             backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
                             borderRadius: 10, borderSkipped: false, barThickness: 28 }]
                     },
@@ -1824,8 +2814,12 @@
                             legend: { display: false },
                             tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
                                 callbacks: {
-                                    label: ctx => ` ⭐ Reliability: ${ctx.parsed.x} clean service days`,
-                                    footer: items => { const amt = topDriversData[items[0].dataIndex].total; return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; }
+                                    label: ctx => hasTopDrivers ? ` ⭐ Reliability: ${ctx.parsed.x} clean service days` : ' No driver performance records yet',
+                                    footer: items => { 
+                                        if (!hasTopDrivers) return '';
+                                        const amt = rawTopDriversData[items[0].dataIndex]?.total || 0; 
+                                        return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; 
+                                    }
                                 }
                             },
                             datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
@@ -1846,11 +2840,11 @@
                             window.topDriversChart = new Chart(topDriversCtx, getTopDriversChartConfig());
                             isTopDriversChartInitialized = true;
                         }
-                        window.topDriversChart.data.datasets[0].data = topDriversData.map(d => d.score);
+                        window.topDriversChart.data.datasets[0].data = driverScores;
                         window.topDriversChart.update();
                     } else {
                         if (isTopDriversChartInitialized && window.topDriversChart) {
-                            window.topDriversChart.data.datasets[0].data = topDriversData.map(d => 0);
+                            window.topDriversChart.data.datasets[0].data = driverScores.map(d => 0);
                             window.topDriversChart.update('none');
                         }
                     }
@@ -1859,25 +2853,16 @@
             topDriversObserver.observe(document.getElementById('topDriversChart'));
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
-
-
-
         // Unit Status Distribution Chart - Premium Donut
         try {
             const unitStatusDistCtx = document.getElementById('unitStatusChart').getContext('2d');
-            const unitStatusDistData = @json($unit_status_distribution_data);
-            const donutColors = ['#10b981','#3b82f6','#f59e0b','#ef4444'];
-            const donutHover = ['#059669','#2563eb','#d97706','#dc2626'];
-            let distLabels, distValues, distIsPlaceholder = false;
-            if (!unitStatusDistData || unitStatusDistData.length === 0 || unitStatusDistData.every(d => d.count === 0)) {
-                distIsPlaceholder = true;
-                distLabels = ['Active','Maintenance','Coding','Retired'];
-                distValues = [5,2,1,0];
-            } else {
-                distLabels = unitStatusDistData.map(d => d.status);
-                distValues = unitStatusDistData.map(d => d.count);
-            }
-            const totalUnits = distValues.reduce((a,b) => a+b, 0);
+            const unitStatusDistData = @json($unit_status_distribution_data) || [];
+            const donutColors = ['#10b981','#3b82f6','#f59e0b','#ef4444','#64748b'];
+            const donutHover  = ['#059669','#2563eb','#d97706','#dc2626','#475569'];
+            
+            const distLabels = unitStatusDistData.length > 0 ? unitStatusDistData.map(d => d.status) : ['Active','Under Maintenance','Coding','Missing / Stolen','Retired'];
+            const distValues = unitStatusDistData.length > 0 ? unitStatusDistData.map(d => Number(d.count) || 0) : [0, 0, 0, 0, 0];
+            
             let isUnitStatusChartInitialized = false;
             function getUnitStatusChartConfig() {
                 return {
@@ -1963,370 +2948,7 @@
                 .catch(error => console.error('Error updating revenue trend:', error));
         }
 
-        // Maintenance Units Modal Functions
-        function showMaintenanceUnitsModal() {
-            document.getElementById('maintenanceUnitsModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            // Set default filter to all
-            window.currentMaintenanceFilter = 'all';
-            updateMaintenanceFilterUI('all');
-            
-            loadMaintenanceUnitsData();
-        }
-        
-        function hideMaintenanceUnitsModal() {
-            document.getElementById('maintenanceUnitsModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-        
-        function showMaintenanceDetailsModal(maintenanceId) {
-            if (!maintenanceId) return;
-            const unit = window.originalMaintenanceData.find(u => u.maintenance_id === maintenanceId);
-            if (!unit) return;
 
-            document.getElementById('mdm-plate').textContent = unit.plate_number;
-            document.getElementById('mdm-type').textContent = (unit.maintenance_type || 'Maintenance').toUpperCase();
-            
-            document.getElementById('mdm-start-date').querySelector('span').textContent = unit.start_date || 'N/A';
-            document.getElementById('mdm-end-date').querySelector('span').textContent = unit.estimated_completion || 'TBD';
-
-            document.getElementById('mdm-mechanic').querySelector('span').textContent = unit.mechanic_name || 'Not specified';
-            document.getElementById('mdm-driver').querySelector('span').textContent = unit.driver_name || 'No driver assigned';
-            
-            document.getElementById('mdm-total-cost').textContent = '₱' + (parseFloat(unit.maintenance_cost) || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
-            
-            const statusBadge = document.getElementById('mdm-status-badge');
-            statusBadge.textContent = (unit.maintenance_status || 'Ongoing').toUpperCase();
-            
-            document.getElementById('maintenanceDetailsModal').classList.remove('hidden');
-            document.getElementById('mdm-parts-loading').classList.remove('hidden');
-            document.getElementById('mdm-parts-list').classList.add('hidden');
-            document.getElementById('mdm-parts-list').innerHTML = '';
-
-            fetch(`/maintenance/${maintenanceId}/parts`, {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('mdm-parts-loading').classList.add('hidden');
-                const list = document.getElementById('mdm-parts-list');
-                list.classList.remove('hidden');
-                
-                if (data.success && data.data && data.data.length > 0) {
-                    data.data.forEach(p => {
-                        const supplier = p.supplier ? `<span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase truncate max-w-[100px]" title="${p.supplier}">${p.supplier}</span>` : '';
-                        list.innerHTML += `
-                            <li class="px-4 py-3 flex justify-between items-start gap-3 hover:bg-orange-50/30 transition-colors">
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-800 truncate">${p.part_name}</p>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-[10px] text-gray-500 font-bold bg-white border border-gray-200 px-1.5 py-0.5 rounded shadow-sm">x${p.quantity}</span>
-                                        ${supplier}
-                                    </div>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <p class="text-sm font-black text-orange-600">₱${(parseFloat(p.total) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})}</p>
-                                    <p class="text-[9px] text-gray-400 font-medium">₱${(parseFloat(p.price) || 0).toLocaleString('en-PH', {minimumFractionDigits:2})} / ea</p>
-                                </div>
-                            </li>
-                        `;
-                    });
-                } else {
-                    list.innerHTML = `
-                        <li class="py-8 text-center">
-                            <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <i data-lucide="package-x" class="w-5 h-5 text-gray-400"></i>
-                            </div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">No specific parts listed</p>
-                            <p class="text-[10px] text-gray-400 mt-1">${unit.description || 'See description for details'}</p>
-                        </li>
-                    `;
-                }
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            })
-            .catch(err => {
-                document.getElementById('mdm-parts-loading').innerHTML = `<p class="text-xs text-red-500"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Failed to load parts</p>`;
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            });
-        }
-
-        function hideMaintenanceDetailsModal() {
-            document.getElementById('maintenanceDetailsModal').classList.add('hidden');
-        }
-        
-        function loadMaintenanceUnitsData() {
-            const filter = window.currentMaintenanceFilter || 'all';
-            const url = `/api/maintenance-units?filter=${filter}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayMaintenanceUnitsData(data);
-                    } else {
-                        showMaintenanceError(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading maintenance units data:', error);
-                    showMaintenanceError('Error loading maintenance units data. Please try again.');
-                });
-        }
-        
-        function setMaintenanceFilter(filter) {
-            window.currentMaintenanceFilter = filter;
-            updateMaintenanceFilterUI(filter);
-            loadMaintenanceUnitsData();
-        }
-        
-        function updateMaintenanceFilterUI(filter) {
-            const filters = ['all', 'preventive', 'corrective', 'emergency', 'complete'];
-            filters.forEach(f => {
-                const btn = document.getElementById('mFilter' + f.charAt(0).toUpperCase() + f.slice(1));
-                if (btn) {
-                    if (f === filter) {
-                        btn.classList.remove('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.add('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
-                    } else {
-                        btn.classList.add('text-white', 'hover:bg-white/10', 'font-medium');
-                        btn.classList.remove('bg-white', 'text-orange-600', 'font-bold', 'shadow-sm');
-                    }
-                }
-            });
-        }
-        
-        function displayMaintenanceUnitsData(data) {
-            const grid = document.getElementById('maintenanceGrid');
-            const units = data.units || [];
-            const stats = data.stats || {};
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            // Update summary stats (Global Overview)
-            document.getElementById('maintenanceUnitsCount').textContent = stats.total_maintenance || 0;
-            document.getElementById('preventiveMaintenanceCount').textContent = stats.preventive_maintenance || 0;
-            document.getElementById('correctiveMaintenanceCount').textContent = stats.corrective_maintenance || 0;
-            document.getElementById('emergencyMaintenanceCount').textContent = stats.emergency_maintenance || 0;
-            document.getElementById('completedTotalCount').textContent = stats.completed_total || 0;
-            
-            // Store original data for filtering
-            window.originalMaintenanceData = units;
-            window.maintenanceSortOrder = window.maintenanceSortOrder || 'desc';
-            
-            // Render maintenance units
-            filterMaintenanceUnits();
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function renderMaintenanceUnits(units) {
-            const grid = document.getElementById('maintenanceGrid');
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            if (units.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-20">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="wrench" class="w-8 h-8 text-gray-400"></i>
-                            </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No maintenance units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or filter</p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            grid.innerHTML = units.map(unit => {
-                const isComplete = filter === 'complete';
-                const mainDate = isComplete ? (unit.end_date || unit.start_date) : unit.start_date;
-                const statusColor = isComplete ? 'border-green-500' : 'border-orange-500';
-                const typeColor = isComplete ? 'text-green-600' : 'text-orange-600';
-                const iconBg = isComplete ? 'bg-green-100' : 'bg-orange-100';
-                const iconColor = isComplete ? 'text-green-600' : 'text-orange-600';
-
-                return `
-                <div onclick="showMaintenanceDetailsModal(${unit.maintenance_id})" class="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${statusColor} hover:scale-102">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 ${iconBg} rounded-lg">
-                                    <i data-lucide="wrench" class="w-4 h-4 ${iconColor}"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${unit.plate_number || 'N/A'}</h4>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold ${typeColor}">${unit.maintenance_type || 'Unknown'}</div>
-                                <div class="text-xs text-gray-500">${mainDate || 'N/A'}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Maintenance Details -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-900">Status: ${unit.maintenance_status || 'Unknown'}</span>
-                                <span class="text-xs font-bold text-orange-600">${isComplete ? '₱' + (unit.maintenance_cost || 0).toLocaleString('en-PH', {minimumFractionDigits: 2}) : (unit.estimated_completion ? 'Est: ' + unit.estimated_completion : '')}</span>
-                            </div>
-                            <div class="text-xs text-gray-600">
-                                <span class="font-medium">Description:</span> ${unit.description || 'No description available'}
-                            </div>
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${isComplete ? 'Completed: ' + (unit.end_date || 'N/A') : 'Started: ' + (unit.start_date || 'N/A')}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                ${unit.maintenance_status || 'Unknown'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;}).join('');
-            
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function filterMaintenanceUnits() {
-            const searchTerm = document.getElementById('maintenanceSearchInput').value.toLowerCase();
-            const filter = window.currentMaintenanceFilter || 'all';
-            
-            let filteredUnits = [...(window.originalMaintenanceData || [])];
-            
-            // Apply search filter
-            if (searchTerm) {
-                filteredUnits = filteredUnits.filter(unit => {
-                    const searchableText = [
-                        unit.plate_number || '',
-                        unit.maintenance_type || '',
-                        unit.maintenance_status || '',
-                        unit.description || '',
-                        unit.start_date || '',
-                        unit.end_date || '',
-                        unit.estimated_completion || ''
-                    ].join(' ').toLowerCase();
-                    
-                    return searchableText.includes(searchTerm);
-                });
-            }
-
-            // Apply Sort Newest First (Backend already sorts, but search needs re-render)
-            filteredUnits.sort((a, b) => {
-                const dateA = new Date((filter === 'complete' ? a.end_date : a.start_date) || '1970-01-01');
-                const dateB = new Date((filter === 'complete' ? b.end_date : b.start_date) || '1970-01-01');
-                return dateB - dateA;
-            });
-            
-            window.currentFilteredMaintenanceData = filteredUnits;
-            renderMaintenanceUnits(filteredUnits);
-        }
-
-        // ToggleMaintenanceSort is now handled by buttons but keeping for compatibility if needed
-        function toggleMaintenanceSort() {
-            filterMaintenanceUnits();
-        }
-        
-        function clearMaintenanceSearch() {
-            document.getElementById('maintenanceSearchInput').value = '';
-            filterMaintenanceUnits();
-        }
-        
-        function showMaintenanceError(message, debugInfo = null) {
-            const grid = document.getElementById('maintenanceGrid');
-            const debugHtml = debugInfo ? `
-                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
-                    <h4 class="font-bold text-gray-700 mb-2">Debug Information:</h4>
-                    <pre class="text-gray-600 whitespace-pre-wrap">${JSON.stringify(debugInfo, null, 2)}</pre>
-                </div>
-            ` : '';
-            
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-20">
-                    <div class="inline-flex flex-col items-center">
-                        <div class="p-4 bg-red-100 rounded-full mb-4">
-                            <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
-                        </div>
-                        <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Maintenance Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
-                        <div class="flex gap-2">
-                            <button onclick="loadMaintenanceUnitsData()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
-                                Retry
-                            </button>
-                            <button onclick="testMaintenanceAPI()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <i data-lucide="bug" class="w-4 h-4 inline mr-2"></i>
-                                Test API
-                            </button>
-                        </div>
-                        ${debugHtml}
-                    </div>
-                </div>
-            `;
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function testMaintenanceAPI() {
-            const grid = document.getElementById('maintenanceGrid');
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-20">
-                    <div class="inline-flex flex-col items-center">
-                        <div class="p-4 bg-blue-100 rounded-full mb-4">
-                            <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
-                        </div>
-                        <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
-                        <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
-                            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Test the API endpoint
-            fetch('/api/maintenance-units')
-                .then(response => {
-                    return response.text();
-                })
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        showMaintenanceError('API Test Complete - Check Console for Details', {
-                            response_status: 'success',
-                            data_keys: Object.keys(data),
-                            data: data
-                        });
-                    } catch (parseError) {
-                        showMaintenanceError('API Test Complete - JSON Parse Error', {
-                            response_status: 'parse_error',
-                            raw_response: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
-                            parse_error: parseError.message
-                        });
-                    }
-                })
-                .catch(error => {
-                    showMaintenanceError('API Test Complete - Fetch Error', {
-                        response_status: 'fetch_error',
-                        error: error.message,
-                        stack: error.stack
-                    });
-                });
-        }
 
         // Active Drivers Modal Functions
         function showActiveDriversModal() {
@@ -2341,17 +2963,34 @@
         }
         
         function loadActiveDriversData() {
-            fetch('/api/active-drivers')
-                .then(response => response.json())
+            fetch('/api/active-drivers', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayActiveDriversData(data);
                     } else {
-                        showActiveDriversError(data.message);
+                        showActiveDriversError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
-                    showActiveDriversError('Error loading active drivers data. Please try again.');
+                    showActiveDriversError(error.message || 'Error loading active drivers data. Please try again.');
                 });
         }
         
@@ -2370,10 +3009,6 @@
             document.getElementById('activeWithUnitsCount').textContent = stats.active_with_units || 0;
             document.getElementById('topPerformersCount').textContent = stats.top_performers || 0;
             
-            // Store original data for filtering
-            window.originalActiveDriversData = drivers;
-            window.currentFilteredActiveDriversData = drivers;
-            
             // Render active drivers
             renderActiveDrivers(drivers);
             
@@ -2390,70 +3025,64 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+                            <div class="p-4 bg-sky-500/10 rounded-2xl mb-4 border border-sky-400/30">
+                                <i data-lucide="users" class="w-8 h-8 text-sky-600"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No active drivers found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <span class="text-lg text-slate-800 font-black mb-1">No active drivers found</span>
+                            <p class="text-xs text-slate-400 font-bold">Try adjusting your search or category filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
                 return;
             }
             
             grid.innerHTML = drivers.map(driver => `
-                <div onclick="openDriverDetails(${driver.id})" class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-blue-500 hover:scale-102 cursor-pointer">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-blue-100 rounded-lg">
-                                    <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${driver.name || 'Unknown'}</h4>
-                                    <span class="text-xs text-gray-500">${driver.license_number || 'N/A'}</span>
-                                </div>
+                <div onclick="openDriverDetails(${driver.id})" class="cursor-pointer bg-[#f0f9ff]/35 hover:bg-[#f0f9ff]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-sky-300/60 p-4 relative">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                                <i data-lucide="users" class="w-4 h-4"></i>
                             </div>
-                            <div class="text-right mt-1 flex flex-col items-end gap-1">
-                                ${driver.assigned_units > 0 
-                                    ? `<span class="px-2.5 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Assigned</span>
-                                       ${driver.plate_numbers ? `<span class="text-[10px] font-black text-gray-400 capitalize bg-gray-100 px-2 rounded-md">${driver.plate_numbers}</span>` : ''}`
-                                    : `<span class="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Unassigned</span>`
-                                }
+                            <div>
+                                <h4 class="text-base font-black text-slate-900 tracking-tight">${driver.name || 'Unknown'}</h4>
+                                <p class="text-[10px] font-bold text-sky-700 uppercase tracking-widest">${driver.license_number || 'No License'}</p>
                             </div>
                         </div>
-                        
-
-                        
-                        <!-- Performance Stats -->
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-1.5 h-1.5 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-green-500' : driver.performance_rating === 'good' ? 'bg-yellow-500' : driver.performance_rating === 'average' ? 'bg-orange-500' : 'bg-gray-400'} animate-pulse"></div>
-                                <span class="text-xs font-medium text-gray-600">
-                                    ${driver.performance_rating ? driver.performance_rating.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown'}
-                                </span>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-blue-600">₱${driver.total_boundary ? driver.total_boundary.toLocaleString() : '0'}</div>
-                                <div class="text-xs text-gray-500">Total Collected</div>
-                            </div>
+                        <div class="text-right flex flex-col items-end gap-1">
+                            ${driver.assigned_units > 0 
+                                ? `<span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-800 bg-emerald-500/15 rounded-full border border-emerald-400/40">Assigned</span>
+                                   ${driver.plate_numbers ? `<span class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200">${driver.plate_numbers}</span>` : ''}`
+                                : `<span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-rose-800 bg-rose-500/15 rounded-full border border-rose-400/40">Vacant</span>`
+                            }
                         </div>
-                        
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                ${driver.hire_date || 'No hire date'}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                Active
+                    </div>
+                    
+                    <div class="bg-sky-500/5 rounded-xl p-2.5 border border-sky-200/40 mb-3 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${driver.performance_rating === 'excellent' ? 'bg-emerald-500' : driver.performance_rating === 'good' ? 'bg-sky-500' : driver.performance_rating === 'average' ? 'bg-amber-500' : 'bg-slate-400'} animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
+                                ${driver.performance_rating ? driver.performance_rating.replace(/_/g, ' ') : 'Standard'}
                             </span>
                         </div>
+                        <div class="text-right">
+                            <div class="text-sm font-black text-sky-600">₱${driver.total_boundary ? Number(driver.total_boundary).toLocaleString() : '0'}</div>
+                            <div class="text-[8px] font-bold text-slate-400 uppercase tracking-tight">Total Collected</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-[10px] font-extrabold text-sky-900">
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-sky-600"></i> ${driver.hire_date ? 'Hired: ' + driver.hire_date : 'No hire date'}</span>
+                        <span class="text-sky-600 hover:underline">View Pilot &rarr;</span>
                     </div>
                 </div>
             `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         function filterActiveDrivers() {
@@ -2555,9 +3184,9 @@
                 if (!btn) return;
                 
                 if (key === category) {
-                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-blue-600 shadow-sm';
+                    btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-sm cursor-pointer';
                 } else {
-                    btn.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 text-white hover:bg-white/10';
+                    btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
                 }
             });
             
@@ -2580,7 +3209,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Driver Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadActiveDriversData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -2611,7 +3240,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -2648,158 +3277,18 @@
                     });
                 });
         }
+        window.showActiveDriversModal = showActiveDriversModal;
+        window.hideActiveDriversModal = hideActiveDriversModal;
+        window.loadActiveDriversData = loadActiveDriversData;
+        window.displayActiveDriversData = displayActiveDriversData;
+        window.renderActiveDrivers = renderActiveDrivers;
+        window.filterActiveDrivers = filterActiveDrivers;
+        window.setActiveDriversCategory = setActiveDriversCategory;
+        window.showActiveDriversError = showActiveDriversError;
 
         // Coding Units Modal Functions
-        function showCodingUnitsModal() {
-            document.getElementById('codingUnitsModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            loadCodingUnitsData();
-        }
-        
-        function hideCodingUnitsModal() {
-            document.getElementById('codingUnitsModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-        
-        function loadCodingUnitsData() {
-            fetch('/api/coding-units')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayCodingUnitsData(data);
-                    } else {
-                        showCodingError(data.message);
-                    }
-                })
-                .catch(error => {
-                    showCodingError('Error loading coding units data. Please try again.');
-                });
-        }
-        
-        function displayCodingUnitsData(data) {
-            const grid = document.getElementById('codingGrid');
-            const units = data.units || [];
-            const stats = data.stats || {};
-            
-            // Update summary stats
-            updateCodingSummary(units);
-            
-            // Store original data for filtering
-            window.originalCodingUnitsData = units;
-            window.currentFilteredCodingUnitsData = units;
-            
-            // Render coding units
-            renderCodingUnits(units);
-            
-            // Re-initialize Lucide icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        function renderCodingUnits(units) {
-            const grid = document.getElementById('codingGrid');
-            
-            if (units.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-20">
-                        <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="code" class="w-8 h-8 text-gray-400"></i>
-                            </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No coding units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            grid.innerHTML = units.map(unit => {
-                const hasDriver1 = unit.driver1_name && unit.driver1_name.trim() !== '';
-                const hasDriver2 = unit.driver2_name && unit.driver2_name.trim() !== '';
-                const hasAnyDriver = hasDriver1 || hasDriver2;
-
-                let driverOverlayHTML = `
-                    <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-xl">
-                        <p class="text-white/60 text-[9px] font-black uppercase tracking-widest mb-0.5">Assigned Drivers</p>
-                `;
-
-                if (hasAnyDriver) {
-                    if (hasDriver1) {
-                        driverOverlayHTML += `
-                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
-                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow">
-                                    <span class="text-white text-[8px] font-black">P1</span>
-                                </div>
-                                <div class="text-left overflow-hidden min-w-0">
-                                    <p class="text-[7px] text-blue-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
-                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver1_name.trim()}</p>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    if (hasDriver2) {
-                        driverOverlayHTML += `
-                            <div class="flex items-center gap-2.5 bg-white/10 rounded-lg px-3 py-1.5 w-[90%]">
-                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow">
-                                    <span class="text-white text-[8px] font-black">P2</span>
-                                </div>
-                                <div class="text-left overflow-hidden min-w-0">
-                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
-                                    <p class="text-white text-[11px] font-black leading-tight truncate">${unit.driver2_name.trim()}</p>
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    driverOverlayHTML += `
-                        <div class="flex flex-col items-center justify-center opacity-50">
-                            <i data-lucide="user-x" class="w-5 h-5 text-white mb-1.5"></i>
-                            <span class="text-[9px] text-white font-bold uppercase tracking-widest text-center leading-tight">No Driver<br>Assigned</span>
-                        </div>
-                    `;
-                }
-
-                driverOverlayHTML += `</div>`;
-
-                return `
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-200 relative group min-h-[130px]">
-                    ${driverOverlayHTML}
-                    <div class="p-4 border-l-4 border-purple-500 h-full flex flex-col relative z-0">
-                        <!-- Header -->
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-purple-50 rounded-lg text-purple-600">
-                                    <i data-lucide="car" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-xl font-black text-gray-900 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-black uppercase tracking-widest rounded-md border border-purple-100">${unit.coding_type || 'Coding'}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-auto">
-                            <!-- Details / Footer -->
-                            <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
-                                <div class="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wide">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400"></i>
-                                    ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
-                                </div>
-                                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-gray-400"></i>
-                                    ${unit.status || 'Unknown'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
-        }
-        
-        const getUnitPeriod = (unit) => {
+        function getUnitPeriod(unit) {
+            if (!unit) return 'future';
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
@@ -2831,21 +3320,206 @@
             if (!unitDate && codingDayIndex !== -1 && codingDayIndex < todayDayIndex) return 'past';
             
             return 'future';
-        };
+        }
+        window.getUnitPeriod = getUnitPeriod;
+
+        function showCodingUnitsModal() {
+            document.getElementById('codingUnitsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            window.currentCodingPeriod = 'today';
+            setCodingPeriod('today');
+            loadCodingUnitsData();
+        }
+        
+        function hideCodingUnitsModal() {
+            document.getElementById('codingUnitsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        async function loadCodingUnitsData() {
+            const grid = document.getElementById('codingGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mb-4"></div>
+                            <span class="text-lg text-gray-600 font-semibold mb-2">Loading coding data...</span>
+                            <p class="text-sm text-slate-400">Please wait while we fetch coding schedule</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            try {
+                const response = await fetch('/api/coding-units', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (pe) {
+                    console.error('Coding API returned non-JSON:', text);
+                    showCodingError('Server returned invalid response format.');
+                    return;
+                }
+                
+                if (!response.ok || !data.success) {
+                    showCodingError((data && data.message) || `Server Error (${response.status})`);
+                    return;
+                }
+                
+                displayCodingUnitsData(data);
+            } catch (error) {
+                console.error('Error loading coding units:', error);
+                showCodingError(error.message || 'Error loading coding units data. Please try again.');
+            }
+        }
+        
+        function displayCodingUnitsData(data) {
+            const grid = document.getElementById('codingGrid');
+            const units = (data && data.units) ? data.units : [];
+            const stats = (data && data.stats) ? data.stats : {};
+            
+            // Store original data for filtering
+            window.originalCodingUnitsData = units;
+            window.currentFilteredCodingUnitsData = units;
+            
+            // Update summary stats
+            updateCodingSummary(units);
+            
+            // Render coding units with active filter
+            filterCodingUnits();
+            
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderCodingUnits(units) {
+            const grid = document.getElementById('codingGrid');
+            if (!grid) return;
+            
+            if (!units || units.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="p-4 bg-purple-500/10 rounded-2xl mb-4 border border-purple-400/30">
+                                <i data-lucide="code" class="w-8 h-8 text-purple-600"></i>
+                            </div>
+                            <span class="text-lg text-slate-800 font-black mb-1">No coding units found</span>
+                            <p class="text-xs text-slate-400 font-bold">Try adjusting your search or date filter</p>
+                        </div>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+                return;
+            }
+            grid.innerHTML = units.map(unit => {
+                const hasDriver1 = unit.driver1_name && unit.driver1_name.trim() !== '';
+                const hasDriver2 = unit.driver2_name && unit.driver2_name.trim() !== '';
+                const hasAnyDriver = hasDriver1 || hasDriver2;
+
+                let driverOverlayHTML = `
+                    <div class="absolute inset-0 bg-slate-955/90 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all duration-250 flex flex-col items-center justify-center gap-1.5 z-10 pointer-events-none rounded-2xl p-3 bg-slate-900/90">
+                        <p class="text-purple-300 text-[9px] font-extrabold uppercase tracking-widest mb-0.5">Assigned Pilots</p>
+                `;
+
+                if (hasAnyDriver) {
+                    if (hasDriver1) {
+                        driverOverlayHTML += `
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-1.5 w-full border border-white/10">
+                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <span class="text-white text-[8px] font-bold">P1</span>
+                                </div>
+                                <div class="text-left overflow-hidden min-w-0">
+                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-wider leading-none truncate">Primary 1</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver1_name.trim()}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (hasDriver2) {
+                        driverOverlayHTML += `
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-1.5 w-full border border-white/10">
+                                <div class="w-5 h-5 rounded-full bg-fuchsia-500 flex items-center justify-center flex-shrink-0 shadow-xs">
+                                    <span class="text-white text-[8px] font-bold">P2</span>
+                                </div>
+                                <div class="text-left overflow-hidden min-w-0">
+                                    <p class="text-[7px] text-fuchsia-300 font-bold uppercase tracking-wider leading-none truncate">Primary 2</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate">${unit.driver2_name.trim()}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    driverOverlayHTML += `
+                        <div class="flex flex-col items-center justify-center opacity-70">
+                            <i data-lucide="user-x" class="w-5 h-5 text-purple-300 mb-1"></i>
+                            <span class="text-[9px] text-purple-200 font-bold uppercase tracking-widest text-center leading-tight">No Driver Assigned</span>
+                        </div>
+                    `;
+                }
+
+                driverOverlayHTML += `</div>`;
+
+                return `
+                <div class="cursor-pointer bg-[#faf5ff]/35 hover:bg-[#faf5ff]/55 backdrop-blur-[2px] rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden border border-purple-300/60 p-4 relative group min-h-[130px]">
+                    ${driverOverlayHTML}
+                    <div class="h-full flex flex-col relative z-0">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                                    <i data-lucide="car" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-black text-slate-900 tracking-tight leading-none">${unit.plate_number || 'N/A'}</h4>
+                                    <p class="text-[10px] font-bold text-purple-700 uppercase tracking-widest mt-1">${unit.status || 'Active'}</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 bg-purple-500/15 text-purple-800 text-[9px] font-black uppercase tracking-widest rounded-full border border-purple-400/40">${unit.coding_type || 'Coding'}</span>
+                        </div>
+                        
+                        <div class="mt-auto pt-2.5 border-t border-purple-200/40 flex items-center justify-between text-xs text-purple-900">
+                            <div class="flex items-center gap-1 text-[10px] font-bold text-purple-800">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-purple-600"></i>
+                                ${unit.start_date ? unit.start_date : (unit.coding_day !== 'Unknown' ? 'Every ' + unit.coding_day : 'No date')}
+                            </div>
+                            <span class="text-[10px] font-extrabold text-purple-600">Hover for Drivers &rarr;</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
 
         function updateCodingSummary(units) {
             const counts = { today: 0, tomorrow: 0, past: 0 };
             
-            units.forEach(unit => {
+            (units || []).forEach(unit => {
                 const period = getUnitPeriod(unit);
                 if (period === 'today') counts.today++;
                 else if (period === 'tomorrow') counts.tomorrow++;
                 else if (period === 'past') counts.past++;
             });
             
-            document.getElementById('todayCodingCount').textContent = counts.today;
-            document.getElementById('tomorrowCodingCount').textContent = counts.tomorrow;
-            document.getElementById('pastCodingCount').textContent = counts.past;
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            setTxt('todayCodingCount', counts.today);
+            setTxt('tomorrowCodingCount', counts.tomorrow);
+            setTxt('pastCodingCount', counts.past);
         }
         
         window.currentCodingPeriod = 'today';
@@ -2859,11 +3533,9 @@
                 const btn = document.getElementById('btn-' + p + '-coding');
                 if (btn) {
                     if (p === period) {
-                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.add('bg-white', 'text-purple-700');
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-black rounded-lg transition-all duration-200 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-sm cursor-pointer';
                     } else {
-                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.remove('bg-white', 'text-purple-700');
+                        btn.className = 'px-3 sm:px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer';
                     }
                 }
             });
@@ -2923,7 +3595,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Coding Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadCodingUnitsData()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -2954,7 +3626,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -2991,6 +3663,13 @@
                     });
                 });
         }
+        window.showCodingUnitsModal = showCodingUnitsModal;
+        window.hideCodingUnitsModal = hideCodingUnitsModal;
+        window.loadCodingUnitsData = loadCodingUnitsData;
+        window.displayCodingUnitsData = displayCodingUnitsData;
+        window.renderCodingUnits = renderCodingUnits;
+        window.filterCodingUnits = filterCodingUnits;
+        window.showCodingError = showCodingError;
 
         // Net Income Modal Functions
         function showNetIncomeModal() {
@@ -3060,7 +3739,7 @@
                     <div class="col-span-full py-12 text-center">
                         <div class="bg-gray-50 rounded-xl p-8 border-2 border-dashed border-gray-200">
                             <i data-lucide="info" class="w-8 h-8 text-gray-300 mx-auto mb-3"></i>
-                            <p class="text-gray-500 font-medium font-mono">NO TRANSACTIONS FOUND FOR THIS PERIOD</p>
+                            <p class="text-slate-500 font-medium font-mono">NO TRANSACTIONS FOUND FOR THIS PERIOD</p>
                         </div>
                     </div>
                 `;
@@ -3072,8 +3751,8 @@
             grid.classList.add('grid-cols-1');
             
             grid.innerHTML = `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden font-mono text-sm max-w-4xl mx-auto">
-                    <div class="bg-gray-100 px-6 py-3 border-b-2 border-gray-200 flex justify-between text-[11px] font-black text-gray-500 uppercase tracking-widest">
+                <div class="bg-white rounded-xl shadow-md shadow-slate-200/40 border border-gray-200 overflow-hidden font-mono text-sm max-w-4xl mx-auto">
+                    <div class="bg-gray-100 px-6 py-3 border-b-2 border-gray-200 flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                         <span>Description / Category</span>
                         <span class="text-right">Amount (₱)</span>
                     </div>
@@ -3085,25 +3764,25 @@
                                         <i data-lucide="${item.type === 'income' ? 'arrow-down-left' : 'arrow-up-right'}" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <div class="font-black text-gray-900 tracking-tight">${(item.description || 'Unknown').toUpperCase()}</div>
-                                        <div class="flex items-center gap-3 text-[10px] text-gray-400 font-bold mt-0.5">
-                                            <span class="text-gray-500">${(item.category || 'GENERAL').toUpperCase()}</span>
+                                        <div class="font-bold text-slate-800 tracking-tight">${(item.description || 'Unknown').toUpperCase()}</div>
+                                        <div class="flex items-center gap-3 text-[10px] text-slate-400 font-bold mt-0.5">
+                                            <span class="text-slate-500">${(item.category || 'GENERAL').toUpperCase()}</span>
                                             <span class="text-gray-300">•</span>
                                             <span>${(item.date || '').split(' ')[0]}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="font-black text-lg ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                    <div class="font-bold text-lg ${item.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                                         ${item.type === 'income' ? '+' : '-'} ₱${Math.abs(parseFloat(item.amount) || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
                                     </div>
-                                    <div class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.source || 'OFFICE'}</div>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">${item.source || 'OFFICE'}</div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                     <div class="bg-gray-50 px-6 py-4 border-t-2 border-dashed border-gray-200 text-center">
-                        <p class="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em]">End of transaction list</p>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">End of transaction list</p>
                     </div>
                 </div>
             `;
@@ -3221,14 +3900,15 @@
             
             const netIncomeEl = document.getElementById('reportNetIncome');
             if (netIncomeEl) {
-                netIncomeEl.className = 'text-4xl font-black ' + (netIncome > 0 ? 'text-emerald-400' : (netIncome < 0 ? 'text-red-400' : 'text-white'));
+                netIncomeEl.className = 'text-xl sm:text-2xl font-black leading-none mb-0.5 tracking-tight ' + 
+                    (netIncome > 0 ? 'text-emerald-600' : (netIncome < 0 ? 'text-rose-600' : 'text-slate-900'));
             }
             
             const profitMarginEl = document.getElementById('reportProfitMargin');
             if (profitMarginEl) {
                 profitMarginEl.textContent = profitMargin.toFixed(1) + '% Margin';
-                profitMarginEl.className = 'ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold ' + 
-                    (netIncome > 0 ? 'bg-emerald-500/20 text-emerald-300' : (netIncome < 0 ? 'bg-red-500/20 text-red-300' : 'bg-white/10 text-gray-300'));
+                profitMarginEl.className = 'text-[8px] px-1.5 py-0.5 rounded-full font-bold border ' + 
+                    (netIncome > 0 ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : (netIncome < 0 ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-700 border-slate-200'));
             }
             
             safeSet('reportTimestamp', new Date().toLocaleString());
@@ -3240,28 +3920,30 @@
                 
                 if (items.length > 0) {
                     el.innerHTML = `
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50/50 border-b border-gray-100 text-[8px] uppercase tracking-widest text-gray-400">
-                                    <th class="px-6 py-2 font-bold w-1/4">Date</th>
-                                    <th class="px-6 py-2 font-bold w-1/2">Description</th>
-                                    <th class="px-6 py-2 font-bold text-right w-1/4">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                ${items.map(item => `
-                                    <tr class="hover:bg-gray-50/50 transition-colors">
-                                        <td class="px-6 py-2 text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">${item.date}</td>
-                                        <td class="px-6 py-2 text-[10px] font-black text-gray-800 tracking-tight">${item.description}</td>
-                                        <td class="px-6 py-2 text-xs font-black ${id === 'revenueDetailList' ? 'text-emerald-600' : 'text-red-500'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-white/40 border-b border-slate-200/80 text-[8px] uppercase tracking-widest text-slate-500 font-extrabold">
+                                        <th class="px-4 sm:px-6 py-2.5 w-1/4">Date</th>
+                                        <th class="px-4 sm:px-6 py-2.5 w-1/2">Description</th>
+                                        <th class="px-4 sm:px-6 py-2.5 text-right w-1/4">Amount</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200/50 text-xs">
+                                    ${items.map(item => `
+                                        <tr class="hover:bg-white/50 transition-colors">
+                                            <td class="px-4 sm:px-6 py-2 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap">${item.date}</td>
+                                            <td class="px-4 sm:px-6 py-2 font-bold text-slate-800 tracking-tight">${item.description}</td>
+                                            <td class="px-4 sm:px-6 py-2 font-black ${id === 'revenueDetailList' ? 'text-emerald-700' : 'text-rose-600'} text-right whitespace-nowrap">${fmt(item.amount)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="px-6 py-4 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                        <div class="px-6 py-6 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             No records found
                         </div>
                     `;
@@ -3271,6 +3953,10 @@
             renderList('revenueDetailList', breakdown.revenueItems);
             renderList('maintenanceDetailList', breakdown.maintenanceItems);
             renderList('officeExpensesDetailList', breakdown.officeItems);
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function renderIncomeData(data) {
@@ -3339,6 +4025,11 @@
                 setTimeout(() => { document.body.removeChild(iframe); }, 1000);
             }, 300);
         }
+        window.showNetIncomeModal = showNetIncomeModal;
+        window.hideNetIncomeModal = hideNetIncomeModal;
+        window.loadIncomeData = loadIncomeData;
+        window.setIncomePeriod = setIncomePeriod;
+        window.showIncomeError = showIncomeError;
 
         // --- Expenses Modal Functions ---
         function showExpensesModal() {
@@ -3365,14 +4056,14 @@
 
             // Update button styles
             document.querySelectorAll('[id^="btn-"][id$="-expenses"]').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-red-700');
-                btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                btn.classList.remove('bg-gradient-to-r', 'from-rose-600', 'to-red-600', 'text-white', 'font-black', 'shadow-sm', 'bg-white', 'text-red-700');
+                btn.classList.add('text-slate-300', 'font-bold', 'hover:text-white', 'hover:bg-white/10');
             });
             
             const activeBtn = document.getElementById('btn-' + period + '-expenses');
             if (activeBtn) {
-                activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                activeBtn.classList.add('bg-white', 'text-red-700');
+                activeBtn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-gradient-to-r', 'from-rose-600', 'to-red-600', 'text-white', 'font-black', 'shadow-sm');
             }
             
             updateExpensesSummary(period);
@@ -3408,36 +4099,17 @@
             const doc = iframe.contentWindow.document;
             doc.open();
             doc.write(`<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Statement &mdash; ${period}</title>
+    <title>Euro Taxi - Expenses Statement (${period})</title>
     <style>
-        @page { margin: 0; size: auto; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #fff; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20mm; color: #111; }
-        h1 { text-align: center; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 4px; }
-        .subtitle { text-align: center; font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 32px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; background: #7f1d1d; color: white; padding: 10px 20px; border-radius: 6px 6px 0 0; }
-        .section-header span { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-        .sub-header { display: flex; justify-content: space-between; background: #f8f8f8; padding: 6px 20px; border-left: 1px solid #eee; border-right: 1px solid #eee; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; }
-        .sub-total { color: #dc2626; }
-        table { width: 100%; border-collapse: collapse; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        thead th { padding: 8px 20px; font-size: 8px; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 700; text-align: left; }
-        thead th:last-child { text-align: right; }
-        tr { page-break-inside: avoid; break-inside: avoid; }
-        tbody tr { border-bottom: 1px solid #f8f8f8; }
-        tbody tr:hover { background: #fafafa; }
-        td { padding: 8px 20px; font-size: 11px; color: #1e293b; }
-        td.date { color: #94a3b8; font-weight: 700; font-size: 9px; text-transform: uppercase; }
-        td.amount { text-align: right; font-weight: 900; color: #dc2626; white-space: nowrap; }
-        .no-records { padding: 16px 20px; text-align: center; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; border: 1px solid #f0f0f0; border-top: none; margin-bottom: 24px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
-        img { max-height: 64px !important; width: auto !important; display: block; margin: 0 auto 8px auto; }
-        .print-only { display: block !important; }
-        .no-print { display: none !important; }
+        @page { size: portrait; margin: 15mm; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #e2e8f0; padding: 6px 10px; }
+        th { background: #f8fafc; font-weight: bold; text-transform: uppercase; font-size: 9px; }
+        .text-right { text-align: right; }
+        .footer { text-align: center; margin-top: 30px; font-size: 9px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
     </style>
 </head>
 <body>
@@ -3480,19 +4152,10 @@
                 }
             });
 
-            // Summarize items for Yearly and Monthly views
-            if (window.currentExpensesPeriod === 'year' || window.currentExpensesPeriod === 'month') {
+            if (window.currentExpensesPeriod !== 'today') {
+                const periodLabel = window.currentExpensesPeriod === 'week' ? 'This Week' : (window.currentExpensesPeriod === 'month' ? 'This Month' : 'This Year');
                 const summarizeItems = (items) => {
                     const map = {};
-                    
-                    let periodLabel = '';
-                    if (window.currentExpensesPeriod === 'year') {
-                        periodLabel = new Date().getFullYear() + ' SUMMARY';
-                    } else if (window.currentExpensesPeriod === 'month') {
-                        const date = new Date();
-                        periodLabel = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase() + ' SUMMARY';
-                    }
-
                     items.forEach(item => {
                         if (!map[item.description]) {
                             map[item.description] = { 
@@ -3532,19 +4195,19 @@
                 
                 if (items.length > 0) {
                     el.innerHTML = `
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse bg-transparent">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-[9px] uppercase tracking-widest text-gray-500">
-                                    <th class="px-6 py-2 font-black w-1/4 border-r border-gray-200">Date</th>
-                                    <th class="px-6 py-2 font-black w-1/2 border-r border-gray-200">Description</th>
-                                    <th class="px-6 py-2 font-black text-right w-1/4">Amount</th>
+                                <tr class="bg-rose-500/10 border-b border-rose-200/50 text-[9px] uppercase tracking-widest text-slate-600 font-extrabold">
+                                    <th class="px-6 py-2.5 w-1/4 border-r border-rose-200/40">Date</th>
+                                    <th class="px-6 py-2.5 w-1/2 border-r border-rose-200/40">Description</th>
+                                    <th class="px-6 py-2.5 text-right w-1/4">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-rose-200/30">
                                 ${items.map(item => `
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-2.5 text-[10px] text-gray-500 font-bold uppercase whitespace-nowrap border-r border-gray-100">${item.date}</td>
-                                        <td class="px-6 py-2.5 text-[10px] font-black text-gray-800 tracking-tight border-r border-gray-100">${item.description}</td>
+                                    <tr class="hover:bg-rose-50/40 transition-colors">
+                                        <td class="px-6 py-2.5 text-[10px] text-slate-500 font-bold uppercase whitespace-nowrap border-r border-rose-200/30">${item.date}</td>
+                                        <td class="px-6 py-2.5 text-[10px] font-bold text-gray-800 tracking-tight border-r border-rose-200/30">${item.description}</td>
                                         <td class="px-6 py-2.5 text-[11px] font-black text-red-600 text-right whitespace-nowrap">${fmt(item.amount)}</td>
                                     </tr>
                                 `).join('')}
@@ -3553,8 +4216,8 @@
                     `;
                 } else {
                     el.innerHTML = `
-                        <div class="py-6 w-full flex flex-col items-center justify-center text-gray-400">
-                            <span class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100">No records found for this period</span>
+                        <div class="py-6 w-full flex flex-col items-center justify-center text-slate-400">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-rose-50/60 text-rose-800 px-4 py-1.5 rounded-full ring-1 ring-rose-900/10">No records found for this period</span>
                         </div>
                     `;
                 }
@@ -3563,6 +4226,10 @@
             renderList('expensesMaintenanceList', breakdown.maintenanceItems);
             renderList('expensesOfficeList', breakdown.officeItems);
         }
+        window.showExpensesModal = showExpensesModal;
+        window.hideExpensesModal = hideExpensesModal;
+        window.setExpensesPeriod = setExpensesPeriod;
+        window.renderExpensesReport = renderExpensesReport;
 
         
         function filterIncomeByPeriod(data, period) {
@@ -3638,14 +4305,14 @@
 
             // Update button styles
             document.querySelectorAll('[id^="btn-"][id$="-income"]').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-green-700');
-                btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
+                btn.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-violet-600', 'text-white', 'font-black', 'shadow-sm', 'bg-white', 'text-emerald-800', 'text-green-700');
+                btn.classList.add('text-slate-300', 'font-bold', 'hover:text-white', 'hover:bg-white/10');
             });
             
             const activeBtn = document.getElementById('btn-' + period + '-income');
             if (activeBtn) {
-                activeBtn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                activeBtn.classList.add('bg-white', 'text-green-700');
+                activeBtn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-white/10');
+                activeBtn.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-violet-600', 'text-white', 'font-black', 'shadow-sm');
             }
             
             // Re-apply filters directly
@@ -3669,7 +4336,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Income Data</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <div class="flex gap-2">
                             <button onclick="loadIncomeData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
@@ -3700,7 +4367,7 @@
                             <i data-lucide="bug" class="w-8 h-8 text-blue-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Testing API Connection</span>
-                        <p class="text-sm text-gray-400 mb-4">Checking API endpoint...</p>
+                        <p class="text-sm text-slate-400 mb-4">Checking API endpoint...</p>
                         <div class="w-64 bg-gray-200 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
                         </div>
@@ -3772,17 +4439,34 @@
             const date = document.getElementById('boundaryDateFilter').value;
             const url = `/api/daily-boundary-collections${date ? '?date=' + date : ''}`;
             
-            fetch(url)
-                .then(response => response.json())
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         displayBoundaryCollections(data);
                     } else {
-                        showBoundaryError(data.message);
+                        showBoundaryError(data ? data.message : 'Unknown error');
                     }
                 })
                 .catch(error => {
-                    showBoundaryError('Error loading boundary collections. Please try again.');
+                    showBoundaryError(error.message || 'Error loading boundary collections. Please try again.');
                 });
         }
         
@@ -3823,63 +4507,66 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="calendar" class="w-8 h-8 text-gray-400"></i>
+                            <div class="w-14 h-14 rounded-2xl bg-white/70 backdrop-blur-sm border border-slate-200/60 flex items-center justify-center mb-3 text-slate-400 shadow-sm">
+                                <i data-lucide="search-x" class="w-7 h-7"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No boundary collections found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or date filter</p>
+                            <span class="text-base font-bold text-slate-700 mb-1">No boundary collections found</span>
+                            <p class="text-xs text-slate-400">Try adjusting your search criteria or date filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
             
             grid.innerHTML = collections.map(collection => `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 border-green-500 hover:scale-102">
-                    <div class="p-4">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 bg-green-100 rounded-lg">
-                                    <i data-lucide="car" class="w-4 h-4 text-green-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-bold text-gray-900">${collection.plate_number}</h4>
-                                    <span class="text-xs text-gray-500">${collection.plate_number || 'N/A'}</span>
-                                </div>
+                <div class="bg-[#f0fdf4]/35 hover:bg-[#f0fdf4]/60 rounded-2xl border border-emerald-300/60 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 relative group overflow-hidden cursor-default min-h-[120px] flex flex-col justify-between p-3.5">
+                    
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-white/40 flex items-center justify-center flex-shrink-0 text-emerald-700 shadow-xs border border-white/50">
+                                <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-green-600">₱${collection.boundary_amount.toLocaleString()}</div>
-                                <div class="text-xs text-gray-500">${collection.date}</div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${collection.plate_number}</h4>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">${collection.time || 'N/A'}</span>
                             </div>
                         </div>
-                        
-                        <!-- Driver Information -->
-                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
-                                <span class="text-sm font-medium text-gray-900">Driver: ${collection.driver_name || 'N/A'}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="clock" class="w-4 h-4 text-gray-600"></i>
-                                <span class="text-xs text-gray-600">Time: ${collection.time || 'N/A'}</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Collection Details -->
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i>
-                                ${collection.location || 'Main Office'}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                                Verified
+                        <div class="text-right flex-shrink-0">
+                            <div class="text-xs sm:text-sm font-black text-emerald-700 leading-tight">₱${collection.boundary_amount ? Number(collection.boundary_amount).toLocaleString() : '0'}</div>
+                            <span class="px-2 py-0.5 text-[8px] font-extrabold rounded-full bg-emerald-100/90 text-emerald-800 border border-emerald-300 uppercase tracking-wider inline-block mt-0.5">
+                                COLLECTED
                             </span>
                         </div>
                     </div>
+                    
+                    <!-- Driver Details Ribbon (Translucent) -->
+                    <div class="flex items-center justify-between py-1.5 px-2 bg-white/35 border border-white/50 rounded-xl mb-2">
+                        <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-500 flex-shrink-0"></i>
+                            <span class="text-xs font-bold text-slate-800 truncate">${collection.driver_name || 'Unassigned Driver'}</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight flex-shrink-0 pl-2">${collection.date || ''}</span>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-300/30">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-emerald-600"></i>
+                            ${collection.location || 'Main Office'}
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-extrabold">
+                            <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+                            Verified
+                        </span>
+                    </div>
                 </div>
             `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
         
         function filterBoundaryCollections() {
@@ -3931,7 +4618,7 @@
                             <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                         </div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Error Loading Collections</span>
-                        <p class="text-sm text-gray-400 mb-4">${message}</p>
+                        <p class="text-sm text-slate-400 mb-4">${message}</p>
                         <button onclick="loadBoundaryCollections()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                             <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
                             Retry
@@ -3940,6 +4627,13 @@
                 </div>
             `;
         }
+        window.showDailyBoundaryModal = showDailyBoundaryModal;
+        window.hideDailyBoundaryModal = hideDailyBoundaryModal;
+        window.loadBoundaryCollections = loadBoundaryCollections;
+        window.displayBoundaryCollections = displayBoundaryCollections;
+        window.filterBoundaryCollections = filterBoundaryCollections;
+        window.clearBoundarySearch = clearBoundarySearch;
+        window.showBoundaryError = showBoundaryError;
 
         // Units Modal Functions
         function showUnitsModal() {
@@ -3968,17 +4662,29 @@
                     <div class="inline-flex flex-col items-center">
                         <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-6"></div>
                         <span class="text-xl text-gray-600 font-semibold mb-2">Loading units data...</span>
-                        <p class="text-sm text-gray-400">Please wait while we fetch your fleet information</p>
+                        <p class="text-sm text-slate-400">Please wait while we fetch your fleet information</p>
                     </div>
                 </div>
             `;
             
-            fetch('/api/units-overview')
+            fetch('/api/units-overview', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw new Error(data.message || `Server error ${response.status}`);
+                        }
+                        return data;
+                    }).catch(err => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                        }
+                        throw err;
+                    });
                 })
                 .then(data => {
                     if (data.success) {
@@ -3996,7 +4702,7 @@
                                     <i data-lucide="alert-circle" class="w-8 h-8 text-red-600"></i>
                                 </div>
                                 <span class="text-xl text-red-600 font-semibold mb-2">Error Loading Units</span>
-                                <p class="text-sm text-gray-400 mb-4">${error.message}</p>
+                                <p class="text-sm text-slate-400 mb-4">${error.message}</p>
                                 <button onclick="loadUnitsData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                                     Try Again
@@ -4019,90 +4725,119 @@
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-20">
                         <div class="inline-flex flex-col items-center">
-                            <div class="p-4 bg-gray-100 rounded-full mb-4">
-                                <i data-lucide="search" class="w-8 h-8 text-gray-400"></i>
+                            <div class="w-14 h-14 rounded-2xl bg-white/70 backdrop-blur-sm border border-slate-200/60 flex items-center justify-center mb-3 text-slate-400 shadow-sm">
+                                <i data-lucide="search-x" class="w-7 h-7"></i>
                             </div>
-                            <span class="text-xl text-gray-600 font-semibold mb-2">No units found</span>
-                            <p class="text-sm text-gray-400">Try adjusting your search or filters</p>
+                            <span class="text-base font-bold text-slate-700 mb-1">No matching units found</span>
+                            <p class="text-xs text-slate-400">Try adjusting your search criteria or status filter</p>
                         </div>
                     </div>
                 `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
             
-            grid.innerHTML = units.map(unit => `
-                <div class="bg-white rounded-lg shadow border-t-2 ${statusColors[unit.status] || 'border-gray-200'} hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer min-h-[110px] flex flex-col" onclick="window.location.href='/units?id=${unit.id}'">
+            const statusCardStyles = {
+                'active': 'bg-emerald-50/30 hover:bg-emerald-50/55 border-emerald-400/60 shadow-sm',
+                'vacant': 'bg-amber-50/30 hover:bg-amber-50/55 border-amber-400/60 shadow-sm',
+                'maintenance': 'bg-rose-50/30 hover:bg-rose-50/55 border-rose-400/60 shadow-sm',
+                'coding': 'bg-yellow-50/30 hover:bg-yellow-50/55 border-yellow-400/60 shadow-sm',
+                'retired': 'bg-slate-100/30 hover:bg-slate-100/55 border-slate-400/60 shadow-sm'
+            };
+            
+            const statusBadgeStyles = {
+                'active': 'bg-emerald-100/90 text-emerald-800 border-emerald-300',
+                'vacant': 'bg-amber-100/90 text-amber-800 border-amber-300',
+                'maintenance': 'bg-rose-100/90 text-rose-800 border-rose-300',
+                'coding': 'bg-yellow-100/90 text-yellow-800 border-yellow-300',
+                'retired': 'bg-slate-200/90 text-slate-700 border-slate-300'
+            };
+
+            grid.innerHTML = units.map(unit => {
+                const isVacant = (unit.status === 'vacant') || (unit.status === 'active' && !unit.driver1_name && !unit.driver2_name);
+                const effectiveStatusKey = isVacant ? 'vacant' : (unit.status || 'active').toLowerCase();
+                const cardStyle = statusCardStyles[effectiveStatusKey] || statusCardStyles['vacant'];
+                const badgeStyle = statusBadgeStyles[effectiveStatusKey] || statusBadgeStyles['vacant'];
+                const displayStatusText = isVacant ? 'VACANT' : (unit.status || 'ACTIVE');
+
+                return `
+                <div class="${cardStyle} rounded-2xl border hover:shadow-xl hover:-translate-y-1 transition-all duration-200 relative group overflow-hidden cursor-pointer min-h-[118px] flex flex-col justify-between p-3.5" onclick="window.location.href='/units?id=${unit.id}'">
                     
                     <!-- Hover Driver Overlay -->
-                    <div class="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center z-10 pointer-events-none p-2">
-                        <p class="text-white/70 text-[9px] font-black uppercase tracking-[0.2em] mb-1">Assigned Drivers</p>
+                    <div class="absolute inset-0 bg-slate-950/95 opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-center z-20 pointer-events-none p-3 backdrop-blur-sm">
+                        <p class="text-amber-400 text-[9px] font-extrabold uppercase tracking-[0.2em] mb-2 flex items-center gap-1">
+                            <i data-lucide="user-check" class="w-3 h-3"></i>
+                            Assigned Drivers
+                        </p>
                         ${(unit.driver1_name || unit.driver2_name) ? `
                             ${unit.driver1_name ? `
-                            <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg mb-1">
-                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-black">P1</span>
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-2.5 py-1.5 w-full border border-white/10 shadow-lg mb-1.5">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[9px] shadow-sm">
+                                    P1
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="text-[6px] text-blue-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 1</p>
-                                    <p class="text-white text-[10px] font-black leading-tight truncate tracking-wide">${unit.driver1_name}</p>
+                                <div class="min-w-0 flex-1 text-left">
+                                    <p class="text-[7px] text-blue-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary Driver</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate tracking-wide">${unit.driver1_name}</p>
                                 </div>
                             </div>
                             ` : ''}
                             ${unit.driver2_name ? `
-                            <div class="flex items-center gap-2 bg-white/10 rounded-md px-2 py-1 w-[95%] border border-white/10 shadow-lg">
-                                <div class="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <span class="text-white text-[8px] font-black">P2</span>
+                            <div class="flex items-center gap-2 bg-white/10 rounded-xl px-2.5 py-1.5 w-full border border-white/10 shadow-lg">
+                                <div class="w-6 h-6 rounded-lg bg-purple-500 flex items-center justify-center flex-shrink-0 text-white font-extrabold text-[9px] shadow-sm">
+                                    P2
                                 </div>
-                                <div class="min-w-0">
-                                    <p class="text-[6px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-0.5">Primary 2</p>
-                                    <p class="text-white text-[10px] font-black leading-tight truncate tracking-wide">${unit.driver2_name}</p>
+                                <div class="min-w-0 flex-1 text-left">
+                                    <p class="text-[7px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-0.5">Secondary Driver</p>
+                                    <p class="text-white text-[11px] font-bold leading-tight truncate tracking-wide">${unit.driver2_name}</p>
                                 </div>
                             </div>
                             ` : ''}
                         ` : `
                             <div class="flex flex-col items-center justify-center h-full text-center">
-                                <div class="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center mb-1">
-                                    <i data-lucide="user-x" class="w-3 h-3 text-red-400"></i>
+                                <div class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center mb-1.5 border border-slate-700">
+                                    <i data-lucide="user-x" class="w-4 h-4 text-slate-400"></i>
                                 </div>
-                                <p class="text-red-300 text-[9px] font-bold uppercase tracking-wider">No Available Drivers</p>
+                                <p class="text-slate-300 text-[10px] font-bold uppercase tracking-wider">No Assigned Driver</p>
+                                <span class="text-[8px] text-slate-500">Available for assignment</span>
                             </div>
                         `}
                     </div>
 
-                    <div class="p-3 relative z-0 flex-1 flex flex-col justify-between">
-                        <!-- Summary Header -->
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <i data-lucide="car" class="w-3.5 h-3.5 text-gray-400"></i>
-                                <h4 class="text-sm font-bold text-gray-900 truncate">${unit.plate_number}</h4>
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-white/40 flex items-center justify-center flex-shrink-0 text-slate-700 shadow-xs border border-white/50">
+                                <i data-lucide="car" class="w-3.5 h-3.5"></i>
                             </div>
-                            <span class="px-2 py-0.5 text-[9px] font-bold rounded-full ${statusColors[unit.status] || 'bg-gray-100'} uppercase">
-                                ${unit.status}
-                            </span>
+                            <h4 class="text-xs sm:text-sm font-black text-slate-900 truncate tracking-tight">${unit.plate_number}</h4>
                         </div>
-                        
-                        <!-- Essential Stats -->
-                        <div class="grid grid-cols-2 gap-2 text-center py-1.5 bg-gray-50/80 rounded mb-2">
-                            <div>
-                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">Total Coll.</div>
-                                <div class="text-xs font-bold text-green-600">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
-                            </div>
-                            <div>
-                                <div class="text-[8px] text-gray-500 uppercase font-bold tracking-tighter">ROI</div>
-                                <div class="text-xs font-bold ${unit.roi_percentage >= 100 ? 'text-blue-600' : 'text-gray-900'}">${unit.roi_percentage.toFixed(1)}%</div>
-                            </div>
+                        <span class="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full ${badgeStyle} uppercase border tracking-wider">
+                            ${displayStatusText}
+                        </span>
+                    </div>
+                    
+                    <!-- Essential Metrics Ribbon (High Transparency) -->
+                    <div class="grid grid-cols-2 gap-1.5 text-center py-1.5 px-2 bg-white/35 border border-white/50 rounded-xl mb-2">
+                        <div class="text-left pl-1">
+                            <div class="text-[8px] text-slate-500 uppercase font-bold tracking-wider leading-none mb-0.5">Total Coll.</div>
+                            <div class="text-xs font-black text-emerald-700">₱${unit.total_boundary ? unit.total_boundary.toLocaleString() : '0'}</div>
                         </div>
-
-                        <!-- Mini Footer -->
-                        <div class="flex items-center justify-between text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
-                            <span>ID: ${unit.plate_number || 'N/A'}</span>
-                            <span class="${unit.today_boundary > 0 ? 'text-blue-500' : ''}">
-                                ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
-                            </span>
+                        <div class="text-right pr-1">
+                            <div class="text-[8px] text-slate-500 uppercase font-bold tracking-wider leading-none mb-0.5">ROI Rate</div>
+                            <div class="text-xs font-black ${unit.roi_percentage >= 100 ? 'text-blue-700' : 'text-slate-800'}">${unit.roi_percentage ? unit.roi_percentage.toFixed(1) : '0.0'}%</div>
                         </div>
                     </div>
+
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-300/30">
+                        <span>ID: ${unit.plate_number || 'N/A'}</span>
+                        <span class="${unit.today_boundary > 0 ? 'text-blue-700 font-extrabold' : 'text-slate-400'}">
+                            ${unit.today_boundary > 0 ? `+₱${unit.today_boundary.toLocaleString()}` : 'No Daily'}
+                        </span>
+                    </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             
             // Re-initialize Lucide icons
             if (typeof lucide !== 'undefined') {
@@ -4130,10 +4865,10 @@
             if (indicator) indicator.remove();
             
             const statusColors = {
-                'active': 'bg-green-100 text-green-800 border-green-200',
-                'maintenance': 'bg-red-100 text-red-800 border-red-200',
-                'coding': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                'retired': 'bg-gray-100 text-gray-800 border-gray-200'
+                'active': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                'maintenance': 'bg-rose-50 text-rose-700 border-rose-200',
+                'coding': 'bg-amber-50 text-amber-700 border-amber-200',
+                'retired': 'bg-slate-100 text-slate-700 border-slate-200'
             };
             
             const statusIcons = {
@@ -4164,17 +4899,15 @@
         function setUnitStatusFilter(status) {
             window.currentUnitStatusFilter = status;
             
-            // Update UI
+            // Update UI with 21st.dev style active buttons
             const statusBtns = ['all', 'active', 'maintenance', 'coding'];
             statusBtns.forEach(s => {
                 const btn = document.getElementById('btn-' + s + '-units');
                 if (btn) {
                     if (s === status) {
-                        btn.classList.remove('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.add('bg-white', 'text-blue-700');
+                        btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20";
                     } else {
-                        btn.classList.add('text-white/70', 'hover:text-white', 'hover:bg-white/10');
-                        btn.classList.remove('bg-white', 'text-blue-700');
+                        btn.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80";
                     }
                 }
             });
@@ -4271,6 +5004,16 @@
             document.getElementById('unitSearchInput').value = '';
             setUnitStatusFilter('all');
         }
+        window.showUnitsModal = showUnitsModal;
+        window.hideUnitsModal = hideUnitsModal;
+        window.loadUnitsData = loadUnitsData;
+        window.displayUnitsData = displayUnitsData;
+        window.renderUnits = renderUnits;
+        window.filterUnits = filterUnits;
+        window.setUnitStatusFilter = setUnitStatusFilter;
+        window.filterByYear = filterByYear;
+        window.filterByMonth = filterByMonth;
+        window.clearSearch = clearSearch;
 
         window.showFlaggedUnitsModal = function() {
             const modal = document.getElementById('flaggedUnitsModal');
@@ -4283,12 +5026,12 @@
                 .then(data => {
                     if (!data.success || data.units.length === 0) {
                         container.innerHTML = `
-                            <div class="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="text-center py-12 bg-white rounded-2xl ring-1 ring-slate-900/5 shadow-md shadow-slate-200/40">
                                 <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
                                     <i data-lucide="shield-check" class="w-8 h-8 text-green-600"></i>
                                 </div>
-                                <h4 class="text-lg font-black text-gray-900 uppercase tracking-tight">All Clear</h4>
-                                <p class="text-gray-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
+                                <h4 class="text-lg font-bold text-slate-800 uppercase tracking-tight">All Clear</h4>
+                                <p class="text-slate-500 text-xs px-8 mt-1 font-medium">No units are currently flagged or missing. Fleet integrity is secured.</p>
                             </div>
                         `;
                         if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -4308,56 +5051,56 @@
                         const contactDisplay = unit.driver_phone ? 
                             `<a href="tel:${unit.driver_phone}" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
                                 <i data-lucide="phone" class="w-3 h-3"></i> ${unit.driver_phone}
-                            </a>` : '<span class="text-gray-400">Not recorded</span>';
+                            </a>` : '<span class="text-slate-400">Not recorded</span>';
 
                         html += `
-                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
-                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-black uppercase tracking-widest px-3">Lockdown</div>' : ''}
+                            <div class="bg-white p-4 rounded-2xl shadow-md shadow-slate-200/40 ring-1 ring-slate-900/5 border-l-4 ${isMissing ? 'border-red-600' : 'border-amber-600'} hover:shadow-md transition-all relative overflow-hidden group">
+                                ${isMissing ? '<div class="absolute top-0 right-0 p-1 bg-red-600 text-white text-[8px] font-bold uppercase tracking-widest px-3">Lockdown</div>' : ''}
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="text-lg font-black text-gray-900 tracking-tighter">${unit.plate_number}</span>
-                                            <span class="px-2 py-0.5 rounded text-[9px] font-black border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-sm">
+                                            <span class="text-lg font-bold text-slate-800 tracking-tighter">${unit.plate_number}</span>
+                                            <span class="px-2 py-0.5 rounded text-[9px] font-bold border ${badgeClass} flex items-center gap-1 uppercase tracking-widest shadow-md shadow-slate-200/40">
                                                 <i data-lucide="${icon}" class="w-3 h-3"></i> ${statusText}
                                             </span>
                                         </div>
                                         <div class="space-y-1.5">
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
-                                                <span class="text-gray-800 font-black uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Current Driver:</span>
+                                                <span class="text-gray-800 font-bold uppercase tracking-tighter">${unit.driver_name || 'No Driver'}</span>
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Contact # :</span>
                                                 ${contactDisplay}
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px] pt-1.5 mt-1.5 border-t border-gray-100">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
-                                                <span class="text-gray-600 italic font-black uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Last Return:</span>
+                                                <span class="text-gray-600 italic font-bold uppercase tracking-tighter">${unit.last_known_driver || 'None'}</span>
                                             </div>
                                             <div class="flex items-center gap-2 text-[10px]">
-                                                <span class="text-gray-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
+                                                <span class="text-slate-400 w-24 flex-shrink-0 font-bold uppercase tracking-tight">Return Date:</span>
                                                 <span class="text-gray-600 font-bold uppercase">${unit.last_boundary_date || 'No record'}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-center gap-3 flex-shrink-0 ml-4">
-                                        <div class="text-center bg-gray-50 p-2 rounded-xl border border-gray-100 min-w-[70px]">
-                                            <div class="text-[9px] uppercase font-black text-gray-400 tracking-widest">Time Elapsed</div>
-                                            <div class="text-xl ${daysColor} leading-none mt-1 font-black">${daysMissing}</div>
-                                            <div class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">day(s)</div>
+                                        <div class="text-center bg-gray-50 p-2 rounded-xl ring-1 ring-slate-900/5 min-w-[70px]">
+                                            <div class="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Time Elapsed</div>
+                                            <div class="text-xl ${daysColor} leading-none mt-1 font-bold">${daysMissing}</div>
+                                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">day(s)</div>
                                         </div>
                                         ${isMissing ? `
                                         <form method="POST" action="/units/${unit.id}/recover" class="m-0 w-full" onsubmit="return confirm('Confirm RECOVERY of Unit ${unit.plate_number}? This will restore its active status and clear security alerts.');">
                                             <input type="hidden" name="_token" value="${csrfToken}">
                                             <button type="submit" class="w-full py-2 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2 group/btn" title="Mark as Recovered">
                                                 <i data-lucide="check-circle" class="w-4 h-4 group-hover/btn:scale-110 transition-transform"></i>
-                                                <span class="text-[10px] font-black uppercase tracking-widest">Recover</span>
+                                                <span class="text-[10px] font-bold uppercase tracking-widest">Recover</span>
                                             </button>
                                         </form>
                                         ` : `
                                         <a href="/units?id=${unit.id}" class="w-full py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-all flex items-center justify-center gap-2 border border-gray-200">
                                             <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-center">Manage</span>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest text-center">Manage</span>
                                         </a>
                                         `}
                                     </div>
@@ -4373,7 +5116,7 @@
                     container.innerHTML = `
                         <div class="text-center py-12 bg-red-50 rounded-2xl border border-red-100">
                             <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-700 font-black uppercase tracking-widest text-xs">Failed to load security flags.</p>
+                            <p class="text-red-700 font-bold uppercase tracking-widest text-xs">Failed to load security flags.</p>
                             <button onclick="showFlaggedUnitsModal()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest">Retry</button>
                         </div>
                     `;
@@ -4381,28 +5124,5 @@
                 });
         }
 
-        // Intersection Observer for scroll-triggered wave animation
-        function initWaveObserver() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                    } else {
-                        // Remove class when out of view to reset animation
-                        entry.target.classList.remove('in-view');
-                    }
-                });
-            }, { threshold: 0.3 });
-
-            document.querySelectorAll('.card-hover').forEach(card => {
-                observer.observe(card);
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initWaveObserver);
-        } else {
-            initWaveObserver();
-        }
     </script>
-@endpush
+@endsection

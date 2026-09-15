@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <!-- Background Glow -->
+    <radialGradient id="annGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+      <stop offset="60%" stop-color="#d97706" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Megaphone Body Gradient -->
+    <linearGradient id="megaBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="25%" stop-color="#fde047"/>
+      <stop offset="60%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+
+    <!-- Megaphone Cone Gradient -->
+    <linearGradient id="megaCone" x1="20%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="20%" stop-color="#fef08a"/>
+      <stop offset="55%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Handle Gradient -->
+    <linearGradient id="megaHandle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Rim / Accent Gradient -->
+    <linearGradient id="megaRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#fde68a"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+
+    <!-- Wave Arc Gradient -->
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- 3D Drop Shadow -->
+    <filter id="annShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#78350f" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Circle -->
+  <circle cx="100" cy="105" r="90" fill="url(#annGlow)"/>
+
+  <!-- Main 3D Composition Group -->
+  <g filter="url(#annShadow)">
+    
+    <!-- Sound Waves Arcs -->
+    <path d="M138 68 C158 84 158 126 138 142" stroke="url(#waveGrad)" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.95"/>
+    <path d="M154 52 C182 74 182 136 154 158" stroke="url(#waveGrad)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M170 38 C206 66 206 144 170 172" stroke="url(#waveGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+    <!-- Sparkle Stars -->
+    <path d="M142 42 L146 32 L150 42 L160 46 L150 50 L146 60 L142 50 L132 46 Z" fill="#ffffff" opacity="0.9"/>
+    <path d="M168 120 L170 114 L172 120 L178 122 L172 124 L170 130 L168 124 L162 122 Z" fill="#fde047" opacity="0.85"/>
+
+    <!-- Megaphone Structure Group (Rotated for 3D dynamics) -->
+    <g transform="rotate(-18 92 105)">
+      
+      <!-- Back Cap / Base -->
+      <ellipse cx="44" cy="105" rx="14" ry="24" fill="url(#megaHandle)"/>
+      <ellipse cx="46" cy="105" rx="12" ry="22" fill="url(#megaBody)"/>
+
+      <!-- Handle Base -->
+      <path d="M64 116 L52 162 C50 168 56 174 62 172 L76 168 C80 167 82 162 80 158 L72 118 Z" fill="url(#megaHandle)"/>
+      <!-- Handle Highlight -->
+      <path d="M68 124 L58 160 C57 163 60 166 63 165 L69 163 C72 162 73 159 72 156 L68 124 Z" fill="#fde68a" opacity="0.4"/>
+
+      <!-- Main Cone Body -->
+      <path d="M46 83 L126 54 C132 52 138 56 138 64 L138 146 C138 154 132 158 126 156 L46 127 Z" fill="url(#megaCone)"/>
+
+      <!-- 3D Cone Specular Highlight -->
+      <path d="M48 87 L124 60 C128 58 132 62 132 66 L132 80 L48 97 Z" fill="#ffffff" opacity="0.55"/>
+
+      <!-- Inner Cone Shadow -->
+      <path d="M48 116 L124 148 C128 150 132 147 132 143 L132 132 L48 107 Z" fill="#78350f" opacity="0.25"/>
+
+      <!-- Front Bell / Mouth Ring (3D Ellipse Rim) -->
+      <ellipse cx="126" cy="105" rx="15" ry="51" fill="url(#megaRim)"/>
+      <ellipse cx="126" cy="105" rx="10" ry="44" fill="#92400e"/>
+      <ellipse cx="128" cy="105" rx="7" ry="38" fill="#451a03"/>
+      
+      <!-- Inner Speaker Center Cone (Bullet) -->
+      <ellipse cx="124" cy="105" rx="5" ry="18" fill="url(#megaBody)"/>
+      <ellipse cx="125" cy="105" rx="3" ry="12" fill="#ffffff" opacity="0.8"/>
+    </g>
+
+  </g>
+</svg>

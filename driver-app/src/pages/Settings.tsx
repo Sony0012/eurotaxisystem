@@ -529,8 +529,8 @@ const Settings: FC = () => {
                       </div>
                     </IonButton>
 
+                    <div id="settings-replay-tut" style={{ width: '100%' }}>
                     <IonButton 
-                      id="settings-replay-tut"
                       expand="block" fill="clear"
                       onClick={() => startTutorial()}
                       style={{ ...menuItemStyle, '--background': t.menuBg, '--border-color': t.menuBorder } as any}
@@ -541,6 +541,7 @@ const Settings: FC = () => {
                         <IonIcon icon={chevronForwardOutline} style={{ fontSize: '18px', opacity: 0.4 }} />
                       </div>
                     </IonButton>
+                    </div>
 
                     <IonButton 
                       expand="block" fill="clear"

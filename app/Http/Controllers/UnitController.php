@@ -27,12 +27,22 @@ class UnitController extends Controller
 
         $query = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->leftJoin('drivers as drv1', function($join) {
+                $join->on('u.driver_id', '=', 'drv1.id')
+                     ->whereNull('drv1.deleted_at')
+                     ->whereNotIn('drv1.driver_status', ['banned', 'suspended']);
+            })
+            ->leftJoin('drivers as drv2', function($join) {
+                $join->on('u.secondary_driver_id', '=', 'drv2.id')
+                     ->whereNull('drv2.deleted_at')
+                     ->whereNotIn('drv2.driver_status', ['banned', 'suspended']);
+            })
             ->select(
                 'u.*', 
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,''), '|', COALESCE(drv1.contact_number, '')) as primary_driver"),
-                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''), '|', COALESCE(drv2.contact_number, '')) as secondary_driver")
+                DB::raw("CONCAT(COALESCE(drv2.first_name,''), ' ', COALESCE(drv2.last_name,''), '|', COALESCE(drv2.contact_number, '')) as secondary_driver"),
+                'drv1.profile_photo as primary_driver_photo',
+                'drv2.profile_photo as secondary_driver_photo'
             )
             ->addSelect([
                 'total_collected' => DB::table('boundaries')
@@ -147,8 +157,17 @@ class UnitController extends Controller
         $boundary_rules = DB::table('boundary_rules')->get();
 
         foreach ($units as $unit) {
+            $unit->uuid = $unit->id; // Fix for undefined property in views
             $net_income = (data_get($unit, 'total_collected', 0)) - (data_get($unit, 'maintenance_cost', 0));
             $unit->roi_achieved = (data_get($unit, 'purchase_cost', 0)) > 0 && $net_income >= (data_get($unit, 'purchase_cost', 0));
+
+            // Driver profile photos
+            $unit->primary_driver_photo_url = !empty($unit->primary_driver_photo)
+                ? (str_starts_with($unit->primary_driver_photo, 'http') ? $unit->primary_driver_photo : asset(ltrim($unit->primary_driver_photo, '/')))
+                : asset('image/avatars/driver.svg');
+            $unit->secondary_driver_photo_url = !empty($unit->secondary_driver_photo)
+                ? (str_starts_with($unit->secondary_driver_photo, 'http') ? $unit->secondary_driver_photo : asset(ltrim($unit->secondary_driver_photo, '/')))
+                : asset('image/avatars/driver.svg');
 
             // Smart Pricing Automation
             $pricing = $this->getCurrentPricing($unit, $boundary_rules);
@@ -171,7 +190,7 @@ class UnitController extends Controller
         // Drivers list for add/edit modal
         $all_drivers = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->where('d.driver_status', '!=', 'banned')
+            ->whereNotIn('d.driver_status', ['banned', 'suspended'])
             ->select(
                 'd.id', 
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 
@@ -216,7 +235,7 @@ class UnitController extends Controller
             'purchase_cost' => 'nullable|numeric|max:1000000',
             'motor_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
             'chassis_no' => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
-            'unit_type' => 'sometimes|required|in:new,old,rented',
+            'unit_type' => 'sometimes|required|in:new,old,rented,boundary_hulog',
             'coding_day' => 'nullable|string',
             'driver_id' => 'nullable|integer',
             'secondary_driver_id' => 'nullable|integer',
@@ -318,7 +337,7 @@ class UnitController extends Controller
             'purchase_cost'        => 'nullable|numeric|max:1000000',
             'motor_no'             => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
             'chassis_no'           => 'required|string|max:25|regex:/^[A-Z0-9]+$/',
-            'unit_type'            => 'sometimes|required|in:new,old,rented',
+            'unit_type'            => 'sometimes|required|in:new,old,rented,boundary_hulog',
             'coding_day'           => 'nullable|string',
             'driver_id'            => 'nullable|integer',
             'secondary_driver_id'  => 'nullable|integer',
@@ -467,8 +486,19 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
-                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
-                ->get()->toArray();
+                ->whereNull('d.deleted_at')
+                ->whereNotIn('d.driver_status', ['banned', 'suspended'])
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
+                ->get()->map(function($d) {
+                    $item = (array) $d;
+                    $photo = $d->profile_photo ?? '';
+                    if (!empty($photo)) {
+                        $item['profile_photo_url'] = str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/'));
+                    } else {
+                        $item['profile_photo_url'] = asset('image/avatars/driver.svg');
+                    }
+                    return $item;
+                })->toArray();
         }
 
         // ROI data from real boundaries
@@ -476,10 +506,10 @@ class UnitController extends Controller
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
             ->selectRaw('
-                SUM(actual_boundary) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN (actual_boundary + COALESCE(damage_payment, 0)) ELSE 0 END) as monthly_boundary,
                 SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN boundary_amount ELSE 0 END) as monthly_expected_boundary,
-                SUM(actual_boundary) as paid_boundary
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')
@@ -654,17 +684,28 @@ class UnitController extends Controller
         if (!empty($driver_ids)) {
             $assigned_drivers = DB::table('drivers as d')
                 ->whereIn('d.id', $driver_ids)
-                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target')
-                ->get()->toArray();
+                ->whereNull('d.deleted_at')
+                ->whereNotIn('d.driver_status', ['banned', 'suspended'])
+                ->select('d.id', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"), 'd.license_number', 'd.contact_number', 'd.license_expiry', 'd.hire_date', 'd.daily_boundary_target', 'd.profile_photo')
+                ->get()->map(function($d) {
+                    $item = (array) $d;
+                    $photo = $d->profile_photo ?? '';
+                    if (!empty($photo)) {
+                        $item['profile_photo_url'] = str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/'));
+                    } else {
+                        $item['profile_photo_url'] = asset('image/avatars/driver.svg');
+                    }
+                    return $item;
+                })->toArray();
         }
 
         $roi = DB::table('boundaries')
             ->where('unit_id', $unit_id)
             ->whereNull('deleted_at')
             ->selectRaw('
-                SUM(actual_boundary) as total_boundary,
-                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN actual_boundary ELSE 0 END) as monthly_boundary,
-                SUM(actual_boundary) as paid_boundary
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_boundary,
+                SUM(CASE WHEN MONTH(date)=MONTH(CURDATE()) AND YEAR(date)=YEAR(CURDATE()) THEN (actual_boundary + COALESCE(damage_payment, 0)) ELSE 0 END) as monthly_boundary,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as paid_boundary
             ')->first();
 
         $maintenance_cost = DB::table('maintenance')
@@ -933,7 +974,7 @@ class UnitController extends Controller
                 return $unit;
             });
 
-        // 2. Auto-detected missing units: has a driver, overdue boundary (>48h)
+        // 2. Auto-detected missing units: has a driver, overdue boundary (>48h), and MUST have at least 1 boundary on record
         $autoMissingUnits = DB::table('units')
             ->whereNull('deleted_at')
             ->whereNotIn('status', ['maintenance', 'retired', 'coding', 'missing'])
@@ -942,6 +983,12 @@ class UnitController extends Controller
             ->where(function($q) {
                 $q->whereNotNull('driver_id')
                   ->orWhereNotNull('secondary_driver_id');
+            })
+            ->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('boundaries')
+                    ->whereColumn('boundaries.unit_id', 'units.id')
+                    ->whereNull('boundaries.deleted_at');
             })
             ->select('id', 'plate_number', 'make', 'model', 'year', 'status', 'driver_id', 'secondary_driver_id', 'shift_deadline_at')
             ->get()
@@ -993,7 +1040,7 @@ class UnitController extends Controller
                 ->keyBy('unit_id');
                 
             $all_drivers = DB::table('drivers')
-                ->select('id', 'first_name', 'last_name', 'contact_number')
+                ->select('id', 'first_name', 'last_name', 'contact_number', 'profile_photo')
                 ->get()
                 ->keyBy('id');
         }
@@ -1027,18 +1074,26 @@ class UnitController extends Controller
                         ? trim($suspect->first_name . ' ' . $suspect->last_name)
                         : 'Unknown';
                     $unit->suspect_contact = $suspect->contact_number ?? null;
+                    $unit->suspect_photo = !empty($suspect?->profile_photo)
+                        ? (str_starts_with($suspect->profile_photo, 'http') ? $suspect->profile_photo : asset(ltrim($suspect->profile_photo, '/')))
+                        : asset('image/avatars/driver.svg');
                     $unit->is_vacant = false;
                 } else {
                     $unit->suspect_driver = 'NO ASSIGNED DRIVER';
                     $unit->suspect_contact = null;
+                    $unit->suspect_photo = asset('image/avatars/driver.svg');
                     $unit->is_vacant = true;
                 }
 
                 if ($lastBoundaryDriverId) {
                     $lastD = $all_drivers->get($lastBoundaryDriverId);
                     $unit->last_known_driver = $lastD ? trim($lastD->first_name . ' ' . $lastD->last_name) : 'Unknown';
+                    $unit->last_known_driver_photo = !empty($lastD?->profile_photo)
+                        ? (str_starts_with($lastD->profile_photo, 'http') ? $lastD->profile_photo : asset(ltrim($lastD->profile_photo, '/')))
+                        : asset('image/avatars/driver.svg');
                 } else {
                     $unit->last_known_driver = 'None';
+                    $unit->last_known_driver_photo = asset('image/avatars/driver.svg');
                 }
             } else {
                 $unit->last_boundary_date = null;
@@ -1113,13 +1168,23 @@ class UnitController extends Controller
                 return $driver;
             });
 
+        $autoBanSettings = [
+            'auto_ban_enabled' => DB::table('system_settings')->where('key', 'auto_ban_enabled')->value('value') ?? '1',
+            'auto_ban_missed_boundary_days' => DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3',
+            'auto_ban_overdue_unit_days' => DB::table('system_settings')->where('key', 'auto_ban_overdue_unit_days')->value('value') ?? (DB::table('system_settings')->where('key', 'auto_ban_missed_boundary_days')->value('value') ?? '3'),
+            'auto_ban_critical_incidents_threshold' => DB::table('system_settings')->where('key', 'auto_ban_critical_incidents_threshold')->value('value') ?? '1',
+            'auto_ban_default_suspension_days' => DB::table('system_settings')->where('key', 'auto_ban_default_suspension_days')->value('value') ?? '7',
+            'auto_ban_action_type' => DB::table('system_settings')->where('key', 'auto_ban_action_type')->value('value') ?? 'banned',
+        ];
+
         return view('units.flagged', compact(
             'allFlagged',
             'flaggedCount',
             'stolenCount',
             'autoCount',
             'availableUnits',
-            'availableDrivers'
+            'availableDrivers',
+            'autoBanSettings'
         ));
     }
 
@@ -1252,8 +1317,17 @@ class UnitController extends Controller
     public function printPdf()
     {
         $units = DB::table('units as u')
-            ->leftJoin('drivers as drv1', 'u.driver_id', '=', 'drv1.id')
-            ->leftJoin('drivers as drv2', 'u.secondary_driver_id', '=', 'drv2.id')
+            ->whereNull('u.deleted_at')
+            ->leftJoin('drivers as drv1', function($join) {
+                $join->on('u.driver_id', '=', 'drv1.id')
+                     ->whereNull('drv1.deleted_at')
+                     ->whereNotIn('drv1.driver_status', ['banned', 'suspended']);
+            })
+            ->leftJoin('drivers as drv2', function($join) {
+                $join->on('u.secondary_driver_id', '=', 'drv2.id')
+                     ->whereNull('drv2.deleted_at')
+                     ->whereNotIn('drv2.driver_status', ['banned', 'suspended']);
+            })
             ->select(
                 'u.*',
                 DB::raw("CONCAT(COALESCE(drv1.first_name,''), ' ', COALESCE(drv1.last_name,'')) as driver1_name"),

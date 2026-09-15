@@ -31,11 +31,30 @@ class AnnouncementController extends Controller
             'title' => 'required|string|max:255',
             'message' => 'nullable|string',
             'is_pinned' => 'boolean',
-            'valid_until' => 'required|date|after_or_equal:today',
+            'start_date' => 'nullable|date',
+            'valid_until' => 'required|date',
         ]);
 
-        // If this is pinned, unpin others (optional, or just allow multiple pinned)
-        // For now, let's allow multiple pinned, but "latest pinned" will show first.
+        $startStr = $request->start_date ?? date('Y-m-d');
+        if ($request->filled('start_time')) {
+            $startStr .= ' ' . $request->start_time;
+        } else {
+            $startStr .= ' 00:00:00';
+        }
+        $startDate = \Carbon\Carbon::parse($startStr);
+
+        $validUntilStr = $request->valid_until;
+        if ($request->filled('valid_until_time')) {
+            $validUntilStr .= ' ' . $request->valid_until_time;
+        } else {
+            $validUntilStr .= ' 23:59:59';
+        }
+        $validUntil = \Carbon\Carbon::parse($validUntilStr);
+
+        // Ensure valid_until is not before start_date
+        if ($validUntil->lt($startDate)) {
+            $validUntil = (clone $startDate)->endOfDay();
+        }
 
         $announcement = Announcement::create([
             'title' => $request->title,
@@ -43,7 +62,8 @@ class AnnouncementController extends Controller
             'is_pinned' => $request->is_pinned ?? false,
             'is_active' => true,
             'created_by' => Auth::id(),
-            'valid_until' => $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null,
+            'start_date' => $startDate,
+            'valid_until' => $validUntil,
         ]);
 
         // Send Push Notification to all drivers
@@ -58,7 +78,7 @@ class AnnouncementController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Announcement created and sent to drivers.');
+        return redirect()->back()->with('success', 'Announcement created and broadcasted to drivers.');
     }
 
     /**
@@ -73,17 +93,33 @@ class AnnouncementController extends Controller
             'message' => 'nullable|string',
             'is_pinned' => 'boolean',
             'is_active' => 'boolean',
-            'valid_until' => 'required|date|after_or_equal:today',
+            'start_date' => 'nullable|date',
+            'valid_until' => 'required|date',
         ]);
 
         $data = $request->all();
-        if ($request->has('valid_until')) {
-            $data['valid_until'] = $request->valid_until ? \Carbon\Carbon::parse($request->valid_until)->endOfDay() : null;
+        
+        if ($request->filled('start_date')) {
+            $startStr = $request->start_date;
+            if ($request->filled('start_time')) {
+                $startStr .= ' ' . $request->start_time;
+            }
+            $data['start_date'] = \Carbon\Carbon::parse($startStr);
+        }
+
+        if ($request->filled('valid_until')) {
+            $validUntilStr = $request->valid_until;
+            if ($request->filled('valid_until_time')) {
+                $validUntilStr .= ' ' . $request->valid_until_time;
+            } else {
+                $validUntilStr .= ' 23:59:59';
+            }
+            $data['valid_until'] = \Carbon\Carbon::parse($validUntilStr);
         }
 
         $announcement->update($data);
 
-        return redirect()->back()->with('success', 'Announcement updated.');
+        return redirect()->back()->with('success', 'Announcement updated successfully.');
     }
 
     /**
@@ -108,4 +144,3 @@ class AnnouncementController extends Controller
         return redirect()->back()->with('success', 'Pin status updated.');
     }
 }
-

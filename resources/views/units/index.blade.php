@@ -207,7 +207,7 @@
                     }
                 </style>
                 {{-- ── View Mode Toggle (Premium Labeled Pill) ─────── --}}
-                <div class="flex items-stretch bg-gray-900/5 p-0.5 rounded-xl border border-gray-200/80 gap-0.5 shadow-inner h-[38px] flex-shrink-0">
+                <div id="unitViewTogglePill" class="flex items-stretch bg-gray-900/5 p-0.5 rounded-xl border border-gray-200/80 gap-0.5 shadow-inner h-[38px] flex-shrink-0">
                     <button type="button" onclick="setViewMode('table')" id="btn-view-table"
                         class="flex items-center justify-center gap-1.5 lg:gap-2 px-3 lg:px-4 rounded-lg text-xs font-black transition-all duration-200 uppercase tracking-wide whitespace-nowrap">
                         <i data-lucide="table-properties" class="w-3.5 h-3.5"></i>
@@ -221,11 +221,11 @@
                     <input type="hidden" name="view" id="viewModeInput" value="table">
                 </div>
 
-                <button type="button" onclick="printInHiddenIframe('{{ route('units.print') }}')"
+                <button id="btn-print-pdf" type="button" onclick="printInHiddenIframe('{{ route('units.print') }}')"
                     class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print to PDF
                 </button>
-                <button type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
+                <button id="btn-add-unit" type="button" onclick="document.getElementById('addUnitModal').classList.remove('hidden')"
                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-1.5 lg:gap-2 text-xs font-semibold shadow-sm h-[38px] flex-1 min-w-0 lg:flex-initial lg:w-[135px]">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Unit
                 </button>
@@ -296,12 +296,63 @@
 
     <!-- Units Container — renders table or grid based on view_mode -->
     <div id="unitsTableContainer" class="bg-white overflow-hidden">
-        @if(($view_mode ?? 'table') === 'grid')
+        <div id="units-grid-view" style="{{ ($view_mode ?? 'table') === 'grid' ? 'display: block !important;' : 'display: none !important;' }}">
             @include('units.partials._units_grid')
-        @else
+        </div>
+        <div id="units-table-view" style="{{ ($view_mode ?? 'table') === 'grid' ? 'display: none !important;' : 'display: block !important;' }}">
             @include('units.partials._units_table')
-        @endif
+        </div>
     </div>
+
+    <!-- Print PDF Tutorial Preview Modal -->
+    <div id="tutorialPrintPdfModal" class="hidden fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border border-gray-200">
+            <div class="bg-blue-600 px-6 py-4 flex items-center justify-between text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/20 rounded-lg">
+                        <i data-lucide="printer" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">Fleet Master Roster PDF Preview</h3>
+                        <p class="text-xs text-blue-100">Live generated PDF report document</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTutorialPdfPreview()" class="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <iframe id="tutorialPdfIframe" class="w-full flex-1 border-0" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openTutorialPdfPreview() {
+            const modal = document.getElementById('tutorialPrintPdfModal');
+            const iframe = document.getElementById('tutorialPdfIframe');
+            if (modal && iframe) {
+                if (typeof window.generateStaticTutorialPdfReport === 'function') {
+                    iframe.srcdoc = window.generateStaticTutorialPdfReport();
+                } else {
+                    iframe.src = "{{ route('units.print') }}?preview=1";
+                }
+                modal.classList.remove('hidden');
+                modal.style.cssText = 'display: flex !important; z-index: 100004 !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; position: fixed; inset: 0;';
+            }
+        }
+        function closeTutorialPdfPreview() {
+            const modal = document.getElementById('tutorialPrintPdfModal');
+            const iframe = document.getElementById('tutorialPdfIframe');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.15s ease';
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.cssText = 'display: none !important; z-index: -1 !important; visibility: hidden !important; opacity: 0 !important;';
+                    if (iframe) iframe.src = "about:blank";
+                }, 150);
+            }
+        }
+    </script>
 
     {{-- Add Unit Modal --}}
     <div id="addUnitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -331,7 +382,7 @@
                 <div class="p-6 flex-1 overflow-y-auto space-y-8">
 
                 {{-- Section 1: Basic Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionBasicInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
                             <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
@@ -355,7 +406,7 @@
                 </div>
 
                 {{-- Section 2: Vehicle Details --}}
-                <div class="mb-8">
+                <div id="addUnitSectionVehicleDetails" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-green-100 rounded-lg">
                             <i data-lucide="truck" class="w-5 h-5 text-green-600"></i>
@@ -397,12 +448,33 @@
                                 placeholder="e.g., NCP1512071757"
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
-
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select name="status" id="addStatus"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="active" selected>Active</option>
+                                <option value="at_risk">At Risk / Missing</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="coding">Coding</option>
+                                <option value="retired">Retired</option>
+                                <option value="vacant">Vacant</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
+                            <select name="unit_type" id="addUnitType" onchange="onUnitTypeChange(this.value, 'add')"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="new" selected>New</option>
+                                <option value="old">Old</option>
+                                <option value="rented">Rented</option>
+                                <option value="boundary_hulog">Boundary Hulog</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Section 3: Financial Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionFinancialInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-purple-100 rounded-lg">
                             <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
@@ -453,7 +525,7 @@
                 </div>
 
                 {{-- Section 4: Driver Assignment --}}
-                <div class="mb-8">
+                <div id="addUnitSectionDriverAssignment" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-blue-100 rounded-lg">
                             <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
@@ -535,7 +607,7 @@
                 </div>
 
                 {{-- Section 5: Coding Information --}}
-                <div class="mb-8">
+                <div id="addUnitSectionCodingInfo" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
                             <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
@@ -601,7 +673,7 @@
                 </div>
 
                 {{-- Section 6: GPS Integration --}}
-                <div class="mb-8">
+                <div id="addUnitSectionGpsIntegration" class="mb-8">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="p-2 bg-indigo-100 rounded-lg">
                             <i data-lucide="satellite" class="w-5 h-5 text-indigo-600"></i>
@@ -647,7 +719,7 @@
                 </div> {{-- End Scrollable Content --}}
 
                 {{-- Fixed Footer --}}
-                <div class="p-4 border-t flex justify-end items-center gap-3 shadow-inner bg-gray-50 shrink-0">
+                <div id="addUnitSectionFooter" class="p-4 border-t flex justify-end items-center gap-3 shadow-inner bg-gray-50 shrink-0">
                     <button type="button" onclick="document.getElementById('addUnitModal').classList.add('hidden'); resetAddUnitModal()"
                         class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-bold transition-all">
                         Cancel
@@ -750,11 +822,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Unit Type</label>
-                            <select name="unit_type" id="editUnitType"
+                            <select name="unit_type" id="editUnitType" onchange="onUnitTypeChange(this.value, 'edit')"
                                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="new">New</option>
                                 <option value="old">Old</option>
                                 <option value="rented">Rented</option>
+                                <option value="boundary_hulog">Boundary Hulog</option>
                             </select>
                         </div>
                     </div>
@@ -1017,30 +1090,56 @@
     function setViewMode(mode, forceFetch = true) {
         currentViewMode = mode;
         localStorage.setItem('unitViewMode', mode);
-        document.getElementById('viewModeInput').value = mode;
+        if (document.getElementById('viewModeInput')) document.getElementById('viewModeInput').value = mode;
         
         // Update UI — premium pill toggle active states
         const btnTable = document.getElementById('btn-view-table');
         const btnGrid  = document.getElementById('btn-view-grid');
         
         if (mode === 'table') {
-            // Table ACTIVE
-            btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.remove('text-gray-400');
-            // Grid INACTIVE
-            btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.add('text-gray-400');
+            if (btnTable) {
+                btnTable.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnTable.classList.remove('text-gray-400');
+            }
+            if (btnGrid) {
+                btnGrid.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnGrid.classList.add('text-gray-400');
+            }
         } else {
-            // Grid ACTIVE
-            btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnGrid.classList.remove('text-gray-400');
-            // Table INACTIVE
-            btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
-            btnTable.classList.add('text-gray-400');
+            if (btnGrid) {
+                btnGrid.classList.add('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnGrid.classList.remove('text-gray-400');
+            }
+            if (btnTable) {
+                btnTable.classList.remove('bg-white', 'text-yellow-600', 'shadow-md', 'shadow-yellow-100/80');
+                btnTable.classList.add('text-gray-400');
+            }
+        }
+
+        const tableView = document.getElementById('units-table-view');
+        const gridView = document.getElementById('units-grid-view');
+        
+        if (tableView && gridView && (mode === 'table' ? tableView.children.length > 0 : gridView.children.length > 0)) {
+            if (mode === 'table') {
+                tableView.style.setProperty('display', 'block', 'important');
+                gridView.style.setProperty('display', 'none', 'important');
+            } else {
+                gridView.style.setProperty('display', 'block', 'important');
+                tableView.style.setProperty('display', 'none', 'important');
+            }
+        } else {
+            if (forceFetch || !!localStorage.getItem('tutorial_current_step')) {
+                performSearch(1);
+            }
+        }
+
+        const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+        if (isTutorialActive) {
+            return; // Skip duplicate server fetch in tutorial mode if DOM elements already populated!
         }
         
         if (forceFetch) {
-            performSearch(1); // Re-fetch with new view mode
+            performSearch(1); // Re-fetch with new view mode for live application
         }
     }
 
@@ -1104,13 +1203,15 @@
 
     // ── performSearch ───────────────────────────────────────────────
     function performSearch(page = 1) {
-        const query = searchInput.value;
-        const status = statusFilter.value;
-        const sort = sortFilter.value;
+        const query = searchInput ? searchInput.value : '';
+        const status = statusFilter ? statusFilter.value : '';
+        const sort = sortFilter ? sortFilter.value : '';
 
         // Visual feedback
-        tableContainer.style.opacity = '0.5';
-        tableContainer.style.pointerEvents = 'none';
+        if (tableContainer) {
+            tableContainer.style.opacity = '0.5';
+            tableContainer.style.pointerEvents = 'none';
+        }
 
         const finalUrl = `{{ route('units.index') }}?search=${encodeURIComponent(query)}&status=${status}&sort=${sort}&page=${page}&view=${currentViewMode}`;
         
@@ -1126,7 +1227,31 @@
         })
         .then(response => response.text())
         .then(html => {
-            tableContainer.innerHTML = html;
+            if (!tableContainer) return;
+            let tv = document.getElementById('units-table-view');
+            let gv = document.getElementById('units-grid-view');
+
+            if (!tv || !gv) {
+                tableContainer.innerHTML = `
+                    <div id="units-grid-view" style="${currentViewMode === 'grid' ? 'display: block !important;' : 'display: none !important;'}"></div>
+                    <div id="units-table-view" style="${currentViewMode === 'table' ? 'display: block !important;' : 'display: none !important;'}"></div>
+                `;
+                tv = document.getElementById('units-table-view');
+                gv = document.getElementById('units-grid-view');
+            }
+
+            if (html.includes('id="units-grid-view"') && html.includes('id="units-table-view"')) {
+                tableContainer.innerHTML = html;
+            } else if (currentViewMode === 'table') {
+                tv.innerHTML = html;
+                tv.style.setProperty('display', 'block', 'important');
+                gv.style.setProperty('display', 'none', 'important');
+            } else {
+                gv.innerHTML = html;
+                gv.style.setProperty('display', 'block', 'important');
+                tv.style.setProperty('display', 'none', 'important');
+            }
+
             tableContainer.style.opacity = '1';
             tableContainer.style.pointerEvents = 'auto';
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1161,33 +1286,78 @@
     refreshQuickStats();
 
 
+    window.closeAllUnitDropdowns = function() {
+        document.querySelectorAll('.unit-action-dropdown').forEach(el => el.classList.add('hidden'));
+    };
+
     window.toggleUnitDropdown = function(id, event) {
-        event.stopPropagation();
-        document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-            if (el.id !== id) el.classList.add('hidden');
-            const row = el.closest('tr');
-            if (row) { row.style.zIndex = ''; row.style.position = ''; }
-        });
+        if (event) {
+            event.stopPropagation();
+        }
+        
         const dropdown = document.getElementById(id);
-        if (dropdown) {
-            const isHidden = dropdown.classList.contains('hidden');
-            const row = dropdown.closest('tr');
-            if (isHidden) {
-                dropdown.classList.remove('hidden');
-                if (row) { row.style.position = 'relative'; row.style.zIndex = '50'; }
-            } else {
-                dropdown.classList.add('hidden');
-                if (row) { row.style.zIndex = ''; row.style.position = ''; }
+        if (!dropdown) return;
+        
+        const isHidden = dropdown.classList.contains('hidden');
+        
+        // Close all dropdowns first
+        window.closeAllUnitDropdowns();
+        
+        if (isHidden) {
+            const btn = (event && event.currentTarget) ? event.currentTarget : null;
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const dropW = 192; // 12rem = 192px (w-48)
+                const dropH = dropdown.offsetHeight || 140;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                
+                // Position calculation (Fixed screen coordinates)
+                let top = rect.bottom + 6;
+                let left = rect.right - dropW;
+                
+                // Flip upwards if not enough space below
+                if (spaceBelow < (dropH + 20) && rect.top > (dropH + 20)) {
+                    top = rect.top - dropH - 6;
+                }
+                
+                // Keep within viewport boundaries
+                if (left < 8) left = 8;
+                if (left + dropW > window.innerWidth - 8) left = window.innerWidth - dropW - 8;
+                
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = top + 'px';
+                dropdown.style.left = left + 'px';
+                dropdown.style.zIndex = '999999';
+            }
+            
+            dropdown.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // If tutorial is currently at Step 38 (3-dots button), move to Step 39 automatically
+            const currentStepStr = localStorage.getItem('tutorial_current_step');
+            if (currentStepStr === '37' || currentStepStr === '38') {
+                setTimeout(() => {
+                    if (window.TutorialManager) {
+                        window.TutorialManager.moveToNextStep(parseInt(currentStepStr));
+                    }
+                }, 150);
             }
         }
     };
+
     if (!window.unitDropdownListenerAdded) {
-        document.addEventListener('click', function () {
-            document.querySelectorAll('.unit-action-dropdown').forEach(el => {
-                el.classList.add('hidden');
-                const row = el.closest('tr');
-                if (row) { row.style.zIndex = ''; row.style.position = ''; }
-            });
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.closest && e.target.closest('.unit-action-dropdown')) return;
+            window.closeAllUnitDropdowns();
+        });
+        document.addEventListener('scroll', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('unit-action-dropdown')) return;
+            window.closeAllUnitDropdowns();
+        }, true);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.closeAllUnitDropdowns();
+            }
         });
         window.unitDropdownListenerAdded = true;
     }
@@ -1213,6 +1383,37 @@
 
         function editUnit(id) {
             window.currentEditingUnitId = id;
+            const isTutorialActive = !!localStorage.getItem('tutorial_current_step') || window.location.search.includes('tutorial=1');
+            if (isTutorialActive && typeof window.TutorialStaticData !== 'undefined' && window.TutorialStaticData.units) {
+                const mockUnit = window.TutorialStaticData.units[0];
+                if (document.getElementById('editPlateNumber')) document.getElementById('editPlateNumber').value = mockUnit.plate_number || '';
+                if (document.getElementById('editMake')) document.getElementById('editMake').value = mockUnit.make || '';
+                if (document.getElementById('editModel')) document.getElementById('editModel').value = mockUnit.model || '';
+                if (document.getElementById('editYear')) document.getElementById('editYear').value = mockUnit.year || '';
+                if (document.getElementById('editMotorNo')) document.getElementById('editMotorNo').value = mockUnit.engine_number || '';
+                if (document.getElementById('editChassisNo')) document.getElementById('editChassisNo').value = mockUnit.chassis_number || '';
+                if (document.getElementById('editStatus')) document.getElementById('editStatus').value = (mockUnit.status || 'ACTIVE').toLowerCase();
+                if (document.getElementById('editUnitType')) document.getElementById('editUnitType').value = mockUnit.unit_type || 'new';
+                if (document.getElementById('editImei')) document.getElementById('editImei').value = mockUnit.gps ? mockUnit.gps.imei : '';
+                const brInput = document.getElementById('editBoundaryRate');
+                if (brInput) {
+                    brInput.value = mockUnit.boundary_rate ? mockUnit.boundary_rate.toFixed(2) : '1100.00';
+                    formatCurrencyInput(brInput);
+                }
+                const pcInput = document.getElementById('editPurchaseCost');
+                if (pcInput) {
+                    pcInput.value = mockUnit.purchase_cost ? mockUnit.purchase_cost.toFixed(2) : '650000.00';
+                    formatCurrencyInput(pcInput);
+                }
+                if (document.getElementById('editPurchaseDate')) document.getElementById('editPurchaseDate').value = mockUnit.purchase_date || '2014-03-15';
+                document.getElementById('edit_driver1_search').value = mockUnit.day_driver ? mockUnit.day_driver.name : '';
+                document.getElementById('edit_driver2_search').value = mockUnit.night_driver ? mockUnit.night_driver.name : '';
+                document.getElementById('editCodingDay').value = mockUnit.coding_day || 'Monday';
+                document.getElementById('editUnitForm').action = 'javascript:void(0);';
+                document.getElementById('editUnitModal').classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
             fetch('{{ route("units.details") }}?id=' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
@@ -1309,6 +1510,18 @@
         function closeEditUnitModal() {
             document.getElementById('editUnitModal').classList.add('hidden');
             document.getElementById('editCodingStatusDisplay').innerHTML = '';
+        }
+
+        function onUnitTypeChange(type, mode) {
+            const isEdit = mode === 'edit';
+            const rateInput = document.getElementById(isEdit ? 'editBoundaryRate' : 'addBoundaryRate');
+            if (!rateInput) return;
+            
+            if (type === 'boundary_hulog') {
+                rateInput.value = '1,000.00';
+            } else if (rateInput.value === '1,000.00' || rateInput.value === '1000' || !rateInput.value) {
+                rateInput.value = '1,100.00';
+            }
         }
 
         // Edit Unit - Searchable Driver Dropdowns

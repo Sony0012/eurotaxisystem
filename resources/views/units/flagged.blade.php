@@ -35,44 +35,106 @@
         70%  { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
         100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
     }
+    #autoBanSettingsModal .modal-box {
+        transform: scale(0.95) translateY(10px);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #autoBanSettingsModal.open .modal-box {
+        transform: scale(1) translateY(0);
+    }
 </style>
 
 <div class="space-y-8">
 
     {{-- ── Hero Header Panel ──────────────────────────────── --}}
-    <div class="relative bg-slate-900 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl border border-orange-500/10">
-        <div class="absolute -right-24 -top-24 w-96 h-96 bg-orange-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute -left-24 -bottom-24 w-72 h-72 bg-red-500/8 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 rounded-[2.25rem] p-6 sm:p-8 overflow-hidden shadow-2xl border border-slate-800">
+        <!-- SVG Decorative Mesh / Glow -->
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-red-600/15 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <svg class="absolute right-0 bottom-0 w-96 h-96 opacity-5 pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0Z" stroke="white" stroke-width="2" stroke-dasharray="8 8"/>
+            <path d="M100 30C61.3401 30 30 61.3401 30 100C30 138.66 61.3401 170 100 170C138.66 170 170 138.66 170 100C170 61.3401 138.66 30 100 30Z" stroke="white" stroke-width="1.5"/>
+            <path d="M100 60C77.9086 60 60 77.9086 60 100C60 122.091 77.9086 140 100 140C122.091 140 140 122.091 140 100C140 77.9086 122.091 60 100 60Z" stroke="white" stroke-width="1"/>
+        </svg>
 
-        <div class="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl flex items-center justify-center shadow-xl shadow-orange-500/25 pulse-ring shrink-0">
-                    <i data-lucide="flag" class="w-8 h-8 text-white"></i>
+        <div class="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 via-rose-500 to-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/25 pulse-ring shrink-0 border border-white/20">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                        <line x1="4" y1="22" x2="4" y2="15"/>
+                    </svg>
                 </div>
                 <div>
-                    <h3 class="text-2xl font-black text-white tracking-tight">Flagged Units Registry</h3>
-                    <p class="text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
-                        Units manually marked as missing/stolen, or automatically flagged by the system due to overdue boundaries exceeding 48 hours.
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Flagged Units Registry</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> Live Radar
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 font-medium max-w-xl leading-relaxed">
+                        Central registry for units manually reported as missing/stolen or automatically flagged by the system due to boundary delays exceeding 48 hours.
                     </p>
                 </div>
             </div>
 
-            {{-- Stats row --}}
-            <div class="flex flex-wrap gap-3 shrink-0">
-                <div class="flex flex-col text-center bg-red-500/10 px-5 py-3 rounded-2xl border border-red-500/15">
-                    <span class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-0.5">Total Flagged</span>
-                    <span class="text-3xl font-black text-red-400 tracking-tight" id="total-flagged-count">{{ $flaggedCount }}</span>
+            {{-- Stats row with modern glassmorphism & SVG icons --}}
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 shrink-0 w-full lg:w-auto">
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-red-500/10 hover:bg-red-500/15 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-red-500/25 backdrop-blur-md shadow-lg shadow-red-500/5 min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-red-300 uppercase tracking-widest block">Total Flagged</span>
+                        <span class="text-2xl sm:text-3xl font-black text-red-400 tracking-tight" id="total-flagged-count">{{ $flaggedCount }}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center bg-slate-800/60 px-5 py-3 rounded-2xl border border-slate-700/40">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Missing</span>
-                    <span class="text-3xl font-black text-white tracking-tight">{{ $stolenCount }}</span>
+
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-slate-800/60 hover:bg-slate-800/80 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-slate-700/50 backdrop-blur-md min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-700/50 flex items-center justify-center text-slate-300 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest block">Missing</span>
+                        <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ $stolenCount }}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col text-center bg-slate-800/60 px-5 py-3 rounded-2xl border border-slate-700/40">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Auto-Detected</span>
-                    <span class="text-3xl font-black text-white tracking-tight">{{ $autoCount }}</span>
+
+                <div class="flex-1 sm:flex-initial flex items-center gap-3 bg-slate-800/60 hover:bg-slate-800/80 transition-all px-4 sm:px-5 py-3 rounded-2xl border border-slate-700/50 backdrop-blur-md min-w-[130px]">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-700/50 flex items-center justify-center text-amber-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest block">Auto-Detected</span>
+                        <span class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ $autoCount }}</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    {{-- ── Auto-Ban Policy Awareness Banner ── --}}
+    <div class="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border border-amber-500/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 border border-amber-500/30">
+                <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-black text-slate-800 uppercase tracking-wide">Automated Lockout Policy</span>
+                    <span id="policyStatusBadge" class="px-2 py-0.5 {{ ($autoBanSettings['auto_ban_enabled'] ?? '1') == '1' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200' }} border rounded-md text-[10px] font-black uppercase tracking-wider">
+                        {{ ($autoBanSettings['auto_ban_enabled'] ?? '1') == '1' ? 'ACTIVE & ENFORCING' : 'DISABLED' }}
+                    </span>
+                </div>
+                <p id="policyBannerSummary" class="text-xs text-slate-500 font-medium mt-1">
+                    Drivers holding an unreturned vehicle for <strong class="text-slate-900 font-bold" id="bannerOverdueDays">{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? ($autoBanSettings['auto_ban_missed_boundary_days'] ?? 3) }}</strong> overdue days (daily missed boundary charges) are automatically <span class="uppercase font-black {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'banned' ? 'text-red-600' : 'text-amber-600' }}" id="bannerActionType">{{ $autoBanSettings['auto_ban_action_type'] ?? 'BANNED' }}</span> on shift deadline.
+                </p>
+            </div>
+        </div>
+        <button type="button" onclick="openAutoBanSettingsModal()"
+            class="inline-flex items-center gap-1.5 text-xs font-black text-amber-700 hover:text-amber-800 bg-amber-100/80 hover:bg-amber-100 border border-amber-300/60 px-4 py-2.5 rounded-xl transition-all self-start sm:self-center shrink-0 cursor-pointer active:scale-95 shadow-2xs">
+            <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Configure Policy Days
+        </button>
     </div>
 
     {{-- ── Controls Bar ─────────────────────────────────── --}}
@@ -109,7 +171,11 @@
         </div>
 
         {{-- Back button & Add Flag --}}
-        <div class="shrink-0 w-full lg:w-auto flex flex-col sm:flex-row justify-end gap-3">
+        <div class="shrink-0 w-full lg:w-auto flex flex-wrap sm:flex-nowrap justify-end gap-3">
+            <button type="button" onclick="openAutoBanSettingsModal()"
+                    class="flex items-center justify-center gap-2 px-4 py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-black rounded-xl transition-all border border-amber-200 hover:border-amber-300 w-full sm:w-auto">
+                <i data-lucide="sliders" class="w-4 h-4"></i> Auto-Ban Settings
+            </button>
             <button type="button" onclick="openManualFlagModal()"
                     class="flex items-center justify-center gap-2 px-5 py-3 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-black rounded-xl transition-all border border-red-200 hover:border-red-300 w-full sm:w-auto">
                 <i data-lucide="flag" class="w-4 h-4"></i> Flag Unit Manually
@@ -129,140 +195,130 @@
             $isMissing      = $unit->flag_source === 'manual_stolen';
             $isAuto         = $unit->flag_source === 'auto_boundary';
 
-            $badgeText  = $isMissing ? 'Missing' : 'Auto-Flagged';
+            $badgeText  = $isMissing ? 'Missing / Stolen' : 'Auto-Flagged';
             $badgeCss   = $isMissing
-                ? 'bg-red-100 text-red-700 border-red-200'
-                : 'bg-orange-100 text-orange-700 border-orange-200';
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200';
             $gradientCss = $isMissing
                 ? 'from-red-500 to-rose-600 shadow-red-500/20'
                 : 'from-orange-500 to-amber-600 shadow-orange-500/20';
             $pulseClass = $isMissing ? 'pulse-ring' : 'pulse-ring-amber';
+
+            $dPhoto = $unit->suspect_photo ?? asset('image/avatars/driver.svg');
+            $dName = $unit->suspect_driver ?? 'Unknown Driver';
+            $dContact = $unit->suspect_contact ?? '—';
         @endphp
 
-        <div class="flag-card bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+        <div class="flag-card bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all duration-300 overflow-hidden flex flex-col justify-between"
              id="flagcard-{{ $unit->uuid }}"
              data-flag-source="{{ $unit->flag_source }}"
              data-search-terms="{{ strtolower($unit->plate_number . ' ' . $unit->make . ' ' . $unit->model . ' ' . ($unit->suspect_driver ?? '') . ' ' . ($unit->last_known_driver ?? '')) }}">
 
-            {{-- Card Header --}}
-            <div class="p-6 bg-slate-50/60 border-b border-gray-50 flex items-start gap-4">
-                <div class="w-14 h-14 bg-gradient-to-br {{ $gradientCss }} rounded-2xl flex items-center justify-center text-white text-lg font-black shrink-0 shadow-lg {{ $pulseClass }}">
-                    <i data-lucide="{{ $isMissing ? 'alert-triangle' : 'clock' }}" class="w-6 h-6"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-base font-black text-slate-900 tracking-tight">{{ $unit->plate_number }}</h4>
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border {{ $badgeCss }}">{{ $badgeText }}</span>
+            {{-- 1. Card Header --}}
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-50 via-slate-50/70 to-orange-50/30 border-b border-slate-100 flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 bg-gradient-to-br {{ $gradientCss }} rounded-2xl flex items-center justify-center text-white text-base font-black shrink-0 shadow-md {{ $pulseClass }}">
+                        <i data-lucide="{{ $isMissing ? 'alert-triangle' : 'clock' }}" class="w-6 h-6"></i>
                     </div>
-                    <p class="text-xs text-slate-500 font-bold mt-0.5">{{ $unit->make }} {{ $unit->model }} @if(!empty($unit->year))({{ $unit->year }})@endif</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Unit ID: UNT-{{ str_pad($unit->uuid, 4, '0', STR_PAD_LEFT) }}</p>
-                </div>
-            </div>
-
-            {{-- Card Body --}}
-            <div class="p-6 flex-1 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Status</span>
-                        <span class="text-xs font-black text-red-600 capitalize">
-                            @if(($unit->flag_source ?? '') === 'auto_boundary')
-                                Missing (Auto-Flagged)
-                            @elseif(($unit->flag_source ?? '') === 'manual_stolen')
-                                Missing (Manual Flag)
-                            @else
-                                {{ str_replace('_', ' ', $unit->status) }}
-                            @endif
-                        </span>
-                    </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
-                        <span class="text-xs font-black {{ ($unit->days_inactive ?? 0) > 7 ? 'text-red-600' : 'text-amber-600' }}">
-                            {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
-                        </span>
-                    </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Suspect Driver</span>
-                        <span class="text-xs font-bold text-slate-700 truncate block">{{ $unit->suspect_driver ?? 'Unknown' }}</span>
-                    </div>
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Contact</span>
-                        <span class="text-xs font-bold text-slate-600">{{ $unit->suspect_contact ?? '—' }}</span>
-                    </div>
-                </div>
-
-                @if(!empty($unit->missing_since))
-                <div class="pt-3 border-t border-gray-50 space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Missing Since</span>
-                    <span class="text-xs font-bold text-slate-700">{{ $unit->missing_since }}</span>
-                </div>
-                @endif
-
-                @if(!empty($unit->description))
-                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100/85 space-y-1">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Description / Details</span>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed">{{ $unit->description }}</p>
-                </div>
-                @endif
-
-                @if(!empty($unit->last_boundary_date))
-                <div class="pt-3 border-t border-gray-50 space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary Submitted</span>
-                    <span class="text-xs font-bold text-slate-600">{{ $unit->last_boundary_date }}</span>
-                </div>
-                @endif
-
-                @if(!empty($unit->last_known_driver) && $unit->last_known_driver !== 'No boundary record')
-                <div class="space-y-0.5">
-                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
-                    <span class="text-xs font-bold text-slate-700">{{ $unit->last_known_driver }}</span>
-                </div>
-                @endif
-
-                @if(!empty($unit->stolen_driver_license_no))
-                <div class="pt-3 border-t border-gray-50 flex items-center gap-2 p-2 bg-red-50 rounded-xl border border-red-100">
-                    <i data-lucide="credit-card" class="w-4 h-4 text-red-500 shrink-0"></i>
                     <div>
-                        <span class="text-[9px] font-black text-red-500 uppercase tracking-widest block">Suspect License No.</span>
-                        <span class="text-xs font-black text-red-800 font-mono tracking-wider">{{ $unit->stolen_driver_license_no }}</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h4 class="text-lg font-black text-slate-900 tracking-tight">{{ $unit->plate_number }}</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border {{ $badgeCss }}">{{ $badgeText }}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-bold mt-0.5">{{ $unit->make }} {{ $unit->model }} @if(!empty($unit->year))({{ $unit->year }})@endif</p>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Unit ID: UNT-{{ str_pad($unit->uuid, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
                 </div>
-                @endif
 
-                {{-- Flag Source Info --}}
-                <div class="pt-3 border-t border-gray-50 flex items-start gap-2 text-[10px] font-semibold text-slate-400 italic">
-                    <i data-lucide="{{ $isAuto ? 'cpu' : 'user-check' }}" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
-                    <span>
-                        @if($isMissing) Manually reported as missing or stolen
-                        @else Auto-detected: no boundary submitted for 48+ hours
-                        @endif
+                <div class="text-right shrink-0">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Days Inactive</span>
+                    <span class="inline-flex items-center gap-1 font-black text-xs px-2.5 py-1 rounded-full {{ ($unit->days_inactive ?? 0) > 7 ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-700 border border-amber-200' }} mt-0.5">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        {{ $unit->days_inactive !== null ? $unit->days_inactive . ' day(s)' : 'N/A' }}
                     </span>
                 </div>
             </div>
 
-            {{-- Card Footer Actions --}}
-            <div class="p-5 border-t border-gray-50 bg-slate-50 flex justify-between items-center gap-2 relative z-10 pointer-events-auto">
+            {{-- 2. Card Body --}}
+            <div class="p-5 sm:p-6 flex-1 space-y-4">
+                
+                {{-- 👤 Suspect / Assigned Driver Profile Card with Picture --}}
+                <div class="p-3.5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors rounded-2xl border border-slate-200/60 flex items-center gap-3.5 group">
+                    <div class="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-amber-400 bg-slate-200 flex-shrink-0 cursor-pointer shadow-xs"
+                         onclick="event.stopPropagation(); if(typeof openImageModal==='function'){ openImageModal('{{ $dPhoto }}'); }"
+                         title="Click to view driver photo">
+                        <img src="{{ $dPhoto }}" alt="{{ $dName }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" onerror="this.onerror=null; this.src='{{ asset('image/avatars/driver.svg') }}';">
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
+                                {{ $isMissing ? 'Suspect Driver' : 'Assigned Driver' }}
+                            </span>
+                            @if(!empty($unit->missing_since))
+                                <span class="text-[10px] font-bold text-slate-400">Since {{ $unit->missing_since }}</span>
+                            @endif
+                        </div>
+                        <h5 class="text-sm font-extrabold text-slate-900 truncate mt-1 group-hover:text-blue-600 transition-colors">{{ $dName }}</h5>
+                        <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                            <i data-lucide="phone" class="w-3 h-3 text-slate-400 shrink-0"></i>
+                            <span class="truncate">{{ $dContact }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Description / Delay Reason Box --}}
+                @if(!empty($unit->description))
+                <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/50 flex items-start gap-2.5">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                    <p class="text-xs text-amber-950 font-medium leading-relaxed">{{ $unit->description }}</p>
+                </div>
+                @endif
+
+                {{-- Last Boundary & Last Known Driver --}}
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Boundary</span>
+                        <span class="font-bold text-slate-700 block text-[11px]">{{ $unit->last_boundary_date ?? 'No record' }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Known Driver</span>
+                        <span class="font-bold text-slate-700 block text-[11px] truncate">{{ $unit->last_known_driver ?? 'None' }}</span>
+                    </div>
+                </div>
+
+                @if(!empty($unit->stolen_driver_license_no))
+                <div class="flex items-center gap-2 p-2 bg-red-50 rounded-xl border border-red-100 text-xs">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5 text-red-500 shrink-0"></i>
+                    <span class="text-[9px] font-black text-red-500 uppercase tracking-wider">License:</span>
+                    <span class="font-bold text-red-800 font-mono">{{ $unit->stolen_driver_license_no }}</span>
+                </div>
+                @endif
+            </div>
+
+            {{-- 3. Card Footer Actions --}}
+            <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between gap-2">
                 <button type="button" onclick="viewUnitDetails({{ $unit->uuid }})"
-                   class="flex items-center gap-1.5 px-3 py-2 text-[10px] font-black text-slate-600 bg-white border border-gray-200 rounded-xl hover:bg-slate-100 transition-all cursor-pointer">
-                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+                   class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all shadow-xs cursor-pointer">
+                    <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500"></i> View Details
                 </button>
                 
                 @if($isMissing)
                 <button type="button"
                         onclick="recoverUnit({{ $unit->uuid }}, '{{ $unit->plate_number }}')"
-                        class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-md cursor-pointer">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Mark Recovered
+                        class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-md shadow-emerald-500/20 cursor-pointer">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Mark Recovered
                 </button>
                 @else
                 <div class="flex items-center gap-2">
                     <button type="button"
                             onclick="ignoreFlag({{ $unit->uuid }}, '{{ $unit->plate_number }}')"
-                            class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-black rounded-xl transition-all active:scale-95 cursor-pointer"
+                            class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition-all cursor-pointer"
                             title="Postpone this alert for 24 hours">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Ignore
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i> Ignore
                     </button>
                     <button type="button"
                             onclick="openManualFlagModal({{ $unit->uuid }})"
-                            class="relative z-50 pointer-events-auto flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-md shadow-red-500/20 cursor-pointer">
+                            class="flex items-center gap-1.5 px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-md shadow-red-500/20 cursor-pointer">
                         <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Mark Missing
                     </button>
                 </div>
@@ -300,7 +356,7 @@
 <div id="manualFlagModal" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="manualFlagBackdrop" onclick="closeManualFlagModal()"></div>
     <div class="flex items-center justify-center min-h-screen p-4 pointer-events-none">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl transform scale-95 opacity-0 transition-all pointer-events-auto border border-slate-100" id="manualFlagPanel">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl transform scale-95 opacity-0 transition-all pointer-events-auto border border-slate-100 mx-auto" id="manualFlagPanel">
             <form action="{{ route('units.flag-manually') }}" method="POST" class="flex flex-col h-full max-h-[90vh]">
                 @csrf
                 {{-- Modal Header --}}
@@ -451,6 +507,154 @@
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+{{-- ════════════════════════════════════════════════════════
+     AUTO-BAN & LOCKOUT POLICY SETTINGS MODAL
+════════════════════════════════════════════════════════ --}}
+<div id="autoBanSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[9999] flex items-center justify-center p-4">
+    <div class="modal-box relative bg-white rounded-[2rem] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col">
+        
+        {{-- Modal Header --}}
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/40 p-6 shrink-0 border-b border-slate-700/50">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-500/20 border border-amber-500/30 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="sliders" class="w-6 h-6 text-amber-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-white uppercase tracking-wide">Auto-Ban & Lockout Policy</h3>
+                        <p class="text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">Driver Missed Boundary & Overdue Rules</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAutoBanSettingsModal()" class="text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 p-2 rounded-full transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- Form --}}
+        <form id="autoBanSettingsForm" onsubmit="submitAutoBanSettings(event)" class="p-7 space-y-6 overflow-y-auto max-h-[80vh]">
+            
+            {{-- 1. Automation Status Toggle --}}
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+                <div>
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide">Enable Automated Lockout System</h4>
+                    <p class="text-[11px] text-slate-500 font-medium mt-0.5">Automatically trigger suspension/ban when a driver hits the threshold.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" id="setting_auto_ban_enabled" class="sr-only peer" {{ ($autoBanSettings['auto_ban_enabled'] ?? '1') == '1' ? 'checked' : '' }} onchange="updatePolicySimulator()">
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                </label>
+            </div>
+
+            {{-- 2. Missed Boundary / Overdue Unit Days Threshold --}}
+            <div class="space-y-2">
+                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                    Overdue Days Threshold (Unreturned Unit) <span class="text-red-500">*</span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="adjustSettingDays('setting_overdue_days', -1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
+                        -
+                    </button>
+                    <div class="relative flex-1">
+                        <input type="number" id="setting_overdue_days" min="1" max="30"
+                            value="{{ $autoBanSettings['auto_ban_overdue_unit_days'] ?? ($autoBanSettings['auto_ban_missed_boundary_days'] ?? 3) }}"
+                            oninput="updatePolicySimulator()"
+                            class="w-full text-center font-black text-base py-3 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none bg-slate-50/50">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">Days</span>
+                    </div>
+                    <button type="button" onclick="adjustSettingDays('setting_overdue_days', 1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
+                        +
+                    </button>
+                </div>
+                <p class="text-[10px] text-slate-400 font-medium">Number of overdue days a driver holds the taxi past their shift deadline (daily missed boundary charges are auto-billed) before automatic lockout is executed.</p>
+            </div>
+
+            {{-- 3. Lockout Action Type --}}
+            <div class="space-y-2.5">
+                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                    Action to Execute on Threshold <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="relative flex items-center p-3.5 border-2 {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'banned' ? 'border-red-500 bg-red-50/50' : 'border-slate-200 hover:bg-slate-50' }} rounded-2xl cursor-pointer transition-all" id="label_action_banned">
+                        <input type="radio" name="setting_action_type" value="banned" class="sr-only" {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'banned' ? 'checked' : '' }} onchange="onActionTypeChange('banned')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                                <i data-lucide="shield-ban" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-black text-slate-900">Permanent Ban</div>
+                                <div class="text-[10px] text-slate-400 font-medium">Deactivate & blacklist</div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="relative flex items-center p-3.5 border-2 {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'suspended' ? 'border-amber-500 bg-amber-50/50' : 'border-slate-200 hover:bg-slate-50' }} rounded-2xl cursor-pointer transition-all" id="label_action_suspended">
+                        <input type="radio" name="setting_action_type" value="suspended" class="sr-only" {{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'suspended' ? 'checked' : '' }} onchange="onActionTypeChange('suspended')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-black text-slate-900">Temporary Suspend</div>
+                                <div class="text-[10px] text-slate-400 font-medium">Set duration lockout</div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            {{-- 4. Temporary Suspension Duration (conditional) --}}
+            <div id="suspensionDurationContainer" class="{{ ($autoBanSettings['auto_ban_action_type'] ?? 'banned') === 'suspended' ? '' : 'hidden' }} space-y-2">
+                <label class="block text-[11px] font-black text-slate-700 uppercase tracking-widest">
+                    Default Suspension Duration <span class="text-red-500">*</span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="adjustSettingDays('setting_suspension_days', -1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
+                        -
+                    </button>
+                    <div class="relative flex-1">
+                        <input type="number" id="setting_suspension_days" min="1" max="90"
+                            value="{{ $autoBanSettings['auto_ban_default_suspension_days'] ?? 7 }}"
+                            oninput="updatePolicySimulator()"
+                            class="w-full text-center font-black text-base py-3 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none bg-slate-50/50">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">Days</span>
+                    </div>
+                    <button type="button" onclick="adjustSettingDays('setting_suspension_days', 1)" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black rounded-xl text-lg flex items-center justify-center transition-all cursor-pointer select-none">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            {{-- 5. Live Interactive Rule Simulator & Awareness Forecaster --}}
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-xl border border-slate-700/60 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="activity" class="w-4 h-4 text-amber-400 animate-pulse"></i>
+                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-widest">Policy Forecast & Awareness</span>
+                    </div>
+                    <span id="simulatorStatusBadge" class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-md text-[9px] font-black uppercase tracking-wider">Active</span>
+                </div>
+                <div id="simulatorExplanationText" class="text-xs text-slate-300 font-medium leading-relaxed bg-black/20 p-3.5 rounded-xl border border-white/5 space-y-1.5">
+                    <!-- Injected dynamically by updatePolicySimulator() -->
+                </div>
+            </div>
+
+            {{-- Modal Actions --}}
+            <div class="flex justify-end items-center gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeAutoBanSettingsModal()"
+                    class="px-5 py-3 text-slate-600 hover:text-slate-800 hover:bg-slate-100 font-bold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" id="saveAutoBanSettingsBtn"
+                    class="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Save Policy Settings</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -667,15 +871,21 @@
         const backdrop = document.getElementById('manualFlagBackdrop');
         const panel = document.getElementById('manualFlagPanel');
         
-        backdrop.classList.remove('opacity-100');
-        backdrop.classList.add('opacity-0');
-        
-        panel.classList.remove('scale-100', 'opacity-100');
-        panel.classList.add('scale-95', 'opacity-0');
-        
-        setTimeout(() => {
+        if (backdrop) {
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            backdrop.style.setProperty('display', 'none', 'important');
+        }
+        if (panel) {
+            panel.classList.remove('scale-100', 'opacity-100');
+            panel.classList.add('scale-95', 'opacity-0');
+            panel.style.setProperty('display', 'none', 'important');
+        }
+        if (modal) {
             modal.classList.add('hidden');
-        }, 300);
+            modal.style.setProperty('display', 'none', 'important');
+            modal.style.setProperty('z-index', '-1', 'important');
+        }
     }
 
     function filterCards() {
@@ -849,6 +1059,186 @@
             alert('Network error. Please try again.');
         });
     }
+
+    /* ════════════════════════════════════════════════════════
+       AUTO-BAN & LOCKOUT POLICY SETTINGS LOGIC
+    ════════════════════════════════════════════════════════ */
+    function openAutoBanSettingsModal() {
+        const modal = document.getElementById('autoBanSettingsModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.add('open'), 10);
+        updatePolicySimulator();
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeAutoBanSettingsModal() {
+        const modal = document.getElementById('autoBanSettingsModal');
+        if (!modal) return;
+        modal.classList.remove('open');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function adjustSettingDays(inputId, amount) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        let val = parseInt(input.value, 10) || 1;
+        val += amount;
+        const min = parseInt(input.min, 10) || 1;
+        const max = parseInt(input.max, 10) || 30;
+        if (val < min) val = min;
+        if (val > max) val = max;
+        input.value = val;
+        updatePolicySimulator();
+    }
+
+    function onActionTypeChange(action) {
+        const durContainer = document.getElementById('suspensionDurationContainer');
+        const labelBanned = document.getElementById('label_action_banned');
+        const labelSuspended = document.getElementById('label_action_suspended');
+
+        if (action === 'suspended') {
+            if (durContainer) durContainer.classList.remove('hidden');
+            if (labelSuspended) labelSuspended.className = 'relative flex items-center p-3.5 border-2 border-amber-500 bg-amber-50/50 rounded-2xl cursor-pointer transition-all';
+            if (labelBanned) labelBanned.className = 'relative flex items-center p-3.5 border-2 border-slate-200 hover:bg-slate-50 rounded-2xl cursor-pointer transition-all';
+        } else {
+            if (durContainer) durContainer.classList.add('hidden');
+            if (labelBanned) labelBanned.className = 'relative flex items-center p-3.5 border-2 border-red-500 bg-red-50/50 rounded-2xl cursor-pointer transition-all';
+            if (labelSuspended) labelSuspended.className = 'relative flex items-center p-3.5 border-2 border-slate-200 hover:bg-slate-50 rounded-2xl cursor-pointer transition-all';
+        }
+        updatePolicySimulator();
+    }
+
+    function updatePolicySimulator() {
+        const isEnabled = document.getElementById('setting_auto_ban_enabled')?.checked ?? true;
+        const overdueDays = parseInt(document.getElementById('setting_overdue_days')?.value, 10) || 3;
+        const actionRadios = document.getElementsByName('setting_action_type');
+        let actionType = 'banned';
+        for (const r of actionRadios) {
+            if (r.checked) { actionType = r.value; break; }
+        }
+        const suspDays = parseInt(document.getElementById('setting_suspension_days')?.value, 10) || 7;
+
+        const badge = document.getElementById('simulatorStatusBadge');
+        if (badge) {
+            if (isEnabled) {
+                badge.className = 'px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-md text-[9px] font-black uppercase tracking-wider';
+                badge.textContent = 'Enforcing Active';
+            } else {
+                badge.className = 'px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-md text-[9px] font-black uppercase tracking-wider';
+                badge.textContent = 'Automation Disabled';
+            }
+        }
+
+        const expText = document.getElementById('simulatorExplanationText');
+        if (expText) {
+            if (!isEnabled) {
+                expText.innerHTML = `
+                    <div class="text-rose-300 font-bold flex items-center gap-1.5">
+                        <span>⚠️</span> Auto-Lockout is currently <strong>TURNED OFF</strong>. No drivers will be automatically suspended or banned based on unreturned vehicles.
+                    </div>
+                `;
+            } else {
+                const actionLabel = actionType === 'banned' 
+                    ? '<strong class="text-red-400 font-black tracking-wide">PERMANENTLY BANNED</strong> (Blacklisted & Mobile Account Revoked)' 
+                    : `<strong class="text-amber-400 font-black tracking-wide">SUSPENDED FOR ${suspDays} DAYS</strong> (Temporary Lockout)`;
+
+                expText.innerHTML = `
+                    <div class="space-y-2">
+                        <p>• <strong>Vehicle & Boundary Trigger:</strong> Driver holds the taxi for <strong class="text-amber-400 font-bold">${overdueDays} overdue days</strong> past shift deadline without returning.</p>
+                        <p>• <strong>Daily Charge Accumulation:</strong> Daily missed boundary fees (₱ rate) are automatically billed for each overdue day.</p>
+                        <p>• <strong>Automated Lockout Penalty:</strong> Upon reaching Day ${overdueDays}, the driver is automatically ${actionLabel} at 11:59 PM shift deadline.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    async function submitAutoBanSettings(e) {
+        e.preventDefault();
+        const btn = document.getElementById('saveAutoBanSettingsBtn');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></span> Saving...';
+
+        const isEnabled = document.getElementById('setting_auto_ban_enabled').checked ? 1 : 0;
+        const overdueDays = parseInt(document.getElementById('setting_overdue_days').value, 10) || 3;
+        const suspDays = parseInt(document.getElementById('setting_suspension_days').value, 10) || 7;
+        
+        let actionType = 'banned';
+        const actionRadios = document.getElementsByName('setting_action_type');
+        for (const r of actionRadios) {
+            if (r.checked) { actionType = r.value; break; }
+        }
+
+        const payload = {
+            auto_ban_enabled: isEnabled,
+            auto_ban_missed_boundary_days: overdueDays,
+            auto_ban_overdue_unit_days: overdueDays,
+            auto_ban_critical_incidents_threshold: 1,
+            auto_ban_default_suspension_days: suspDays,
+            auto_ban_action_type: actionType,
+        };
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const res = await fetch('{{ route("driver-management.update-auto-ban-settings") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+            if (res.ok && result.success) {
+                // Update the awareness banner values instantly without reload
+                const bannerOverdue = document.getElementById('bannerOverdueDays');
+                const bannerAction = document.getElementById('bannerActionType');
+                const policyBadge = document.getElementById('policyStatusBadge');
+
+                if (bannerOverdue) bannerOverdue.textContent = overdueDays;
+                if (bannerAction) {
+                    bannerAction.textContent = actionType.toUpperCase();
+                    bannerAction.className = `uppercase font-black ${actionType === 'banned' ? 'text-red-600' : 'text-amber-600'}`;
+                }
+                if (policyBadge) {
+                    if (isEnabled) {
+                        policyBadge.className = 'px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-md text-[10px] font-black uppercase tracking-wider';
+                        policyBadge.textContent = 'ACTIVE & ENFORCING';
+                    } else {
+                        policyBadge.className = 'px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-md text-[10px] font-black uppercase tracking-wider';
+                        policyBadge.textContent = 'DISABLED';
+                    }
+                }
+
+                closeAutoBanSettingsModal();
+                if (typeof showNotification === 'function') {
+                    showNotification(result.message || 'Auto-ban policy updated successfully.', 'success');
+                } else {
+                    alert(result.message || 'Auto-ban policy updated successfully.');
+                }
+            } else {
+                alert(result.message || 'Failed to update auto-ban settings.');
+            }
+        } catch(err) {
+            console.error('Save Auto-Ban Settings Error:', err);
+            alert('A network error occurred while saving policy settings.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+
+    /* Close modals on Escape */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { 
+            closeManualFlagModal();
+            closeAutoBanSettingsModal();
+        }
+    });
 </script>
 @include('units.partials._unit_details_shared')
 

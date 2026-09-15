@@ -38,7 +38,7 @@
     }
     .tab-btn:active { transform: scale(0.95); }
     .incident-tag { @apply px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
-    .stat-card-premium { @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-default; }
+    .stat-card-premium { @apply transition-all duration-500 cursor-default; }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #eab308; border-radius: 99px; }
     
@@ -115,76 +115,45 @@
     }
     .sa-input:focus { border-color: #eab308; }
 
-    /* Dashboard Wave CSS */
-    @keyframes drawChart { 0% { clip-path: inset(0 100% 0 0); opacity: 0; } 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
-    .card-hover::after {
-        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 75px; background-size: 100% 100%; background-repeat: no-repeat; opacity: 0; transition: none !important; z-index: 0;
-    }
-    .wave-red::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(239,68,68,0.15)" stroke="rgba(239,68,68,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-teal::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(20,184,166,0.15)" stroke="rgba(20,184,166,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-purple::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(168,85,247,0.15)" stroke="rgba(168,85,247,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-yellow::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .wave-green::after { background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><polygon fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" points="0,50 0,35 15,20 30,30 45,10 60,25 75,5 90,15 100,0 100,50" /></svg>'); }
-    .card-hover.in-view::after { animation: drawChart 1s ease-out forwards !important; }
 </style>
 
 {{-- ════════ HEADER STATS (COMPACT) ════════ --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- 1. VIOLATIONS TODAY --}}
-    <div class="card-hover in-view wave-red cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-red-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-red-50 to-rose-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-red-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Violations Today</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ $stats['violations_today'] ?? 0 }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-red-100 rounded-xl sm:rounded-2xl border border-red-200 shadow-sm flex-shrink-0">
-                <i data-lucide="alert-circle" class="w-5 h-5 sm:w-7 sm:h-7 text-red-600"></i>
-            </div>
+    <div class="relative overflow-hidden rounded-2xl shadow-sm border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/70 p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex-1 min-w-0 relative z-10">
+            <p class="text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Violations Today</p>
+            <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ $stats['violations_today'] ?? 0 }}</p>
         </div>
-        <i data-lucide="alert-circle" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #ef4444 !important; z-index: 5 !important;"></i>
+        <img src="{{ asset('image/kpi/violation_3d.svg') }}" alt="Violations 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
     </div>
 
     {{-- 2. TOTAL VIOLATORS --}}
-    <div class="card-hover in-view wave-teal cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-teal-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-teal-50 to-emerald-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-teal-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Violators</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ $stats['total_violators'] ?? 0 }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-teal-100 rounded-xl sm:rounded-2xl border border-teal-200 shadow-sm flex-shrink-0">
-                <i data-lucide="users" class="w-5 h-5 sm:w-7 sm:h-7 text-teal-600"></i>
-            </div>
+    <div class="relative overflow-hidden rounded-2xl shadow-sm border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50/70 p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex-1 min-w-0 relative z-10">
+            <p class="text-teal-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Violators</p>
+            <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ $stats['total_violators'] ?? 0 }}</p>
         </div>
-        <i data-lucide="users" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #14b8a6 !important; z-index: 5 !important;"></i>
+        <img src="{{ asset('image/kpi/violators_3d.svg') }}" alt="Violators 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
     </div>
 
     {{-- 3. TOTAL CHARGES --}}
-    <div class="card-hover in-view wave-purple cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-purple-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-purple-50 to-fuchsia-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-purple-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Total Charges</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-purple-100 rounded-xl sm:rounded-2xl border border-purple-200 shadow-sm flex-shrink-0">
-                <i data-lucide="banknote" class="w-5 h-5 sm:w-7 sm:h-7 text-purple-600"></i>
-            </div>
+    <div class="relative overflow-hidden rounded-2xl shadow-sm border border-purple-200 bg-gradient-to-br from-purple-50 to-fuchsia-50/70 p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex-1 min-w-0 relative z-10">
+            <p class="text-purple-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Total Charges</p>
+            <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">₱{{ number_format($stats['total_charges'] ?? 0, 0) }}</p>
         </div>
-        <i data-lucide="banknote" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #a855f7 !important; z-index: 5 !important;"></i>
+        <img src="{{ asset('image/kpi/charges_3d.svg') }}" alt="Charges 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
     </div>
 
     {{-- 4. ELIGIBLE INCENTIVE --}}
-    <div class="card-hover in-view wave-yellow cursor-default group relative overflow-hidden rounded-2xl shadow-sm border border-yellow-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-gradient-to-br from-yellow-50 to-amber-50/70">
-        <div class="relative p-3.5 sm:p-5 flex items-center justify-between z-20">
-            <div class="flex-1 min-w-0">
-                <p class="text-yellow-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1">Eligible Incentive</p>
-                <p class="text-gray-900 text-xl sm:text-3xl font-black leading-none mb-1">{{ count($incentive_summary['eligible'] ?? []) }}</p>
-            </div>
-            <div class="p-1.5 sm:p-3 bg-yellow-100 rounded-xl sm:rounded-2xl border border-yellow-200 shadow-sm flex-shrink-0">
-                <i data-lucide="trophy" class="w-5 h-5 sm:w-7 sm:h-7 text-yellow-600"></i>
-            </div>
+    <div class="relative overflow-hidden rounded-2xl shadow-sm border border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50/70 p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex-1 min-w-0 relative z-10">
+            <p class="text-amber-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1">Eligible Incentive</p>
+            <p class="text-slate-800 text-xl sm:text-3xl font-bold tracking-tight leading-none mb-1">{{ count($incentive_summary['eligible'] ?? []) }}</p>
         </div>
-        <i data-lucide="trophy" stroke-width="1" class="absolute right-0 bottom-0 w-24 h-24 -rotate-12 pointer-events-none" style="opacity: 0.15 !important; color: #eab308 !important; z-index: 5 !important;"></i>
+        <img src="{{ asset('image/kpi/incentive_3d.svg') }}" alt="Incentive 3D" class="w-16 h-16 sm:w-20 sm:h-20 object-contain pointer-events-none flex-shrink-0">
     </div>
 </div>
 
@@ -961,6 +930,20 @@
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const confirmBtn = document.getElementById('btn-confirm-permanent-delete');
+                            const pwdInput = document.getElementById('archive-security-pwd');
+
+                            if (pwdInput) {
+                                pwdInput.addEventListener('keydown', function(e) {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        confirmBtn?.click();
+                                    } else if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        document.getElementById('archiveSecurityModal')?.classList.remove('open');
+                                    }
+                                });
+                            }
+
                             if (confirmBtn) {
                                 confirmBtn.addEventListener('click', async function() {
                                     const password = document.getElementById('archive-security-pwd').value;
