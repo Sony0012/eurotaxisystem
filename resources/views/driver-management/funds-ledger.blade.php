@@ -243,7 +243,7 @@
                         </div>
 
                         <!-- Days Grid -->
-                        <div id="calDaysGrid" class="grid grid-cols-7 gap-y-1 text-center text-xs">
+                        <div id="calDaysGrid" class="grid grid-cols-7 gap-y-1 text-center text-xs" onmouseleave="if (isSelecting) updateCalendarStyles(null);">
                             <!-- Populated dynamically -->
                         </div>
 
@@ -741,6 +741,7 @@
 
     let calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
     let calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
+    let isSelecting = false;
 
     const todayStrInit = getLocalTodayStr();
     if (calStartDate && calStartDate > todayStrInit) calStartDate = todayStrInit;
@@ -782,7 +783,8 @@
                 calViewYear = now.getFullYear();
                 calViewMonth = now.getMonth();
             }
-            renderCustomCalendar();
+            buildCalendarGrid();
+            updateCalendarStyles();
         } else {
             dropdown.classList.add('hidden');
         }
@@ -811,10 +813,11 @@
             calViewMonth = 0;
             calViewYear++;
         }
-        renderCustomCalendar();
+        buildCalendarGrid();
+        updateCalendarStyles();
     }
 
-    function renderCustomCalendar() {
+    function buildCalendarGrid() {
         const titleEl = document.getElementById('calMonthYearTitle');
         const gridEl = document.getElementById('calDaysGrid');
         if (!titleEl || !gridEl) return;
@@ -848,15 +851,11 @@
 
         let html = '';
 
-        // Previous month filler days (dimmed text-slate-300)
+        // Previous month filler days
         for (let i = startDayIndex - 1; i >= 0; i--) {
             const dNum = prevMonthDays - i;
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${dNum}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none pointer-events-none">${dNum}</div>`;
         }
-
-        // Active range calculation (strictly bounded by today)
-        const activeStart = (calStartDate && calStartDate <= todayStr) ? calStartDate : null;
-        const activeEnd = (calEndDate && calEndDate <= todayStr) ? calEndDate : null;
 
         // Current month days
         for (let d = 1; d <= totalDaysInMonth; d++) {
@@ -864,10 +863,10 @@
             const isFuture = dateStr > todayStr;
 
             if (isFuture) {
-                // Advance date is strictly forbidden - disabled styling, non-clickable
+                // Future / Advance date is strictly disabled & cannot be selected
                 html += `
-                    <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none">
-                        <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none cursor-not-allowed opacity-40 pointer-events-none">
+                    <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none pointer-events-none">
+                        <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none opacity-40">
                             ${d}
                         </div>
                     </div>
@@ -875,39 +874,14 @@
                 continue;
             }
 
-            const isStart = activeStart === dateStr;
-            const isEnd = activeEnd === dateStr;
-            const isBetween = activeStart && activeEnd && dateStr > activeStart && dateStr < activeEnd;
-            const isToday = dateStr === todayStr;
-
-            let cellBg = '';
-            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-colors relative z-10 ';
-
-            if (isStart && isEnd) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-            } else if (isStart) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeEnd) {
-                    cellBg = 'bg-gradient-to-r from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isEnd) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeStart) {
-                    cellBg = 'bg-gradient-to-l from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isBetween) {
-                cellBg = 'bg-[#fef3c7]';
-                btnClasses += 'text-[#92400e] font-bold';
-            } else if (isToday) {
-                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50 cursor-pointer';
-            } else {
-                btnClasses += 'text-slate-700 hover:bg-amber-50 hover:text-amber-700 cursor-pointer';
-            }
-
+            // Selectable day cell
             html += `
-                <div class="h-8 flex items-center justify-center relative ${cellBg}" 
-                     onclick="onCalDateClick('${dateStr}', event)">
-                    <div class="${btnClasses}">
+                <div class="cal-day-cell h-8 flex items-center justify-center relative cursor-pointer select-none" 
+                     data-date="${dateStr}"
+                     onclick="handleCellClick('${dateStr}', event)"
+                     onmouseenter="handleCellMouseEnter('${dateStr}')">
+                    <div class="cal-range-bg absolute inset-y-0 inset-x-0 hidden pointer-events-none"></div>
+                    <div class="cal-day-btn w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold relative z-10 transition-colors pointer-events-none select-none">
                         ${d}
                     </div>
                 </div>
@@ -918,38 +892,109 @@
         const totalRendered = startDayIndex + totalDaysInMonth;
         const trailingDays = (7 - (totalRendered % 7)) % 7;
         for (let nextD = 1; nextD <= trailingDays; nextD++) {
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${nextD}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none pointer-events-none">${nextD}</div>`;
         }
 
         gridEl.innerHTML = html;
     }
 
-    function onCalDateClick(dateStr, event) {
+    function handleCellClick(dateStr, event) {
         if (event) event.stopPropagation();
         const todayStr = getLocalTodayStr();
         if (dateStr > todayStr) return; // Strict validation: Advance date disallowed
 
-        if (!calStartDate || (calStartDate && calEndDate)) {
-            // First click: sets Start Date (single date initially)
+        if (!isSelecting) {
+            // First click: sets Start Date and begins range selection
             calStartDate = dateStr;
             calEndDate = null;
-        } else if (calStartDate && !calEndDate) {
+            isSelecting = true;
+        } else {
+            // Second click:
             if (dateStr === calStartDate) {
-                // Clicked same date: keep as single date
+                // Clicked same date: confirm as single date
                 calEndDate = null;
+                isSelecting = false;
             } else if (dateStr < calStartDate) {
                 // Clicked earlier date: reorder
                 calEndDate = calStartDate;
                 calStartDate = dateStr;
+                isSelecting = false;
             } else {
-                // Clicked later date: sets end date for range
+                // Clicked later date: confirm range
                 calEndDate = dateStr;
+                isSelecting = false;
             }
         }
 
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
-        // Stays open so user can review and click Apply!
+    }
+
+    function handleCellMouseEnter(dateStr) {
+        if (!isSelecting) return;
+        const todayStr = getLocalTodayStr();
+        if (dateStr > todayStr) return;
+        updateCalendarStyles(dateStr);
+    }
+
+    function updateCalendarStyles(hoverDate = null) {
+        const todayStr = getLocalTodayStr();
+        let start = calStartDate;
+        let end = calEndDate;
+
+        if (isSelecting && start && hoverDate && hoverDate <= todayStr) {
+            if (hoverDate < start) {
+                start = hoverDate;
+                end = calStartDate;
+            } else if (hoverDate > start) {
+                end = hoverDate;
+            }
+        }
+
+        const cells = document.querySelectorAll('#calDaysGrid .cal-day-cell');
+        cells.forEach(cell => {
+            const dateStr = cell.getAttribute('data-date');
+            if (!dateStr) return;
+
+            const isToday = dateStr === todayStr;
+            const isStart = start && dateStr === start;
+            const isEnd = end && dateStr === end;
+            const isBetween = start && end && dateStr > start && dateStr < end;
+
+            const bg = cell.querySelector('.cal-range-bg');
+            const btn = cell.querySelector('.cal-day-btn');
+            if (!btn) return;
+
+            // Range background styling
+            if (bg) {
+                if (isStart && end && start !== end) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-gradient-to-r from-transparent 50% to-[#fef3c7] 50%';
+                } else if (isEnd && start && start !== end) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-gradient-to-l from-transparent 50% to-[#fef3c7] 50%';
+                } else if (isBetween) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-[#fef3c7]';
+                } else {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none hidden';
+                }
+            }
+
+            // Button styling
+            let btnClasses = 'cal-day-btn w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold relative z-10 transition-colors pointer-events-none select-none ';
+
+            if (isStart && isEnd) {
+                btnClasses += 'bg-amber-500 text-white shadow-xs';
+            } else if (isStart || isEnd) {
+                btnClasses += 'bg-amber-500 text-white shadow-xs';
+            } else if (isBetween) {
+                btnClasses += 'text-[#92400e] font-bold';
+            } else if (isToday) {
+                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50';
+            } else {
+                btnClasses += 'text-slate-700 hover:bg-amber-50 hover:text-amber-700';
+            }
+
+            btn.className = btnClasses;
+        });
     }
 
     function updateDisplayPreview() {
@@ -1008,6 +1053,7 @@
         if (event) event.stopPropagation();
         const todayStr = getLocalTodayStr();
         const now = new Date();
+        isSelecting = false;
 
         if (preset === 'today') {
             calStartDate = todayStr;
@@ -1021,18 +1067,20 @@
             calViewMonth = now.getMonth();
         }
 
+        buildCalendarGrid();
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
-        // Stays open!
     }
 
     function clearSelectedDate(event, autoSubmit = false) {
         if (event) event.stopPropagation();
         calStartDate = null;
         calEndDate = null;
+        isSelecting = false;
 
+        buildCalendarGrid();
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
 
         if (autoSubmit) {
             applyDateSelection(event);
@@ -1043,7 +1091,8 @@
     document.addEventListener('click', function(e) {
         const container = document.getElementById('datePickerContainer');
         const dropdown = document.getElementById('customCalendarDropdown');
-        if (container && dropdown && !container.contains(e.target)) {
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+            if (container && container.contains(e.target)) return;
             dropdown.classList.add('hidden');
         }
     });
