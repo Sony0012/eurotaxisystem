@@ -130,7 +130,7 @@
         <!-- VIEW 1: All Transactions Ledger -->
         <div id="viewTransactions" class="p-6 space-y-5">
             <!-- Filter Bar Form -->
-            <form method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+            <form id="fundsLedgerFilterForm" method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                 <!-- Search -->
                 <div class="lg:col-span-4">
                     <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Search Keywords</label>
@@ -258,7 +258,7 @@
                                 <button type="button" onclick="closeCalendarPicker(event)" class="px-2 py-1 text-slate-400 hover:text-slate-600 font-bold rounded-md transition-colors cursor-pointer">
                                     Close
                                 </button>
-                                <button type="button" onclick="applyDateSelection(event)" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-xs transition-colors cursor-pointer">
+                                <button type="button" id="btnApplyCalendar" onclick="applyDateSelection(event)" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-xs transition-colors cursor-pointer">
                                     Apply
                                 </button>
                             </div>
@@ -267,8 +267,33 @@
                 </div>
             </form>
 
+            <!-- Active Date Filter Pill / Bar -->
+            @if(request('date') || request('date_from') || request('date_to'))
+                <div class="flex items-center justify-between bg-amber-50/90 border border-amber-200/90 px-4 py-2.5 rounded-xl text-xs shadow-2xs">
+                    <div class="flex items-center gap-2 text-amber-900 font-bold flex-wrap">
+                        <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-2xs">
+                            <i data-lucide="filter" class="w-3 h-3"></i> Filtered Date
+                        </span>
+                        <span class="text-slate-600 font-medium">Transaksyon para sa:</span>
+                        <span class="font-black text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2">
+                            @if(request('date'))
+                                {{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}
+                            @elseif(request('date_from') && request('date_to'))
+                                {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }} &ndash; {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                            @elseif(request('date_from'))
+                                From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                            @endif
+                        </span>
+                        <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
+                    </div>
+                    <a href="{{ route('driver-management.funds-ledger', request()->except(['date', 'date_from', 'date_to'])) }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i> Clear Date Filter
+                    </a>
+                </div>
+            @endif
+
             <!-- Table of Transactions -->
-            <div class="overflow-x-auto rounded-xl border border-slate-200/80">
+            <div id="fundsTransactionsTableWrap" class="overflow-x-auto rounded-xl border border-slate-200/80 transition-opacity duration-200">
                 <table class="w-full text-left text-xs text-slate-700">
                     <thead class="bg-slate-50/80 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
                         <tr>
@@ -358,9 +383,27 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="p-12 text-center text-slate-400 font-bold uppercase tracking-wider text-xs">
-                                <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                                No fund transactions found matching your criteria.
+                            <td colspan="7" class="p-12 text-center text-slate-500">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                                    <i data-lucide="calendar-x" class="w-6 h-6"></i>
+                                </div>
+                                <p class="font-bold text-slate-800 text-sm mb-1">No transactions found</p>
+                                <p class="text-xs text-slate-400 mb-4 max-w-md mx-auto">
+                                    @if(request('date'))
+                                        Walang transaksyon na naitala sa petsang <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}</strong>.
+                                    @elseif(request('date_from') && request('date_to'))
+                                        Walang transaksyon sa pagitan ng <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong> at <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}</strong>.
+                                    @elseif(request('date_from'))
+                                        Walang transaksyon simula <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong>.
+                                    @else
+                                        No fund transactions found matching your search criteria.
+                                    @endif
+                                </p>
+                                @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
+                                    <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Filter & View All Records
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                         @endforelse
@@ -1013,9 +1056,10 @@
     }
 
     function applyDateSelection(event) {
-        if (event) event.stopPropagation();
-        const dropdown = document.getElementById('customCalendarDropdown');
-        if (dropdown) dropdown.classList.add('hidden');
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         const todayStr = getLocalTodayStr();
         if (calStartDate && calStartDate > todayStr) calStartDate = todayStr;
@@ -1025,28 +1069,65 @@
         const inputFrom = document.getElementById('filter_date_from');
         const inputTo = document.getElementById('filter_date_to');
 
+        let previewLabel = 'Select Date or Range';
+
         if (calStartDate && calEndDate && calStartDate !== calEndDate) {
             // Date Range
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = calStartDate;
             if (inputTo) inputTo.value = calEndDate;
+            previewLabel = `${formatCalDisplay(calStartDate)} — ${formatCalDisplay(calEndDate)}`;
         } else if (calStartDate) {
             // Single Date (None Date Range)
             if (inputDate) inputDate.value = calStartDate;
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
+            previewLabel = formatCalDisplay(calStartDate);
         } else {
             // Cleared
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
+            previewLabel = 'All Dates';
         }
 
-        updateDisplayPreview();
+        isSelecting = false;
 
-        // Submit form now that user clicked Apply
-        const form = document.getElementById('datePickerContainer')?.closest('form');
-        if (form) form.submit();
+        // 1. Immediate visual feedback on Apply Button: Spinner + "Applying..." + Disabled
+        const btnApply = document.getElementById('btnApplyCalendar');
+        if (btnApply) {
+            btnApply.disabled = true;
+            btnApply.classList.add('opacity-80', 'cursor-wait');
+            btnApply.innerHTML = `<span class="inline-flex items-center gap-1.5"><svg class="animate-spin h-3.5 w-3.5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Applying...</span>`;
+        }
+
+        // 2. Immediate visual feedback on Trigger Button Box
+        const display = document.getElementById('display_selected_date');
+        if (display) {
+            display.innerHTML = `<span class="inline-flex items-center gap-1.5 text-amber-700 font-bold"><svg class="animate-spin h-3.5 w-3.5 text-amber-600 inline shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Filtering: ${previewLabel}</span>`;
+            display.className = 'truncate text-amber-700 font-bold';
+        }
+
+        // 3. Smooth table opacity dimming to visually confirm filtering is in progress
+        const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+        if (tableWrap) {
+            tableWrap.style.opacity = '0.35';
+            tableWrap.style.pointerEvents = 'none';
+        }
+
+        // 4. Close popup dropdown immediately
+        const dropdown = document.getElementById('customCalendarDropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+
+        // 5. Submit filter form reliably
+        const form = document.getElementById('fundsLedgerFilterForm') || document.getElementById('datePickerContainer')?.closest('form');
+        if (form) {
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        }
     }
 
     function setCalPreset(preset, event) {
@@ -1078,6 +1159,13 @@
         calEndDate = null;
         isSelecting = false;
 
+        const inputDate = document.getElementById('filter_date');
+        const inputFrom = document.getElementById('filter_date_from');
+        const inputTo = document.getElementById('filter_date_to');
+        if (inputDate) inputDate.value = '';
+        if (inputFrom) inputFrom.value = '';
+        if (inputTo) inputTo.value = '';
+
         buildCalendarGrid();
         updateCalendarStyles();
         updateDisplayPreview();
@@ -1099,6 +1187,17 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const form = document.getElementById('fundsLedgerFilterForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+                if (tableWrap) {
+                    tableWrap.style.opacity = '0.35';
+                    tableWrap.style.pointerEvents = 'none';
+                }
+            });
+        }
     });
 </script>
 @endsection
