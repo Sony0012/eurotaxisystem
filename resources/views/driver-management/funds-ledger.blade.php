@@ -572,6 +572,7 @@
                                      data-plate="{{ $d->assigned_plate ?: 'Unassigned' }}"
                                      data-license="{{ $d->license_number ?: '' }}"
                                      data-balance="{{ $d->current_balance }}"
+                                     onmousedown="selectDisburseDriver(this)"
                                      onclick="selectDisburseDriver(this)">
                                     <div class="min-w-0 flex items-center gap-2.5">
                                         <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-black text-[10px] flex items-center justify-center shrink-0 border border-slate-200 uppercase">
@@ -703,6 +704,7 @@
                                      data-plate="{{ $d->assigned_plate ?: 'Unassigned' }}"
                                      data-license="{{ $d->license_number ?: '' }}"
                                      data-balance="{{ $d->current_balance }}"
+                                     onmousedown="selectDepositDriver(this)"
                                      onclick="selectDepositDriver(this)">
                                     <div class="min-w-0 flex items-center gap-2.5">
                                         <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-black text-[10px] flex items-center justify-center shrink-0 border border-slate-200 uppercase">
@@ -874,9 +876,11 @@
     function toggleDisburseDriverDropdown(e) {
         if (e) e.stopPropagation();
         const dd = document.getElementById('disburseDriverDropdown');
+        const input = document.getElementById('disburseDriverSearchInput');
         if (dd.classList.contains('hidden')) {
-            filterDisburseDrivers(document.getElementById('disburseDriverSearchInput').value);
+            filterDisburseDrivers(input.value);
             dd.classList.remove('hidden');
+            input.focus();
         } else {
             dd.classList.add('hidden');
         }
@@ -1026,9 +1030,11 @@
     function toggleDepositDriverDropdown(e) {
         if (e) e.stopPropagation();
         const dd = document.getElementById('depositDriverDropdown');
+        const input = document.getElementById('depositDriverSearchInput');
         if (dd.classList.contains('hidden')) {
-            filterDepositDrivers(document.getElementById('depositDriverSearchInput').value);
+            filterDepositDrivers(input.value);
             dd.classList.remove('hidden');
+            input.focus();
         } else {
             dd.classList.add('hidden');
         }
@@ -1675,10 +1681,32 @@
                 filterDepositDrivers(this.value);
                 depDd.classList.remove('hidden');
             });
-            depInput.addEventListener('input', function() {
-                document.getElementById('depositDriverSelect').value = '';
+            depInput.addEventListener('click', function() {
                 filterDepositDrivers(this.value);
                 depDd.classList.remove('hidden');
+            });
+            depInput.addEventListener('input', function() {
+                document.getElementById('depositDriverSelect').value = '';
+                if (!this.value.trim()) {
+                    currentDepositDriverBal = 0;
+                    document.getElementById('depositCurrentBalDisplay').textContent = '₱0.00';
+                    updateDepositProjectedBal();
+                }
+                filterDepositDrivers(this.value);
+                depDd.classList.remove('hidden');
+            });
+            depInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    depDd.classList.add('hidden');
+                } else if (e.key === 'Enter') {
+                    if (!depDd.classList.contains('hidden')) {
+                        const firstMatch = Array.from(document.querySelectorAll('.deposit-driver-item')).find(item => item.style.display !== 'none');
+                        if (firstMatch) {
+                            e.preventDefault();
+                            selectDepositDriver(firstMatch);
+                        }
+                    }
+                }
             });
         }
 
@@ -1690,10 +1718,32 @@
                 filterDisburseDrivers(this.value);
                 disbDd.classList.remove('hidden');
             });
-            disbInput.addEventListener('input', function() {
-                document.getElementById('disburseDriverSelect').value = '';
+            disbInput.addEventListener('click', function() {
                 filterDisburseDrivers(this.value);
                 disbDd.classList.remove('hidden');
+            });
+            disbInput.addEventListener('input', function() {
+                document.getElementById('disburseDriverSelect').value = '';
+                if (!this.value.trim()) {
+                    currentSelectedDriverBal = 0;
+                    document.getElementById('disburseAvailableDisplay').textContent = '₱0.00';
+                    document.getElementById('disburseAmountInput').max = 0;
+                }
+                filterDisburseDrivers(this.value);
+                disbDd.classList.remove('hidden');
+            });
+            disbInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    disbDd.classList.add('hidden');
+                } else if (e.key === 'Enter') {
+                    if (!disbDd.classList.contains('hidden')) {
+                        const firstMatch = Array.from(document.querySelectorAll('.disburse-driver-item')).find(item => item.style.display !== 'none');
+                        if (firstMatch) {
+                            e.preventDefault();
+                            selectDisburseDriver(firstMatch);
+                        }
+                    }
+                }
             });
         }
 
