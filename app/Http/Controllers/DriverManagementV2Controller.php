@@ -963,6 +963,53 @@ class DriverManagementV2Controller extends Controller
         ]);
     }
 
+    public function depositFund(Request $request, $id)
+    {
+        $request->validate([
+            'amount'      => 'required|numeric|min:1',
+            'description' => 'required|string|max:255',
+            'date'        => 'required|date',
+        ]);
+
+        $driver = Driver::findOrFail($id);
+        $amount = round((float) $request->input('amount'), 2);
+        $description = trim($request->input('description'));
+        $date = $request->input('date');
+
+        $currentBalance = (float) DB::table('driver_funds')
+            ->where('driver_id', $id)
+            ->whereNull('deleted_at')
+            ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as balance")
+            ->value('balance');
+
+        $newBalance = $currentBalance + $amount;
+
+        $record = \App\Models\DriverFund::create([
+            'driver_id'     => $id,
+            'boundary_id'   => null,
+            'type'          => 'deposit',
+            'amount'        => $amount,
+            'balance_after' => $newBalance,
+            'description'   => $description,
+            'date'          => $date,
+            'created_by'    => \Illuminate\Support\Facades\Auth::id(),
+        ]);
+
+        if (class_exists('\App\Http\Controllers\ActivityLogController')) {
+            \App\Http\Controllers\ActivityLogController::log(
+                'Driver Fund Deposit',
+                "Driver: {$driver->full_name}\nType: Manual Pondo Deposit\nAmount: ₱" . number_format($amount, 2) . "\nPurpose: {$description}\nNew Balance: ₱" . number_format($newBalance, 2)
+            );
+        }
+
+        return response()->json([
+            'success'     => true,
+            'message'     => "Successfully deposited ₱" . number_format($amount, 2) . " to Driver Fund.",
+            'new_balance' => $newBalance,
+            'record'      => $record
+        ]);
+    }
+
     public function store(Request $request)
     {
         // Normalize numeric inputs (avoid '' inserting into DECIMAL columns)

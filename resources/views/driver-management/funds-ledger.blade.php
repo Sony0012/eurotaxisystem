@@ -23,8 +23,11 @@
             <a href="{{ route('driver-management.funds-ledger.print', request()->all()) }}" target="_blank" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs">
                 <i data-lucide="printer" class="w-4 h-4"></i> Print Statement
             </a>
-            <button type="button" onclick="openLedgerDisburseModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i> New Deduction / Payout
+            <button type="button" onclick="openLedgerDepositModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Deposit
+            </button>
+            <button type="button" onclick="openLedgerDisburseModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/20 cursor-pointer">
+                <i data-lucide="minus-circle" class="w-4 h-4"></i> Deduct / Payout
             </button>
         </div>
     </div>
@@ -63,11 +66,11 @@
             </div>
         </div>
 
-        <!-- Card 3: Accident & Bangga Deductions -->
+        <!-- Card 3: Accident & Damage Deductions -->
         <div class="relative overflow-hidden rounded-2xl border border-rose-200 bg-rose-50/30 p-5 shadow-xs">
             <div class="flex items-start justify-between">
                 <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block mb-1">Bangga & Damages</span>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block mb-1">Accident & Damages</span>
                     <div class="text-xl font-black text-rose-600 leading-none">
                         ₱{{ number_format($stats['total_damages'], 2) }}
                     </div>
@@ -162,8 +165,8 @@
                     <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Transaction Type</label>
                     <select name="type" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                         <option value="all" {{ request('type') == 'all' || !request('type') ? 'selected' : '' }}>All Types</option>
-                        <option value="deposit" {{ request('type') == 'deposit' ? 'selected' : '' }}>Shift Pondo Deposit</option>
-                        <option value="damage_deduction" {{ request('type') == 'damage_deduction' ? 'selected' : '' }}>Bangga / Damage Deduction</option>
+                        <option value="deposit" {{ request('type') == 'deposit' ? 'selected' : '' }}>Pondo Deposits (All)</option>
+                        <option value="damage_deduction" {{ request('type') == 'damage_deduction' ? 'selected' : '' }}>Accident / Damage Deduction</option>
                         <option value="maintenance_share" {{ request('type') == 'maintenance_share' ? 'selected' : '' }}>Maintenance Share</option>
                         <option value="company_liability" {{ request('type') == 'company_liability' ? 'selected' : '' }}>Debt Settlement</option>
                         <option value="withdrawal" {{ request('type') == 'withdrawal' ? 'selected' : '' }}>Driver Cashout</option>
@@ -274,19 +277,19 @@
                         <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-2xs">
                             <i data-lucide="filter" class="w-3 h-3"></i> Filtered Date
                         </span>
-                        <span class="text-slate-600 font-medium">Transaksyon para sa:</span>
+                        <span class="text-slate-600 font-medium">Transactions for:</span>
                         <span class="font-black text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2">
                             @if(request('date'))
                                 {{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}
                             @elseif(request('date_from') && request('date_to'))
                                 {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }} &ndash; {{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}
                             @elseif(request('date_from'))
-                                Simula {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
+                                From {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
                             @endif
                         </span>
                         @if($transactions->total() === 0)
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-700 font-black text-[11px]">
-                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Walang Data (0 records)
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i> No Records Found (0 records)
                             </span>
                         @else
                             <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
@@ -345,11 +348,11 @@
                             <td class="p-4 whitespace-nowrap">
                                 @if($t->type === 'deposit')
                                     <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> Boundary Pondo
+                                        <i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> {{ $t->boundary_id ? 'Shift Deposit' : 'Manual Deposit' }}
                                     </span>
                                 @elseif($t->type === 'damage_deduction')
                                     <span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Bangga / Damage
+                                        <i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Accident / Damage
                                     </span>
                                 @elseif($t->type === 'maintenance_share')
                                     <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
@@ -394,23 +397,23 @@
                                     <i data-lucide="calendar-x" class="w-7 h-7"></i>
                                 </div>
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
-                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Walang Data (No Records Found)
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> No Records Found
                                 </div>
-                                <h4 class="font-black text-slate-800 text-base mb-1.5">Walang Transaksyon sa Napiling Petsa</h4>
+                                <h4 class="font-black text-slate-800 text-base mb-1.5">No Transactions on Selected Date</h4>
                                 <p class="text-xs text-slate-500 mb-5 max-w-md mx-auto font-medium leading-relaxed">
                                     @if(request('date'))
-                                        Walang pondong transaksyon na naitala sa petsang <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}</strong>.
+                                        No fund transactions recorded on <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}</strong>.
                                     @elseif(request('date_from') && request('date_to'))
-                                        Walang pondong transaksyon sa pagitan ng <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong> at <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}</strong>.
+                                        No fund transactions recorded between <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong> and <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}</strong>.
                                     @elseif(request('date_from'))
-                                        Walang pondong transaksyon simula <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong>.
+                                        No fund transactions recorded starting from <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong>.
                                     @else
-                                        Walang pondong transaksyon na tumutugma sa iyong filter criteria.
+                                        No fund transactions match your filter criteria.
                                     @endif
                                 </p>
                                 @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
                                     <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">
-                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> I-clear ang Filter & Ipakita Lahat
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Filter & View All Records
                                     </a>
                                 @endif
                             </td>
@@ -447,7 +450,7 @@
                             <th class="p-4">Driver Name</th>
                             <th class="p-4">Assigned Taxi</th>
                             <th class="p-4 text-right">Lifetime Deposited</th>
-                            <th class="p-4 text-right">Damages / Bangga</th>
+                            <th class="p-4 text-right">Damages / Repairs</th>
                             <th class="p-4 text-right">Maintenance Share</th>
                             <th class="p-4 text-right">Cashouts & Clearances</th>
                             <th class="p-4 text-right">Available Pondo</th>
@@ -467,7 +470,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <span class="font-black text-slate-900 block">{{ $d->full_name }}</span>
+                                        <a href="javascript:void(0)" onclick="openDriverDetailsModal({{ $d->id }})" class="font-black text-slate-900 hover:text-emerald-600 transition-colors block">{{ $d->full_name }}</a>
                                         <span class="text-[10px] text-slate-400 font-mono">Lic: {{ $d->license_number ?: 'N/A' }}</span>
                                     </div>
                                 </div>
@@ -500,8 +503,11 @@
                             </td>
                             <td class="p-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button" onclick="openLedgerDisburseModal({{ $d->id }}, '{{ addslashes($d->full_name) }}', {{ $d->current_balance }})" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-2xs cursor-pointer" {{ $d->current_balance <= 0 ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
-                                        <i data-lucide="minus-circle" class="w-3.5 h-3.5"></i> Deduct / Payout
+                                    <button type="button" onclick="openLedgerDepositModal({{ $d->id }}, '{{ addslashes($d->full_name) }}', {{ $d->current_balance }})" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-2xs cursor-pointer" title="Manual Pondo Deposit">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Deposit
+                                    </button>
+                                    <button type="button" onclick="openLedgerDisburseModal({{ $d->id }}, '{{ addslashes($d->full_name) }}', {{ $d->current_balance }})" class="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-2xs cursor-pointer" {{ $d->current_balance <= 0 ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
+                                        <i data-lucide="minus" class="w-3.5 h-3.5"></i> Deduct / Payout
                                     </button>
                                     <a href="{{ route('driver-management.funds-ledger', ['driver_id' => $d->id]) }}" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer" title="View driver ledger">
                                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Statement
@@ -562,10 +568,10 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Disbursement / Deduction Type <span class="text-red-500">*</span></label>
                 <select id="disburseTypeSelect" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option value="damage_deduction">Accident / Collision Damage Deduction (Bawas Bangga / Sira sa Taxi)</option>
-                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (Hatian sa Pagawa after 6 mos)</option>
-                    <option value="company_liability">Company Liability / Debt Settlement (Kaltas sa Utang/Shortage)</option>
-                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout / Ipon)</option>
+                    <option value="damage_deduction">Accident / Collision Damage Deduction (Vehicle Repair)</option>
+                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (Maintenance Share)</option>
+                    <option value="company_liability">Company Liability / Debt Settlement (Debt Deduction)</option>
+                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout / Payout)</option>
                 </select>
             </div>
 
@@ -583,20 +589,95 @@
 
             <!-- Description / Reason -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Accident & Repair Details <span class="text-red-500">*</span></label>
-                <textarea id="disburseDescriptionInput" required rows="2" maxlength="250" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium" placeholder="E.g., Offset for rear bumper bangga repair / Cashout request..."></textarea>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Repair Details <span class="text-red-500">*</span></label>
+                <textarea id="disburseDescriptionInput" required rows="2" maxlength="250" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium" placeholder="E.g., Offset for rear bumper repair / Cashout request..."></textarea>
             </div>
 
             <!-- Buttons -->
             <div class="pt-2 flex justify-end gap-2">
                 <button type="button" onclick="closeLedgerDisburseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
-                <button type="submit" id="btnSubmitLedgerDisburse" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Transaction
+                <button type="submit" id="btnSubmitLedgerDisburse" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Deduction / Payout
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Manual Pondo Deposit Modal -->
+<div id="ledgerDepositModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider">Manual Pondo Deposit</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Driver Savings & Emergency Reserve</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLedgerDepositModal()" class="text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="ledgerDepositForm" onsubmit="submitLedgerDeposit(event)" class="p-6 space-y-4">
+            <!-- Driver Selection -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Driver <span class="text-red-500">*</span></label>
+                <select id="depositDriverSelect" required onchange="onDepositDriverChanged()" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option value="">-- Choose Driver --</option>
+                    @foreach($drivers as $d)
+                        <option value="{{ $d->id }}" data-balance="{{ $d->current_balance }}" data-name="{{ $d->full_name }}">
+                            {{ $d->full_name }} ({{ $d->assigned_plate ?: 'Unassigned' }}) — Current Pondo: ₱{{ number_format($d->current_balance, 2) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Current Balance & Projected Balance Display -->
+            <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800">Current Pondo Balance</span>
+                    <p id="depositCurrentBalDisplay" class="text-lg font-black text-emerald-700">₱0.00</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Projected Balance</span>
+                    <p id="depositProjectedBalDisplay" class="text-sm font-black text-slate-700">₱0.00</p>
+                </div>
+            </div>
+
+            <!-- Amount & Date -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Deposit Amount (₱) <span class="text-red-500">*</span></label>
+                    <input type="number" id="depositAmountInput" required min="1" step="0.01" oninput="updateDepositProjectedBal()" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Deposit Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="depositDateInput" required max="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+            </div>
+
+            <!-- Description / Reason -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Payment Reference <span class="text-red-500">*</span></label>
+                <textarea id="depositDescriptionInput" required rows="2" maxlength="250" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium" placeholder="E.g., Direct manual cash pondo payment / GCash reference #..."></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="pt-2 flex justify-end gap-2">
+                <button type="button" onclick="closeLedgerDepositModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                <button type="submit" id="btnSubmitLedgerDeposit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@include('driver-management.partials._driver_details_modal')
 
 <script>
     let currentSelectedDriverBal = 0;
@@ -777,6 +858,126 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
             Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
         });
+    }
+
+    // --- Manual Deposit Modal JS Handlers ---
+    let currentDepositDriverBal = 0;
+
+    function openLedgerDepositModal(driverId = null, driverName = null, balance = null) {
+        const select = document.getElementById('depositDriverSelect');
+        if (driverId) {
+            select.value = driverId;
+            currentDepositDriverBal = balance !== null ? parseFloat(balance) : 0;
+            document.getElementById('depositCurrentBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        } else {
+            select.value = '';
+            currentDepositDriverBal = 0;
+            document.getElementById('depositCurrentBalDisplay').textContent = '₱0.00';
+        }
+        document.getElementById('depositAmountInput').value = '';
+        document.getElementById('depositDescriptionInput').value = '';
+        document.getElementById('depositProjectedBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('ledgerDepositModal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function onDepositDriverChanged() {
+        const select = document.getElementById('depositDriverSelect');
+        const opt = select.options[select.selectedIndex];
+        if (opt && opt.value) {
+            currentDepositDriverBal = parseFloat(opt.getAttribute('data-balance') || 0);
+            document.getElementById('depositCurrentBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        } else {
+            currentDepositDriverBal = 0;
+            document.getElementById('depositCurrentBalDisplay').textContent = '₱0.00';
+        }
+        updateDepositProjectedBal();
+    }
+
+    function updateDepositProjectedBal() {
+        const addAmt = parseFloat(document.getElementById('depositAmountInput').value || 0);
+        const projected = currentDepositDriverBal + (addAmt > 0 ? addAmt : 0);
+        document.getElementById('depositProjectedBalDisplay').textContent = '₱' + projected.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    }
+
+    function closeLedgerDepositModal() {
+        document.getElementById('ledgerDepositModal').classList.add('hidden');
+    }
+
+    function submitLedgerDeposit(e) {
+        e.preventDefault();
+        const driverId = document.getElementById('depositDriverSelect').value;
+        const amount = parseFloat(document.getElementById('depositAmountInput').value || 0);
+        const date = document.getElementById('depositDateInput').value;
+        const description = document.getElementById('depositDescriptionInput').value;
+
+        if (!driverId) {
+            Swal.fire({ icon: 'warning', title: 'Driver Required', text: 'Please select a driver from the dropdown.' });
+            return;
+        }
+
+        const todayStr = getLocalTodayStr();
+        if (date > todayStr) {
+            Swal.fire({ icon: 'warning', title: 'Invalid Date', text: 'Deposit date cannot be in the future.' });
+            return;
+        }
+
+        if (amount <= 0) {
+            Swal.fire({ icon: 'warning', title: 'Invalid Amount', text: 'Please enter a valid deposit amount greater than ₱0.00.' });
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitLedgerDeposit');
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        fetch(`/driver-management/${driverId}/deposit-fund`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ amount, date, description })
+        })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deposit Recorded!',
+                    text: res.message || 'Deposit successfully recorded into driver pondo ledger.',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Transaction Failed',
+                    text: res.message || 'Unable to record deposit.'
+                });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
+        });
+    }
+
+    function openDriverDetailsModal(driverId) {
+        if (typeof openDriverDetails === 'function') {
+            openDriverDetails(driverId);
+        }
     }
 
     // --- Custom Compact Calendar (Supports Single Date OR Date Range) ---

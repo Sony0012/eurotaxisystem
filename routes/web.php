@@ -199,6 +199,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::post('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'updateAutoBanSettings'])->name('driver-management.update-auto-ban-settings');
     Route::get('/driver-management/{id}/lockout-details', [DriverManagementV2Controller::class, 'getDriverLockoutDetails'])->name('driver-management.lockout-details');
     Route::post('/driver-management/{id}/withdraw-fund', [DriverManagementV2Controller::class, 'withdrawFund'])->name('driver-management.withdraw-fund');
+    Route::post('/driver-management/{id}/deposit-fund', [DriverManagementV2Controller::class, 'depositFund'])->name('driver-management.deposit-fund');
 
 
     // Driver Management Resource Routes
