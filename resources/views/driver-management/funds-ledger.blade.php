@@ -12,7 +12,11 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-                <i data-lucide="piggy-bank" class="w-6 h-6"></i>
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
+                    <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+                    <circle cx="16" cy="11" r="1"></circle>
+                </svg>
             </div>
             <div>
                 <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Driver Savings & Pondo Ledger</h1>
@@ -21,13 +25,24 @@
         </div>
         <div class="flex items-center gap-2.5 flex-wrap">
             <a href="{{ route('driver-management.funds-ledger.print', request()->all()) }}" target="_blank" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs">
-                <i data-lucide="printer" class="w-4 h-4"></i> Print Statement
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg> Print Statement
             </a>
             <button type="button" onclick="openLedgerDepositModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Deposit
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg> Add Deposit
             </button>
             <button type="button" onclick="openLedgerDisburseModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/20 cursor-pointer">
-                <i data-lucide="minus-circle" class="w-4 h-4"></i> Deduct / Payout
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg> Deduct / Payout
             </button>
         </div>
     </div>
@@ -45,7 +60,10 @@
                     <span class="text-[10px] font-bold text-emerald-600 mt-2 block">In Driver Savings Vault</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm">
-                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
+                        <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -61,7 +79,10 @@
                     <span class="text-[10px] font-bold text-slate-500 mt-2 block">From shift remittances</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                    <i data-lucide="arrow-down-left" class="w-5 h-5"></i>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="17" y1="7" x2="7" y2="17"></line>
+                        <polyline points="17 17 7 17 7 7"></polyline>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -77,7 +98,11 @@
                     <span class="text-[10px] font-bold text-rose-500 mt-2 block">Deducted for unit repairs</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-sm">
-                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -93,7 +118,9 @@
                     <span class="text-[10px] font-bold text-amber-600 mt-2 block">Contract maintenance split</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm">
-                    <i data-lucide="wrench" class="w-5 h-5"></i>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -109,7 +136,10 @@
                     <span class="text-[10px] font-bold text-indigo-500 mt-2 block">Personal savings payouts</span>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-sm">
-                    <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -120,11 +150,22 @@
         <div class="border-b border-slate-200 bg-slate-50/50 px-6 pt-3 flex items-center justify-between flex-wrap gap-3 rounded-t-2xl">
             <div class="flex space-x-2">
                 <button type="button" onclick="switchLedgerView('transactions')" id="tabBtnTransactions" class="px-4 py-3 border-b-2 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 border-emerald-600 text-emerald-700">
-                    <i data-lucide="list-ordered" class="w-4 h-4"></i> All Ledger Transactions
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="10" y1="6" x2="21" y2="6"></line>
+                        <line x1="10" y1="12" x2="21" y2="12"></line>
+                        <line x1="10" y1="18" x2="21" y2="18"></line>
+                        <polyline points="3 6 4 7 4 5"></polyline>
+                        <path d="M4 11h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H4a1 1 0 0 0-1 1v1h3"></path>
+                    </svg> All Ledger Transactions
                     <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-100 text-emerald-800">{{ $transactions->total() }}</span>
                 </button>
                 <button type="button" onclick="switchLedgerView('directory')" id="tabBtnDirectory" class="px-4 py-3 border-b-2 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-800">
-                    <i data-lucide="users" class="w-4 h-4"></i> Driver Balances Directory
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg> Driver Balances Directory
                     <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-200 text-slate-700">{{ count($drivers) }}</span>
                 </button>
             </div>
@@ -148,13 +189,18 @@
                         <span>Search Driver or Keywords</span>
                         @if($currentSearchValue || request('driver_id'))
                             <span class="text-emerald-600 font-bold text-[10px] flex items-center gap-1">
-                                <i data-lucide="filter" class="w-3 h-3"></i> filtered
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg> filtered
                             </span>
                         @endif
                     </label>
                     <div class="relative" id="ledgerSearchContainer">
                         <div class="relative">
-                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
                             <input type="text" name="search" id="ledgerSearchInput" value="{{ $currentSearchValue }}" 
                                    placeholder="Type driver name, taxi plate, or notes to search..." 
                                    autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
@@ -163,11 +209,16 @@
                             <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
                                 @if($currentSearchValue || request('driver_id'))
                                     <button type="button" onclick="clearLedgerSearch(event)" class="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors" title="Clear Search & Show All Drivers">
-                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
                                     </button>
                                 @endif
                                 <button type="button" onclick="toggleLedgerDriverDropdown(event)" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Browse Drivers">
-                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -241,7 +292,12 @@
                         <div class="flex-1 min-w-0">
                             <button type="button" onclick="openCalendarPicker(event)" id="btnSingleDate" class="w-full px-3 py-2 bg-white border border-slate-200 hover:border-amber-400 focus:border-amber-500 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-between transition-all shadow-2xs text-left group">
                                 <div class="flex items-center gap-2 truncate">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform"></i>
+                                    <svg class="w-4 h-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
                                     <span id="display_selected_date" class="truncate {{ (request('date') || request('date_from')) ? 'text-slate-900 font-bold' : 'text-slate-400 font-normal' }}">
                                         @if(request('date'))
                                             {{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}
@@ -257,10 +313,15 @@
                                 <div class="flex items-center gap-1 shrink-0">
                                     @if(request('date') || request('date_from') || request('date_to'))
                                         <span onclick="clearSelectedDate(event, true)" class="text-slate-400 hover:text-rose-500 p-0.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer" title="Clear Date">
-                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
                                         </span>
                                     @else
-                                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+                                        <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
                                     @endif
                                 </div>
                             </button>
@@ -271,13 +332,18 @@
 
                         <!-- Filter Submit Button -->
                         <button type="submit" class="px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer" title="Apply Filter">
-                            <i data-lucide="filter" class="w-4 h-4"></i>
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
                         </button>
 
                         <!-- Reset Filter Button -->
                         @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
                             <a href="{{ route('driver-management.funds-ledger') }}" class="px-3 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer" title="Reset Filters">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
                             </a>
                         @endif
                     </div>
@@ -287,11 +353,15 @@
                         <!-- Calendar Header: Navigation & Month/Year -->
                         <div class="flex items-center justify-between mb-3 px-1">
                             <button type="button" onclick="calendarNavMonth(-1, event)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Previous Month">
-                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
                             </button>
                             <span class="font-bold text-slate-800 text-sm tracking-tight text-center" id="calMonthYearTitle"></span>
                             <button type="button" id="calNextMonthBtn" onclick="calendarNavMonth(1, event)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Next Month">
-                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
                             </button>
                         </div>
 
@@ -336,12 +406,17 @@
                 <div class="flex items-center justify-between bg-amber-50/90 border border-amber-200/90 px-4 py-2.5 rounded-xl text-xs shadow-2xs flex-wrap gap-2">
                     <div class="flex items-center gap-2 text-amber-900 font-bold flex-wrap">
                         <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-2xs">
-                            <i data-lucide="filter" class="w-3 h-3"></i> Active Filter
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg> Active Filter
                         </span>
                         
                         @if($currentSearchValue || request('driver_id'))
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-300 rounded-md text-slate-800 font-bold text-xs">
-                                <i data-lucide="user" class="w-3 h-3 text-emerald-600"></i>
+                                <svg class="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
                                 Driver / Search: <strong class="text-emerald-700 font-black">{{ $currentSearchValue }}</strong>
                             </span>
                         @endif
@@ -354,7 +429,12 @@
 
                         @if(request('date') || request('date_from') || request('date_to'))
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-300 rounded-md text-slate-800 font-bold text-xs">
-                                <i data-lucide="calendar" class="w-3 h-3 text-amber-600"></i>
+                                <svg class="w-3 h-3 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
                                 Date:
                                 <strong class="text-amber-950 font-black">
                                     @if(request('date'))
@@ -370,14 +450,21 @@
 
                         @if($transactions->total() === 0)
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-700 font-black text-[11px]">
-                                <i data-lucide="alert-circle" class="w-3 h-3"></i> No Records Found (0 records)
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg> No Records Found (0 records)
                             </span>
                         @else
                             <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
                         @endif
                     </div>
                     <a href="{{ route('driver-management.funds-ledger') }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
-                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear All Filters
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg> Clear All Filters
                     </a>
                 </div>
             @endif
@@ -429,23 +516,40 @@
                             <td class="p-4 whitespace-nowrap">
                                 @if($t->type === 'deposit')
                                     <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> {{ $t->boundary_id ? 'Shift Deposit' : 'Manual Deposit' }}
+                                        <svg class="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="17" y1="7" x2="7" y2="17"></line>
+                                            <polyline points="17 17 7 17 7 7"></polyline>
+                                        </svg> {{ $t->boundary_id ? 'Shift Deposit' : 'Manual Deposit' }}
                                     </span>
                                 @elseif($t->type === 'damage_deduction')
                                     <span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Accident / Damage
+                                        <svg class="w-3 h-3 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                        </svg> Accident / Damage
                                     </span>
                                 @elseif($t->type === 'maintenance_share')
                                     <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="wrench" class="w-3 h-3 text-amber-600"></i> Maintenance Share
+                                        <svg class="w-3 h-3 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                        </svg> Maintenance Share
                                     </span>
                                 @elseif($t->type === 'company_liability')
                                     <span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="receipt" class="w-3 h-3 text-purple-600"></i> Debt / Liability
+                                        <svg class="w-3 h-3 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"></path>
+                                            <line x1="16" y1="8" x2="8" y2="8"></line>
+                                            <line x1="16" y1="12" x2="8" y2="12"></line>
+                                            <line x1="13" y1="16" x2="8" y2="16"></line>
+                                        </svg> Debt / Liability
                                     </span>
                                 @else
                                     <span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                                        <i data-lucide="arrow-up-right" class="w-3 h-3 text-blue-600"></i> Driver Cashout
+                                        <svg class="w-3 h-3 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                                            <polyline points="7 7 17 7 17 17"></polyline>
+                                        </svg> Driver Cashout
                                     </span>
                                 @endif
                             </td>
@@ -475,10 +579,21 @@
                         <tr>
                             <td colspan="7" class="p-12 text-center text-slate-500">
                                 <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                                    <i data-lucide="calendar-x" class="w-7 h-7"></i>
+                                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        <line x1="10" y1="14" x2="14" y2="18"></line>
+                                        <line x1="14" y1="14" x2="10" y2="18"></line>
+                                    </svg>
                                 </div>
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
-                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> No Records Found
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg> No Records Found
                                 </div>
                                 <h4 class="font-black text-slate-800 text-base mb-1.5">{{ (request('date') || request('date_from')) ? 'No Transactions on Selected Date' : 'No Fund Transactions Found' }}</h4>
                                 <p class="text-xs text-slate-500 mb-5 max-w-md mx-auto font-medium leading-relaxed">
@@ -496,7 +611,10 @@
                                 </p>
                                 @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
                                     <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">
-                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Filter & View All Records
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="1 4 1 10 7 10"></polyline>
+                                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                        </svg> Clear Filter & View All Records
                                     </a>
                                 @endif
                             </td>
@@ -517,7 +635,10 @@
             <div class="flex items-center justify-between flex-wrap gap-2">
                 <p class="text-xs text-slate-500 font-medium">Overview of individual driver reserves, lifetime deposits, damage deductions, and available balances.</p>
                 <div class="relative w-72">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
                     <input type="search" id="directorySearchInput" name="driver_directory_query" onkeyup="filterDirectoryTable()" 
                            placeholder="Search in directory..." 
                            autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
@@ -587,13 +708,24 @@
                             <td class="p-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center gap-1.5">
                                     <button type="button" onclick="openLedgerDepositModal({{ $d->id }}, '{{ addslashes($d->full_name) }}', {{ $d->current_balance }})" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-2xs cursor-pointer" title="Manual Pondo Deposit">
-                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Deposit
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg> Deposit
                                     </button>
                                     <button type="button" onclick="openLedgerDisburseModal({{ $d->id }}, '{{ addslashes($d->full_name) }}', {{ $d->current_balance }})" class="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-black uppercase tracking-wider transition-all flex items-center gap-1 shadow-2xs cursor-pointer" {{ $d->current_balance <= 0 ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
-                                        <i data-lucide="minus" class="w-3.5 h-3.5"></i> Deduct / Payout
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg> Deduct / Payout
                                     </button>
                                     <a href="{{ route('driver-management.funds-ledger', ['driver_id' => $d->id]) }}" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer" title="View driver ledger">
-                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Statement
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg> Statement
                                     </a>
                                 </div>
                             </td>
@@ -612,7 +744,11 @@
         <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-                    <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
+                        <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
+                        <circle cx="16" cy="11" r="1"></circle>
+                    </svg>
                 </div>
                 <div>
                     <h3 class="text-sm font-black uppercase tracking-wider">Disburse / Deduct Fund</h3>
@@ -620,7 +756,10 @@
                 </div>
             </div>
             <button type="button" onclick="closeLedgerDisburseModal()" class="text-slate-400 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-5 h-5"></i>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
         </div>
 
@@ -634,9 +773,14 @@
                                autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
                                class="w-full pl-9 pr-9 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-2xs"
                                placeholder="Type driver name or plate to search...">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
                         <button type="button" onclick="toggleDisburseDriverDropdown(event)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
                         </button>
                     </div>
                     <input type="hidden" id="disburseDriverSelect" name="driver_id" required value="">
@@ -731,7 +875,10 @@
             <div class="pt-2 flex justify-end gap-2">
                 <button type="button" onclick="closeLedgerDisburseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
                 <button type="submit" id="btnSubmitLedgerDisburse" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Deduction / Payout
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg> Confirm Deduction / Payout
                 </button>
             </div>
         </form>
@@ -744,7 +891,10 @@
         <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-                    <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="17" y1="7" x2="7" y2="17"></line>
+                        <polyline points="17 17 7 17 7 7"></polyline>
+                    </svg>
                 </div>
                 <div>
                     <h3 class="text-sm font-black uppercase tracking-wider">Manual Pondo Deposit</h3>
@@ -752,7 +902,10 @@
                 </div>
             </div>
             <button type="button" onclick="closeLedgerDepositModal()" class="text-slate-400 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-5 h-5"></i>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
             </button>
         </div>
 
@@ -766,9 +919,14 @@
                                autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
                                class="w-full pl-9 pr-9 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs"
                                placeholder="Type driver name or plate to search...">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
                         <button type="button" onclick="toggleDepositDriverDropdown(event)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
                         </button>
                     </div>
                     <input type="hidden" id="depositDriverSelect" name="driver_id" required value="">
@@ -855,7 +1013,10 @@
             <div class="pt-2 flex justify-end gap-2">
                 <button type="button" onclick="closeLedgerDepositModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
                 <button type="submit" id="btnSubmitLedgerDeposit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg> Record Deposit
                 </button>
             </div>
         </form>
@@ -1126,8 +1287,7 @@
 
         const btn = document.getElementById('btnSubmitLedgerDisburse');
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Processing...';
 
         fetch(`/driver-management/${driverId}/withdraw-fund`, {
             method: 'POST',
@@ -1141,8 +1301,7 @@
         .then(r => r.json())
         .then(res => {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Transaction';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Confirm Deduction / Payout';
 
             if (res.success) {
                 Swal.fire({
@@ -1165,8 +1324,7 @@
         .catch(err => {
             console.error(err);
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Transaction';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Confirm Deduction / Payout';
             Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
         });
     }
@@ -1280,8 +1438,7 @@
 
         const btn = document.getElementById('btnSubmitLedgerDeposit');
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Processing...';
 
         fetch(`/driver-management/${driverId}/deposit-fund`, {
             method: 'POST',
@@ -1295,8 +1452,7 @@
         .then(r => r.json())
         .then(res => {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Record Deposit';
 
             if (res.success) {
                 Swal.fire({
@@ -1319,8 +1475,7 @@
         .catch(err => {
             console.error(err);
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Record Deposit';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Record Deposit';
             Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
         });
     }
