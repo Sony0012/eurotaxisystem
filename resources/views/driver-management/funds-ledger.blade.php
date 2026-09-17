@@ -132,36 +132,97 @@
 
         <!-- VIEW 1: All Transactions Ledger -->
         <div id="viewTransactions" class="p-6 space-y-5">
+            @php
+                $selectedDriver = null;
+                if (request('driver_id')) {
+                    $selectedDriver = $drivers->firstWhere('id', request('driver_id'));
+                }
+                $currentSearchValue = request('search') ?: ($selectedDriver ? $selectedDriver->full_name : '');
+            @endphp
+
             <!-- Filter Bar Form -->
-            <form id="fundsLedgerFilterForm" method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
-                <!-- Search -->
-                <div class="lg:col-span-4">
-                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Search Keywords</label>
-                    <div class="relative">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="search" name="search" id="ledgerSearchInput" value="{{ request('search') }}" 
-                               placeholder="Driver name, plate, or note..." 
-                               autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
-                               readonly onfocus="this.removeAttribute('readonly');"
-                               class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+            <form id="fundsLedgerFilterForm" method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                <!-- Search & Driver Auto-suggestions (Unified Search) -->
+                <div class="lg:col-span-6">
+                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1 flex items-center justify-between">
+                        <span>Search Driver or Keywords</span>
+                        @if($currentSearchValue || request('driver_id'))
+                            <span class="text-emerald-600 font-bold text-[10px] flex items-center gap-1">
+                                <i data-lucide="filter" class="w-3 h-3"></i> filtered
+                            </span>
+                        @endif
+                    </label>
+                    <div class="relative" id="ledgerSearchContainer">
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                            <input type="text" name="search" id="ledgerSearchInput" value="{{ $currentSearchValue }}" 
+                                   placeholder="Type driver name, taxi plate, or notes to search..." 
+                                   autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
+                                   class="w-full pl-9 pr-16 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs">
+                            
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                                @if($currentSearchValue || request('driver_id'))
+                                    <button type="button" onclick="clearLedgerSearch(event)" class="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors" title="Clear Search & Show All Drivers">
+                                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                @endif
+                                <button type="button" onclick="toggleLedgerDriverDropdown(event)" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Browse Drivers">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="driver_id" id="ledgerFilterDriverId" value="{{ request('driver_id') }}">
+
+                        <!-- Driver Suggestions Dropdown (Same as Add Deposit) -->
+                        <div id="ledgerDriverSearchDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-100">
+                            <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+                                <span>Driver Suggestions</span>
+                                <span id="ledgerDriverMatchCount" class="font-mono">{{ count($drivers) }} drivers</span>
+                            </div>
+                            <div id="ledgerDriverSuggestionsList" class="divide-y divide-slate-100">
+                                @foreach($drivers as $d)
+                                    <div class="ledger-filter-driver-item px-3.5 py-2.5 hover:bg-emerald-50/70 cursor-pointer transition-colors flex items-center justify-between gap-2"
+                                         data-id="{{ $d->id }}"
+                                         data-name="{{ $d->full_name }}"
+                                         data-plate="{{ $d->assigned_plate ?: 'Unassigned' }}"
+                                         data-license="{{ $d->license_number ?: '' }}"
+                                         data-balance="{{ $d->current_balance }}"
+                                         onmousedown="selectLedgerFilterDriver(this)"
+                                         onclick="selectLedgerFilterDriver(this)">
+                                        <div class="min-w-0 flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-black text-[10px] flex items-center justify-center shrink-0 border border-slate-200 uppercase">
+                                                @if(!empty($d->profile_photo))
+                                                    <img src="{{ asset('storage/' . $d->profile_photo) }}" alt="" class="w-full h-full object-cover rounded-full">
+                                                @else
+                                                    {{ substr($d->first_name, 0, 1) }}{{ substr($d->last_name, 0, 1) }}
+                                                @endif
+                                            </div>
+                                            <div class="truncate">
+                                                <div class="font-black text-xs text-slate-900 truncate">{{ $d->full_name }}</div>
+                                                <div class="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5">
+                                                    <span class="font-mono font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{{ $d->assigned_plate ?: 'Unassigned' }}</span>
+                                                    @if($d->license_number)
+                                                        <span class="font-mono text-[9px]">Lic: {{ $d->license_number }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right shrink-0">
+                                            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Pondo</span>
+                                            <span class="text-xs font-mono font-black text-emerald-700">₱{{ number_format($d->current_balance, 2) }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div id="ledgerDriverNoMatch" class="hidden p-4 text-center text-xs text-slate-400 font-semibold">
+                                No matching drivers found. Press <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-mono font-bold text-slate-700">Enter</kbd> to search general keywords.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Driver Filter -->
-                <div class="lg:col-span-3">
-                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Filter by Driver</label>
-                    <select name="driver_id" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                        <option value="">All Drivers</option>
-                        @foreach($drivers as $d)
-                            <option value="{{ $d->id }}" {{ request('driver_id') == $d->id ? 'selected' : '' }}>
-                                {{ $d->full_name }} ({{ $d->assigned_plate ?: 'Unassigned' }}) — ₱{{ number_format($d->current_balance, 2) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <!-- Transaction Type Filter -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-3">
                     <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Transaction Type</label>
                     <select name="type" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                         <option value="all" {{ request('type') == 'all' || !request('type') ? 'selected' : '' }}>All Types</option>
@@ -209,13 +270,13 @@
                         </div>
 
                         <!-- Filter Submit Button -->
-                        <button type="submit" class="px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center shrink-0 shadow-2xs" title="Apply Filter">
+                        <button type="submit" class="px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer" title="Apply Filter">
                             <i data-lucide="filter" class="w-4 h-4"></i>
                         </button>
 
                         <!-- Reset Filter Button -->
                         @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
-                            <a href="{{ route('driver-management.funds-ledger') }}" class="px-3 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300 transition-all flex items-center justify-center shrink-0 shadow-2xs" title="Reset Filters">
+                            <a href="{{ route('driver-management.funds-ledger') }}" class="px-3 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-300 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer" title="Reset Filters">
                                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                             </a>
                         @endif
@@ -270,23 +331,43 @@
                 </div>
             </form>
 
-            <!-- Active Date Filter Pill / Bar -->
-            @if(request('date') || request('date_from') || request('date_to'))
-                <div class="flex items-center justify-between bg-amber-50/90 border border-amber-200/90 px-4 py-2.5 rounded-xl text-xs shadow-2xs">
+            <!-- Active Filter Banner (Search, Driver, Type, Date) -->
+            @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
+                <div class="flex items-center justify-between bg-amber-50/90 border border-amber-200/90 px-4 py-2.5 rounded-xl text-xs shadow-2xs flex-wrap gap-2">
                     <div class="flex items-center gap-2 text-amber-900 font-bold flex-wrap">
                         <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-2xs">
-                            <i data-lucide="filter" class="w-3 h-3"></i> Filtered Date
+                            <i data-lucide="filter" class="w-3 h-3"></i> Active Filter
                         </span>
-                        <span class="text-slate-600 font-medium">Transactions for:</span>
-                        <span class="font-black text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2">
-                            @if(request('date'))
-                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}
-                            @elseif(request('date_from') && request('date_to'))
-                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }} &ndash; {{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}
-                            @elseif(request('date_from'))
-                                From {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
-                            @endif
-                        </span>
+                        
+                        @if($currentSearchValue || request('driver_id'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-300 rounded-md text-slate-800 font-bold text-xs">
+                                <i data-lucide="user" class="w-3 h-3 text-emerald-600"></i>
+                                Driver / Search: <strong class="text-emerald-700 font-black">{{ $currentSearchValue }}</strong>
+                            </span>
+                        @endif
+
+                        @if(request('type') && request('type') !== 'all')
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-300 rounded-md text-slate-800 font-bold text-xs">
+                                Type: <strong class="text-slate-900 font-black">{{ ucwords(str_replace('_', ' ', request('type'))) }}</strong>
+                            </span>
+                        @endif
+
+                        @if(request('date') || request('date_from') || request('date_to'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-300 rounded-md text-slate-800 font-bold text-xs">
+                                <i data-lucide="calendar" class="w-3 h-3 text-amber-600"></i>
+                                Date:
+                                <strong class="text-amber-950 font-black">
+                                    @if(request('date'))
+                                        {{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}
+                                    @elseif(request('date_from') && request('date_to'))
+                                        {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }} &ndash; {{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}
+                                    @elseif(request('date_from'))
+                                        From {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
+                                    @endif
+                                </strong>
+                            </span>
+                        @endif
+
                         @if($transactions->total() === 0)
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-700 font-black text-[11px]">
                                 <i data-lucide="alert-circle" class="w-3 h-3"></i> No Records Found (0 records)
@@ -295,8 +376,8 @@
                             <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
                         @endif
                     </div>
-                    <a href="{{ route('driver-management.funds-ledger', request()->except(['date', 'date_from', 'date_to'])) }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
-                        <i data-lucide="x" class="w-3.5 h-3.5"></i> Clear Date Filter
+                    <a href="{{ route('driver-management.funds-ledger') }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear All Filters
                     </a>
                 </div>
             @endif
@@ -399,7 +480,7 @@
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
                                     <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> No Records Found
                                 </div>
-                                <h4 class="font-black text-slate-800 text-base mb-1.5">No Transactions on Selected Date</h4>
+                                <h4 class="font-black text-slate-800 text-base mb-1.5">{{ (request('date') || request('date_from')) ? 'No Transactions on Selected Date' : 'No Fund Transactions Found' }}</h4>
                                 <p class="text-xs text-slate-500 mb-5 max-w-md mx-auto font-medium leading-relaxed">
                                     @if(request('date'))
                                         No fund transactions recorded on <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}</strong>.
@@ -407,6 +488,8 @@
                                         No fund transactions recorded between <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong> and <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}</strong>.
                                     @elseif(request('date_from'))
                                         No fund transactions recorded starting from <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong>.
+                                    @elseif($currentSearchValue || request('driver_id'))
+                                        No fund transactions found matching <strong class="text-slate-800 font-bold underline decoration-emerald-400">{{ $currentSearchValue }}</strong>.
                                     @else
                                         No fund transactions match your filter criteria.
                                     @endif
@@ -848,6 +931,93 @@
         setTimeout(sanitizeSearchAutofill, 600);
         setTimeout(sanitizeSearchAutofill, 1200);
     });
+
+    // --- Ledger Filter Driver Search Handlers ---
+    function toggleLedgerDriverDropdown(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('ledgerDriverSearchDropdown');
+        const input = document.getElementById('ledgerSearchInput');
+        if (dd && dd.classList.contains('hidden')) {
+            filterLedgerDrivers(input ? input.value : '');
+            dd.classList.remove('hidden');
+            if (input) input.focus();
+        } else if (dd) {
+            dd.classList.add('hidden');
+        }
+    }
+
+    function filterLedgerDrivers(term) {
+        const cleanTerm = (term || '').toLowerCase().trim();
+        const items = document.querySelectorAll('.ledger-filter-driver-item');
+        let matches = 0;
+        items.forEach(item => {
+            const name = (item.getAttribute('data-name') || '').toLowerCase();
+            const plate = (item.getAttribute('data-plate') || '').toLowerCase();
+            const license = (item.getAttribute('data-license') || '').toLowerCase();
+            if (!cleanTerm || name.includes(cleanTerm) || plate.includes(cleanTerm) || license.includes(cleanTerm)) {
+                item.style.display = 'flex';
+                matches++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        const countEl = document.getElementById('ledgerDriverMatchCount');
+        if (countEl) countEl.textContent = `${matches} driver${matches === 1 ? '' : 's'}`;
+        const noMatchEl = document.getElementById('ledgerDriverNoMatch');
+        if (noMatchEl) noMatchEl.classList.toggle('hidden', matches > 0);
+    }
+
+    function selectLedgerFilterDriver(el) {
+        const id = el.getAttribute('data-id');
+        const name = el.getAttribute('data-name');
+
+        const searchInput = document.getElementById('ledgerSearchInput');
+        const driverIdInput = document.getElementById('ledgerFilterDriverId');
+        const dropdown = document.getElementById('ledgerDriverSearchDropdown');
+
+        if (searchInput) searchInput.value = name;
+        if (driverIdInput) driverIdInput.value = id;
+        if (dropdown) dropdown.classList.add('hidden');
+
+        const form = document.getElementById('fundsLedgerFilterForm');
+        if (form) {
+            const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+            if (tableWrap) {
+                tableWrap.style.opacity = '0.35';
+                tableWrap.style.pointerEvents = 'none';
+            }
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        }
+    }
+
+    function clearLedgerSearch(e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        const searchInput = document.getElementById('ledgerSearchInput');
+        const driverIdInput = document.getElementById('ledgerFilterDriverId');
+        if (searchInput) searchInput.value = '';
+        if (driverIdInput) driverIdInput.value = '';
+
+        const form = document.getElementById('fundsLedgerFilterForm');
+        if (form) {
+            const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+            if (tableWrap) {
+                tableWrap.style.opacity = '0.35';
+                tableWrap.style.pointerEvents = 'none';
+            }
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        }
+    }
 
     function openLedgerDisburseModal(driverId = null, driverName = null, balance = null) {
         const hiddenInput = document.getElementById('disburseDriverSelect');
@@ -1548,9 +1718,11 @@
                 targetUrl.searchParams.set('search', searchInput.value.trim());
             }
 
-            const driverSelect = document.querySelector('#fundsLedgerFilterForm select[name="driver_id"]');
-            if (driverSelect && driverSelect.value) {
-                targetUrl.searchParams.set('driver_id', driverSelect.value);
+            const driverIdInput = document.getElementById('ledgerFilterDriverId');
+            if (driverIdInput && driverIdInput.value) {
+                targetUrl.searchParams.set('driver_id', driverIdInput.value);
+            } else {
+                targetUrl.searchParams.delete('driver_id');
             }
 
             const typeSelect = document.querySelector('#fundsLedgerFilterForm select[name="type"]');
@@ -1747,8 +1919,45 @@
             });
         }
 
+        // Searchable Driver Suggestions for Ledger Main Filter Bar
+        const ledgerSearchInput = document.getElementById('ledgerSearchInput');
+        const ledgerDriverDropdown = document.getElementById('ledgerDriverSearchDropdown');
+        if (ledgerSearchInput && ledgerDriverDropdown) {
+            ledgerSearchInput.addEventListener('focus', function() {
+                filterLedgerDrivers(this.value);
+                ledgerDriverDropdown.classList.remove('hidden');
+            });
+            ledgerSearchInput.addEventListener('click', function() {
+                filterLedgerDrivers(this.value);
+                ledgerDriverDropdown.classList.remove('hidden');
+            });
+            ledgerSearchInput.addEventListener('input', function() {
+                const dIdInput = document.getElementById('ledgerFilterDriverId');
+                if (dIdInput) dIdInput.value = '';
+                filterLedgerDrivers(this.value);
+                ledgerDriverDropdown.classList.remove('hidden');
+            });
+            ledgerSearchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    ledgerDriverDropdown.classList.add('hidden');
+                } else if (e.key === 'Enter') {
+                    if (!ledgerDriverDropdown.classList.contains('hidden')) {
+                        const visibleItems = Array.from(document.querySelectorAll('.ledger-filter-driver-item')).filter(item => item.style.display !== 'none');
+                        if (visibleItems.length === 1) {
+                            e.preventDefault();
+                            selectLedgerFilterDriver(visibleItems[0]);
+                        }
+                    }
+                }
+            });
+        }
+
         // Close driver suggestions on outside click
         document.addEventListener('click', function(e) {
+            const searchContainer = document.getElementById('ledgerSearchContainer');
+            if (searchContainer && !searchContainer.contains(e.target)) {
+                document.getElementById('ledgerDriverSearchDropdown')?.classList.add('hidden');
+            }
             const depContainer = document.getElementById('depositDriverSearchContainer');
             if (depContainer && !depContainer.contains(e.target)) {
                 document.getElementById('depositDriverDropdown')?.classList.add('hidden');

@@ -242,19 +242,18 @@ class DriverManagementV2Controller extends Controller
                 'creator.full_name as creator_name'
             );
 
-        if ($request->filled('search')) {
+        if ($request->filled('driver_id')) {
+            $query->where('df.driver_id', $request->input('driver_id'));
+        } elseif ($request->filled('search')) {
             $s = trim($request->input('search'));
             $query->where(function($q) use ($s) {
                 $q->where('d.first_name', 'like', "%{$s}%")
                   ->orWhere('d.last_name', 'like', "%{$s}%")
+                  ->orWhere(DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))"), 'like', "%{$s}%")
                   ->orWhere('d.license_number', 'like', "%{$s}%")
                   ->orWhere('u.plate_number', 'like', "%{$s}%")
                   ->orWhere('df.description', 'like', "%{$s}%");
             });
-        }
-
-        if ($request->filled('driver_id')) {
-            $query->where('df.driver_id', $request->input('driver_id'));
         }
 
         if ($request->filled('type') && $request->input('type') !== 'all') {
