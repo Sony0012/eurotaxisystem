@@ -277,14 +277,20 @@
                         <span class="text-slate-600 font-medium">Transaksyon para sa:</span>
                         <span class="font-black text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2">
                             @if(request('date'))
-                                {{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}
+                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}
                             @elseif(request('date_from') && request('date_to'))
-                                {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }} &ndash; {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }} &ndash; {{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}
                             @elseif(request('date_from'))
-                                From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                Simula {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
                             @endif
                         </span>
-                        <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
+                        @if($transactions->total() === 0)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-700 font-black text-[11px]">
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Walang Data (0 records)
+                            </span>
+                        @else
+                            <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
+                        @endif
                     </div>
                     <a href="{{ route('driver-management.funds-ledger', request()->except(['date', 'date_from', 'date_to'])) }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
                         <i data-lucide="x" class="w-3.5 h-3.5"></i> Clear Date Filter
@@ -384,24 +390,27 @@
                         @empty
                         <tr>
                             <td colspan="7" class="p-12 text-center text-slate-500">
-                                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                                    <i data-lucide="calendar-x" class="w-6 h-6"></i>
+                                <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                                    <i data-lucide="calendar-x" class="w-7 h-7"></i>
                                 </div>
-                                <p class="font-bold text-slate-800 text-sm mb-1">No transactions found</p>
-                                <p class="text-xs text-slate-400 mb-4 max-w-md mx-auto">
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Walang Data (No Records Found)
+                                </div>
+                                <h4 class="font-black text-slate-800 text-base mb-1.5">Walang Transaksyon sa Napiling Petsa</h4>
+                                <p class="text-xs text-slate-500 mb-5 max-w-md mx-auto font-medium leading-relaxed">
                                     @if(request('date'))
-                                        Walang transaksyon na naitala sa petsang <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date'))->format('M d, Y') }}</strong>.
+                                        Walang pondong transaksyon na naitala sa petsang <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}</strong>.
                                     @elseif(request('date_from') && request('date_to'))
-                                        Walang transaksyon sa pagitan ng <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong> at <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}</strong>.
+                                        Walang pondong transaksyon sa pagitan ng <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong> at <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}</strong>.
                                     @elseif(request('date_from'))
-                                        Walang transaksyon simula <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong>.
+                                        Walang pondong transaksyon simula <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong>.
                                     @else
-                                        No fund transactions found matching your search criteria.
+                                        Walang pondong transaksyon na tumutugma sa iyong filter criteria.
                                     @endif
                                 </p>
                                 @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
-                                    <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs">
-                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear Filter & View All Records
+                                    <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> I-clear ang Filter & Ipakita Lahat
                                     </a>
                                 @endif
                             </td>
@@ -785,6 +794,7 @@
     let calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
     let calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
     let isSelecting = false;
+    let calLastHoverDate = null;
 
     const todayStrInit = getLocalTodayStr();
     if (calStartDate && calStartDate > todayStrInit) calStartDate = todayStrInit;
@@ -942,7 +952,10 @@
     }
 
     function handleCellClick(dateStr, event) {
-        if (event) event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         const todayStr = getLocalTodayStr();
         if (dateStr > todayStr) return; // Strict validation: Advance date disallowed
 
@@ -950,21 +963,25 @@
             // First click: sets Start Date and begins range selection
             calStartDate = dateStr;
             calEndDate = null;
+            calLastHoverDate = null;
             isSelecting = true;
         } else {
             // Second click:
             if (dateStr === calStartDate) {
                 // Clicked same date: confirm as single date
                 calEndDate = null;
+                calLastHoverDate = null;
                 isSelecting = false;
             } else if (dateStr < calStartDate) {
                 // Clicked earlier date: reorder
                 calEndDate = calStartDate;
                 calStartDate = dateStr;
+                calLastHoverDate = null;
                 isSelecting = false;
             } else {
                 // Clicked later date: confirm range
                 calEndDate = dateStr;
+                calLastHoverDate = null;
                 isSelecting = false;
             }
         }
@@ -977,6 +994,7 @@
         if (!isSelecting) return;
         const todayStr = getLocalTodayStr();
         if (dateStr > todayStr) return;
+        calLastHoverDate = dateStr;
         updateCalendarStyles(dateStr);
     }
 
@@ -1062,14 +1080,35 @@
         }
 
         const todayStr = getLocalTodayStr();
+
+        // If user hovered over an end date and clicked Apply without a 2nd cell click:
+        if (isSelecting && calStartDate) {
+            if (calLastHoverDate && calLastHoverDate !== calStartDate && calLastHoverDate <= todayStr) {
+                if (calLastHoverDate < calStartDate) {
+                    calEndDate = calStartDate;
+                    calStartDate = calLastHoverDate;
+                } else {
+                    calEndDate = calLastHoverDate;
+                }
+            } else {
+                calEndDate = null;
+            }
+            isSelecting = false;
+        }
+
         if (calStartDate && calStartDate > todayStr) calStartDate = todayStr;
         if (calEndDate && calEndDate > todayStr) calEndDate = todayStr;
+        if (calStartDate && calEndDate && calStartDate > calEndDate) {
+            const tmp = calStartDate;
+            calStartDate = calEndDate;
+            calEndDate = tmp;
+        }
 
         const inputDate = document.getElementById('filter_date');
         const inputFrom = document.getElementById('filter_date_from');
         const inputTo = document.getElementById('filter_date_to');
 
-        let previewLabel = 'Select Date or Range';
+        let previewLabel = 'All Dates';
 
         if (calStartDate && calEndDate && calStartDate !== calEndDate) {
             // Date Range
@@ -1090,8 +1129,6 @@
             if (inputTo) inputTo.value = '';
             previewLabel = 'All Dates';
         }
-
-        isSelecting = false;
 
         // 1. Immediate visual feedback on Apply Button: Spinner + "Applying..." + Disabled
         const btnApply = document.getElementById('btnApplyCalendar');
@@ -1119,22 +1156,64 @@
         const dropdown = document.getElementById('customCalendarDropdown');
         if (dropdown) dropdown.classList.add('hidden');
 
-        // 5. Submit filter form reliably
-        const form = document.getElementById('fundsLedgerFilterForm') || document.getElementById('datePickerContainer')?.closest('form');
-        if (form) {
-            if (typeof form.requestSubmit === 'function') {
-                form.requestSubmit();
+        // 5. Guaranteed Direct URL Navigation (Unblockable by form submit listeners or quirks)
+        try {
+            const targetUrl = new URL(window.location.origin + window.location.pathname);
+
+            const searchInput = document.getElementById('ledgerSearchInput');
+            if (searchInput && searchInput.value.trim()) {
+                targetUrl.searchParams.set('search', searchInput.value.trim());
+            }
+
+            const driverSelect = document.querySelector('#fundsLedgerFilterForm select[name="driver_id"]');
+            if (driverSelect && driverSelect.value) {
+                targetUrl.searchParams.set('driver_id', driverSelect.value);
+            }
+
+            const typeSelect = document.querySelector('#fundsLedgerFilterForm select[name="type"]');
+            if (typeSelect && typeSelect.value && typeSelect.value !== 'all') {
+                targetUrl.searchParams.set('type', typeSelect.value);
+            }
+
+            if (calStartDate && calEndDate && calStartDate !== calEndDate) {
+                targetUrl.searchParams.set('date_from', calStartDate);
+                targetUrl.searchParams.set('date_to', calEndDate);
+                targetUrl.searchParams.delete('date');
+            } else if (calStartDate) {
+                targetUrl.searchParams.set('date', calStartDate);
+                targetUrl.searchParams.delete('date_from');
+                targetUrl.searchParams.delete('date_to');
             } else {
-                form.submit();
+                targetUrl.searchParams.delete('date');
+                targetUrl.searchParams.delete('date_from');
+                targetUrl.searchParams.delete('date_to');
+            }
+
+            targetUrl.searchParams.delete('page');
+
+            window.location.href = targetUrl.toString();
+        } catch (e) {
+            // Fallback to standard form submit
+            const form = document.getElementById('fundsLedgerFilterForm') || document.getElementById('datePickerContainer')?.closest('form');
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
             }
         }
     }
 
     function setCalPreset(preset, event) {
-        if (event) event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         const todayStr = getLocalTodayStr();
         const now = new Date();
         isSelecting = false;
+        calLastHoverDate = null;
 
         if (preset === 'today') {
             calStartDate = todayStr;
@@ -1154,9 +1233,13 @@
     }
 
     function clearSelectedDate(event, autoSubmit = false) {
-        if (event) event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         calStartDate = null;
         calEndDate = null;
+        calLastHoverDate = null;
         isSelecting = false;
 
         const inputDate = document.getElementById('filter_date');
@@ -1181,6 +1264,14 @@
         const dropdown = document.getElementById('customCalendarDropdown');
         if (dropdown && !dropdown.classList.contains('hidden')) {
             if (container && container.contains(e.target)) return;
+            if (isSelecting) {
+                calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
+                calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
+                calLastHoverDate = null;
+                isSelecting = false;
+                updateCalendarStyles();
+                updateDisplayPreview();
+            }
             dropdown.classList.add('hidden');
         }
     });
