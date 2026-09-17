@@ -235,14 +235,25 @@ class UnitProfitabilityController extends Controller
 
         $maintSub = DB::table('maintenance')
             ->whereNull('deleted_at')
-            ->where('status', '!=', 'cancelled')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
             ->whereBetween('date_started', [$date_from, $date_to])
             ->select('unit_id', DB::raw('SUM(cost) as total_maintenance'))
+            ->groupBy('unit_id');
+
+        $expensesSub = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(amount) as total_expenses'))
             ->groupBy('unit_id');
 
         $stats = DB::table('units as u')
             ->leftJoinSub($boundariesSub, 'b', 'u.id', '=', 'b.unit_id')
             ->leftJoinSub($maintSub, 'm', 'u.id', '=', 'm.unit_id')
+            ->leftJoinSub($expensesSub, 'e', 'u.id', '=', 'e.unit_id')
             ->select(
                 'u.plate_number',
                 'u.make',
@@ -250,6 +261,7 @@ class UnitProfitabilityController extends Controller
                 'u.purchase_cost',
                 DB::raw('COALESCE(b.total_revenue, 0) as total_revenue'),
                 DB::raw('COALESCE(m.total_maintenance, 0) as total_maintenance'),
+                DB::raw('COALESCE(e.total_expenses, 0) as total_expenses'),
                 DB::raw('COALESCE(b.active_days, 0) as active_days')
             )
             ->whereNull('u.deleted_at')
@@ -258,6 +270,8 @@ class UnitProfitabilityController extends Controller
         $totalUnits = $stats->count();
         $totalRevenue = $stats->sum('total_revenue');
         $totalMaint = $stats->sum('total_maintenance');
+        $totalExp = $stats->sum('total_expenses');
+        $netFleetProfit = $totalRevenue - $totalMaint - $totalExp;
         
         if ($totalUnits === 0) {
             return response()->json(['success' => false, 'message' => 'No unit data available for the selected period.']);
@@ -272,8 +286,10 @@ class UnitProfitabilityController extends Controller
         $worstRev = $worstPerformer->total_revenue ?? 0;
 
         $prompt = "As a Taxi Fleet Financial Analyst AI, analyze this profitability data for $totalUnits units from $date_from to $date_to:
-        - Total Revenue: ₱" . number_format($totalRevenue, 2) . "
+        - Total Inflow (Boundary Collections): ₱" . number_format($totalRevenue, 2) . "
         - Total Maintenance Cost: ₱" . number_format($totalMaint, 2) . "
+        - Total Unit Operating Expenses: ₱" . number_format($totalExp, 2) . "
+        - Net Fleet Operating Profit: ₱" . number_format($netFleetProfit, 2) . "
         - Top Performer: $topPlate (₱" . number_format($topRev, 2) . ")
         - Lowest Revenue: $worstPlate (₱" . number_format($worstRev, 2) . ")
         

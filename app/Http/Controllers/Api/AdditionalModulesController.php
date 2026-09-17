@@ -1089,10 +1089,18 @@ class AdditionalModulesController extends Controller
                         $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
                     });
             })
+            ->leftJoin('expenses as e', function($join) use ($date_from, $date_to) {
+                $join->on('u.id', '=', 'e.unit_id')
+                    ->whereBetween('e.date', [$date_from, $date_to])
+                    ->whereNull('e.deleted_at')
+                    ->where('e.status', 'approved')
+                    ->where('e.category', '!=', 'Damage Recovery');
+            })
             ->select(
                 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost',
                 DB::raw('COALESCE(SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)), 0) as total_revenue'),
                 DB::raw('COALESCE(SUM(m.cost), 0) as total_maintenance'),
+                DB::raw('COALESCE(SUM(e.amount), 0) as total_expenses'),
                 DB::raw('COUNT(DISTINCT b.id) as active_days')
             )
             ->whereNull('u.deleted_at')
@@ -1102,6 +1110,8 @@ class AdditionalModulesController extends Controller
         $totalUnits = $stats->count();
         $totalRevenue = $stats->sum('total_revenue');
         $totalMaint = $stats->sum('total_maintenance');
+        $totalExp = $stats->sum('total_expenses');
+        $netFleetProfit = $totalRevenue - $totalMaint - $totalExp;
         
         if ($totalUnits === 0) {
             return response()->json(['success' => false, 'message' => 'No unit data available for the selected period.']);
@@ -1111,8 +1121,10 @@ class AdditionalModulesController extends Controller
         $worstPerformer = $stats->sortBy('total_revenue')->first();
 
         $prompt = "As a Taxi Fleet Financial Analyst AI, analyze this profitability data for $totalUnits units from $date_from to $date_to:
-        - Total Revenue: ₱" . number_format($totalRevenue, 2) . "
+        - Total Inflow (Boundary Collections): ₱" . number_format($totalRevenue, 2) . "
         - Total Maintenance Cost: ₱" . number_format($totalMaint, 2) . "
+        - Total Unit Operating Expenses: ₱" . number_format($totalExp, 2) . "
+        - Net Fleet Operating Profit: ₱" . number_format($netFleetProfit, 2) . "
         - Top Performer: " . ($topPerformer->plate_number ?? 'N/A') . " (₱" . number_format($topPerformer->total_revenue ?? 0, 2) . ")
         - Lowest Revenue: " . ($worstPerformer->plate_number ?? 'N/A') . " (₱" . number_format($worstPerformer->total_revenue ?? 0, 2) . ")
         

@@ -616,7 +616,7 @@ class AnalyticsController extends Controller
         $daily = DB::table('boundaries')
             ->whereNull('deleted_at')
             ->whereBetween('date', [$startDate, $today])
-            ->selectRaw('DATE(date) as day, SUM(actual_boundary) as total')
+            ->selectRaw('DATE(date) as day, SUM(actual_boundary + COALESCE(damage_payment, 0)) as total')
             ->groupBy('day')
             ->pluck('total', 'day');
 
@@ -647,7 +647,7 @@ class AnalyticsController extends Controller
         return DB::table('drivers as d')
             ->whereNull('d.deleted_at')
             ->leftJoin(DB::raw("(
-                SELECT driver_id, COUNT(DISTINCT date) as days_worked, SUM(actual_boundary) as total_collected
+                SELECT driver_id, COUNT(DISTINCT date) as days_worked, SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_collected
                 FROM boundaries
                 WHERE deleted_at IS NULL AND date BETWEEN '$startDate' AND '$today'
                 GROUP BY driver_id
@@ -689,7 +689,7 @@ class AnalyticsController extends Controller
             ->whereNull('u.deleted_at')
             ->leftJoin(DB::raw("(
                 SELECT unit_id,
-                       SUM(actual_boundary) as total_revenue,
+                       SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_revenue,
                        COUNT(DISTINCT date) as operating_days
                 FROM boundaries
                 WHERE deleted_at IS NULL
@@ -698,7 +698,7 @@ class AnalyticsController extends Controller
             ->leftJoin(DB::raw("(
                 SELECT unit_id, SUM(cost) as total_maintenance
                 FROM maintenance
-                WHERE deleted_at IS NULL
+                WHERE deleted_at IS NULL AND (status IS NULL OR LOWER(status) != 'cancelled')
                 GROUP BY unit_id
             ) as m"), 'm.unit_id', '=', 'u.id')
             ->select(

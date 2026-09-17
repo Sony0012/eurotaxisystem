@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 class DecisionSupportService
 {
     protected string $apiKey;
-    protected string $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+    protected string $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
     public function __construct()
     {
@@ -46,47 +46,70 @@ class DecisionSupportService
             ->where('date', '>=', now()->subDays(60)->toDateString())
             ->selectRaw('
                 COUNT(*) as total_records,
-                SUM(actual_boundary) as total_collected,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_collected,
                 SUM(shortage) as total_shortage,
                 SUM(excess) as total_excess,
-                AVG(actual_boundary) as avg_daily,
+                AVG(actual_boundary + COALESCE(damage_payment, 0)) as avg_daily,
                 COUNT(CASE WHEN shortage > 0 THEN 1 END) as shortage_days
             ')
             ->first();
 
-        // ─── UNIT ROI (Lifetime boundary vs purchase cost) ───────────────────
+        // ─── UNIT ROI (Lifetime boundary & maintenance vs purchase cost) ─────
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->select('unit_id',
+                DB::raw('COALESCE(SUM(actual_boundary + COALESCE(damage_payment, 0)), 0) as lifetime_collected'),
+                DB::raw('COUNT(DISTINCT id) as total_days_operated')
+            )
+            ->groupBy('unit_id');
+
+        $maintenanceSub = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
+            ->select('unit_id',
+                DB::raw('COALESCE(SUM(cost), 0) as lifetime_maintenance')
+            )
+            ->groupBy('unit_id');
+
         $unitROI = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('boundaries as b', function ($join) {
-                $join->on('b.unit_id', '=', 'u.id')->whereNull('b.deleted_at');
-            })
-            ->selectRaw('
-                u.id,
-                u.plate_number,
-                u.purchase_cost,
-                u.boundary_rate,
-                COALESCE(SUM(b.actual_boundary), 0) as lifetime_collected,
-                COUNT(b.id) as total_days_operated
-            ')
-            ->groupBy('u.id', 'u.plate_number', 'u.purchase_cost', 'u.boundary_rate')
+            ->leftJoinSub($boundariesSub, 'b', 'u.id', '=', 'b.unit_id')
+            ->leftJoinSub($maintenanceSub, 'm', 'u.id', '=', 'm.unit_id')
+            ->select(
+                'u.id',
+                'u.plate_number',
+                'u.purchase_cost',
+                'u.boundary_rate',
+                DB::raw('COALESCE(b.lifetime_collected, 0) as lifetime_collected'),
+                DB::raw('COALESCE(b.total_days_operated, 0) as total_days_operated'),
+                DB::raw('COALESCE(m.lifetime_maintenance, 0) as lifetime_maintenance')
+            )
             ->get()
             ->map(function ($u) {
+                $netProfit = $u->lifetime_collected - $u->lifetime_maintenance;
                 $roi = $u->purchase_cost > 0
-                    ? round(($u->lifetime_collected / $u->purchase_cost) * 100, 1)
+                    ? round(($netProfit / $u->purchase_cost) * 100, 1)
                     : 0;
                 return [
-                    'plate'             => $u->plate_number,
-                    'purchase_cost'     => $u->purchase_cost,
-                    'lifetime_collected'=> $u->lifetime_collected,
-                    'roi_pct'           => $roi,
-                    'days_operated'     => $u->total_days_operated,
-                    'roi_achieved'      => $roi >= 100,
+                    'plate'                => $u->plate_number,
+                    'purchase_cost'        => (float)$u->purchase_cost,
+                    'lifetime_collected'   => (float)$u->lifetime_collected,
+                    'lifetime_maintenance' => (float)$u->lifetime_maintenance,
+                    'net_profit'           => (float)$netProfit,
+                    'roi_pct'              => $roi,
+                    'days_operated'        => (int)$u->total_days_operated,
+                    'roi_achieved'         => $roi >= 100,
                 ];
             });
 
         // ─── MAINTENANCE (Last 90 days) ───────────────────────────────────────
         $maintenanceStats = DB::table('maintenance as m')
             ->whereNull('m.deleted_at')
+            ->where(function($q) {
+                $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
+            })
             ->where('m.date_started', '>=', now()->subDays(90)->toDateString())
             ->join('units as u', 'u.id', '=', 'm.unit_id')
             ->selectRaw('
@@ -102,12 +125,17 @@ class DecisionSupportService
 
         $totalMaintenanceCost = DB::table('maintenance')
             ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
             ->where('date_started', '>=', now()->subDays(90)->toDateString())
-            ->sum('cost');
+            ->sum('cost') ?? 0;
 
         // ─── EXPENSES (Last 60 days) ──────────────────────────────────────────
         $expenseStats = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->where('date', '>=', now()->subDays(60)->toDateString())
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->groupBy('category')
@@ -125,10 +153,10 @@ class DecisionSupportService
             ->selectRaw('
                 CONCAT(COALESCE(d.first_name,\'\'),\' \',COALESCE(d.last_name,\'\')) as driver_name,
                 COUNT(b.id) as days_worked,
-                SUM(b.actual_boundary) as total_collected,
+                SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)) as total_collected,
                 SUM(b.shortage) as total_shortage,
                 SUM(b.excess) as total_excess,
-                AVG(b.actual_boundary) as avg_daily,
+                AVG(b.actual_boundary + COALESCE(b.damage_payment, 0)) as avg_daily,
                 COUNT(CASE WHEN b.shortage > 0 THEN 1 END) as shortage_days
             ')
             ->groupBy('d.id', 'driver_name')
@@ -143,10 +171,24 @@ class DecisionSupportService
             $endDate   = date('Y-m-t',  strtotime("-$i months"));
             $monthLabel = date('Y-m',   strtotime("-$i months"));
 
-            $rev = DB::table('boundaries')->whereNull('deleted_at')
-                ->whereBetween('date', [$startDate, $endDate])->sum('actual_boundary') ?? 0;
+            $boundRev = DB::table('boundaries')->whereNull('deleted_at')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0;
+
+            $recoveryInflow = abs(DB::table('expenses')
+                ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', 'Damage Recovery')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount') ?? 0);
+
+            $rev = $boundRev + $recoveryInflow;
+
             $exp = DB::table('expenses')->whereNull('deleted_at')
-                ->whereBetween('date', [$startDate, $endDate])->sum('amount') ?? 0;
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount') ?? 0;
 
             $monthlyFinancials[] = [
                 'month'   => $monthLabel,

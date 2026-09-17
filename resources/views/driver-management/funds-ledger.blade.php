@@ -806,13 +806,14 @@
     let calViewYear = initCalDate.getFullYear();
     let calViewMonth = initCalDate.getMonth(); // 0 - 11
 
-    function formatCalDisplay(yyyy_mm_dd) {
-        if (!yyyy_mm_dd) return '';
-        const parts = yyy_mm_dd.split('-');
-        if (parts.length !== 3) return yyy_mm_dd;
+    function formatCalDisplay(dateStr) {
+        if (!dateStr || typeof dateStr !== 'string') return '';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
         const m = parseInt(parts[1], 10) - 1;
         const d = String(parseInt(parts[2], 10)).padStart(2, '0');
-        return (calMonthsShort[m] || '') + ' ' + d + ', ' + parts[0];
+        const monthName = calMonthsShort[m] || parts[1];
+        return `${monthName} ${d}, ${parts[0]}`;
     }
 
     function openCalendarPicker(event) {
