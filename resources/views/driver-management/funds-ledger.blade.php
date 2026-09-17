@@ -130,7 +130,7 @@
         <!-- VIEW 1: All Transactions Ledger -->
         <div id="viewTransactions" class="p-6 space-y-5">
             <!-- Filter Bar Form -->
-            <form method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+            <form id="fundsLedgerFilterForm" method="GET" action="{{ route('driver-management.funds-ledger') }}" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                 <!-- Search -->
                 <div class="lg:col-span-4">
                     <label class="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Search Keywords</label>
@@ -243,7 +243,7 @@
                         </div>
 
                         <!-- Days Grid -->
-                        <div id="calDaysGrid" class="grid grid-cols-7 gap-y-1 text-center text-xs">
+                        <div id="calDaysGrid" class="grid grid-cols-7 gap-y-1 text-center text-xs" onmouseleave="if (isSelecting) updateCalendarStyles(null);">
                             <!-- Populated dynamically -->
                         </div>
 
@@ -258,7 +258,7 @@
                                 <button type="button" onclick="closeCalendarPicker(event)" class="px-2 py-1 text-slate-400 hover:text-slate-600 font-bold rounded-md transition-colors cursor-pointer">
                                     Close
                                 </button>
-                                <button type="button" onclick="applyDateSelection(event)" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-xs transition-colors cursor-pointer">
+                                <button type="button" id="btnApplyCalendar" onclick="applyDateSelection(event)" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-xs transition-colors cursor-pointer">
                                     Apply
                                 </button>
                             </div>
@@ -267,8 +267,39 @@
                 </div>
             </form>
 
+            <!-- Active Date Filter Pill / Bar -->
+            @if(request('date') || request('date_from') || request('date_to'))
+                <div class="flex items-center justify-between bg-amber-50/90 border border-amber-200/90 px-4 py-2.5 rounded-xl text-xs shadow-2xs">
+                    <div class="flex items-center gap-2 text-amber-900 font-bold flex-wrap">
+                        <span class="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-2xs">
+                            <i data-lucide="filter" class="w-3 h-3"></i> Filtered Date
+                        </span>
+                        <span class="text-slate-600 font-medium">Transaksyon para sa:</span>
+                        <span class="font-black text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2">
+                            @if(request('date'))
+                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}
+                            @elseif(request('date_from') && request('date_to'))
+                                {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }} &ndash; {{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}
+                            @elseif(request('date_from'))
+                                Simula {{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}
+                            @endif
+                        </span>
+                        @if($transactions->total() === 0)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-700 font-black text-[11px]">
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Walang Data (0 records)
+                            </span>
+                        @else
+                            <span class="text-slate-500 font-normal">({{ $transactions->total() }} record{{ $transactions->total() === 1 ? '' : 's' }} found)</span>
+                        @endif
+                    </div>
+                    <a href="{{ route('driver-management.funds-ledger', request()->except(['date', 'date_from', 'date_to'])) }}" class="text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 hover:underline text-xs shrink-0 ml-2">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i> Clear Date Filter
+                    </a>
+                </div>
+            @endif
+
             <!-- Table of Transactions -->
-            <div class="overflow-x-auto rounded-xl border border-slate-200/80">
+            <div id="fundsTransactionsTableWrap" class="overflow-x-auto rounded-xl border border-slate-200/80 transition-opacity duration-200">
                 <table class="w-full text-left text-xs text-slate-700">
                     <thead class="bg-slate-50/80 text-slate-500 font-black uppercase tracking-wider border-b border-slate-200">
                         <tr>
@@ -358,9 +389,30 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="p-12 text-center text-slate-400 font-bold uppercase tracking-wider text-xs">
-                                <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                                No fund transactions found matching your criteria.
+                            <td colspan="7" class="p-12 text-center text-slate-500">
+                                <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                                    <i data-lucide="calendar-x" class="w-7 h-7"></i>
+                                </div>
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Walang Data (No Records Found)
+                                </div>
+                                <h4 class="font-black text-slate-800 text-base mb-1.5">Walang Transaksyon sa Napiling Petsa</h4>
+                                <p class="text-xs text-slate-500 mb-5 max-w-md mx-auto font-medium leading-relaxed">
+                                    @if(request('date'))
+                                        Walang pondong transaksyon na naitala sa petsang <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date'))->format('M d, Y'), request('date')) }}</strong>.
+                                    @elseif(request('date_from') && request('date_to'))
+                                        Walang pondong transaksyon sa pagitan ng <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong> at <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_to'))->format('M d, Y'), request('date_to')) }}</strong>.
+                                    @elseif(request('date_from'))
+                                        Walang pondong transaksyon simula <strong class="text-slate-800 font-bold underline decoration-amber-400">{{ rescue(fn() => \Carbon\Carbon::parse(request('date_from'))->format('M d, Y'), request('date_from')) }}</strong>.
+                                    @else
+                                        Walang pondong transaksyon na tumutugma sa iyong filter criteria.
+                                    @endif
+                                </p>
+                                @if(request()->anyFilled(['search', 'driver_id', 'type', 'date', 'date_from', 'date_to']))
+                                    <a href="{{ route('driver-management.funds-ledger') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer">
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> I-clear ang Filter & Ipakita Lahat
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                         @endforelse
@@ -741,6 +793,8 @@
 
     let calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
     let calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
+    let isSelecting = false;
+    let calLastHoverDate = null;
 
     const todayStrInit = getLocalTodayStr();
     if (calStartDate && calStartDate > todayStrInit) calStartDate = todayStrInit;
@@ -782,7 +836,8 @@
                 calViewYear = now.getFullYear();
                 calViewMonth = now.getMonth();
             }
-            renderCustomCalendar();
+            buildCalendarGrid();
+            updateCalendarStyles();
         } else {
             dropdown.classList.add('hidden');
         }
@@ -811,10 +866,11 @@
             calViewMonth = 0;
             calViewYear++;
         }
-        renderCustomCalendar();
+        buildCalendarGrid();
+        updateCalendarStyles();
     }
 
-    function renderCustomCalendar() {
+    function buildCalendarGrid() {
         const titleEl = document.getElementById('calMonthYearTitle');
         const gridEl = document.getElementById('calDaysGrid');
         if (!titleEl || !gridEl) return;
@@ -848,15 +904,11 @@
 
         let html = '';
 
-        // Previous month filler days (dimmed text-slate-300)
+        // Previous month filler days
         for (let i = startDayIndex - 1; i >= 0; i--) {
             const dNum = prevMonthDays - i;
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${dNum}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none pointer-events-none">${dNum}</div>`;
         }
-
-        // Active range calculation (strictly bounded by today)
-        const activeStart = (calStartDate && calStartDate <= todayStr) ? calStartDate : null;
-        const activeEnd = (calEndDate && calEndDate <= todayStr) ? calEndDate : null;
 
         // Current month days
         for (let d = 1; d <= totalDaysInMonth; d++) {
@@ -864,10 +916,10 @@
             const isFuture = dateStr > todayStr;
 
             if (isFuture) {
-                // Advance date is strictly forbidden - disabled styling, non-clickable
+                // Future / Advance date is strictly disabled & cannot be selected
                 html += `
-                    <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none">
-                        <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none cursor-not-allowed opacity-40 pointer-events-none">
+                    <div class="h-8 flex items-center justify-center relative cursor-not-allowed select-none pointer-events-none">
+                        <div class="w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-normal text-slate-300 select-none opacity-40">
                             ${d}
                         </div>
                     </div>
@@ -875,39 +927,14 @@
                 continue;
             }
 
-            const isStart = activeStart === dateStr;
-            const isEnd = activeEnd === dateStr;
-            const isBetween = activeStart && activeEnd && dateStr > activeStart && dateStr < activeEnd;
-            const isToday = dateStr === todayStr;
-
-            let cellBg = '';
-            let btnClasses = 'w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold transition-colors relative z-10 ';
-
-            if (isStart && isEnd) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-            } else if (isStart) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeEnd) {
-                    cellBg = 'bg-gradient-to-r from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isEnd) {
-                btnClasses += 'bg-amber-500 text-white shadow-xs';
-                if (activeStart) {
-                    cellBg = 'bg-gradient-to-l from-transparent 50% to-[#fef3c7] 50%';
-                }
-            } else if (isBetween) {
-                cellBg = 'bg-[#fef3c7]';
-                btnClasses += 'text-[#92400e] font-bold';
-            } else if (isToday) {
-                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50 cursor-pointer';
-            } else {
-                btnClasses += 'text-slate-700 hover:bg-amber-50 hover:text-amber-700 cursor-pointer';
-            }
-
+            // Selectable day cell
             html += `
-                <div class="h-8 flex items-center justify-center relative ${cellBg}" 
-                     onclick="onCalDateClick('${dateStr}', event)">
-                    <div class="${btnClasses}">
+                <div class="cal-day-cell h-8 flex items-center justify-center relative cursor-pointer select-none" 
+                     data-date="${dateStr}"
+                     onclick="handleCellClick('${dateStr}', event)"
+                     onmouseenter="handleCellMouseEnter('${dateStr}')">
+                    <div class="cal-range-bg absolute inset-y-0 inset-x-0 hidden pointer-events-none"></div>
+                    <div class="cal-day-btn w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold relative z-10 transition-colors pointer-events-none select-none">
                         ${d}
                     </div>
                 </div>
@@ -918,38 +945,117 @@
         const totalRendered = startDayIndex + totalDaysInMonth;
         const trailingDays = (7 - (totalRendered % 7)) % 7;
         for (let nextD = 1; nextD <= trailingDays; nextD++) {
-            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none">${nextD}</div>`;
+            html += `<div class="h-8 flex items-center justify-center text-slate-300 font-medium text-xs cursor-default select-none pointer-events-none">${nextD}</div>`;
         }
 
         gridEl.innerHTML = html;
     }
 
-    function onCalDateClick(dateStr, event) {
-        if (event) event.stopPropagation();
+    function handleCellClick(dateStr, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         const todayStr = getLocalTodayStr();
         if (dateStr > todayStr) return; // Strict validation: Advance date disallowed
 
-        if (!calStartDate || (calStartDate && calEndDate)) {
-            // First click: sets Start Date (single date initially)
+        if (!isSelecting) {
+            // First click: sets Start Date and begins range selection
             calStartDate = dateStr;
             calEndDate = null;
-        } else if (calStartDate && !calEndDate) {
+            calLastHoverDate = null;
+            isSelecting = true;
+        } else {
+            // Second click:
             if (dateStr === calStartDate) {
-                // Clicked same date: keep as single date
+                // Clicked same date: confirm as single date
                 calEndDate = null;
+                calLastHoverDate = null;
+                isSelecting = false;
             } else if (dateStr < calStartDate) {
                 // Clicked earlier date: reorder
                 calEndDate = calStartDate;
                 calStartDate = dateStr;
+                calLastHoverDate = null;
+                isSelecting = false;
             } else {
-                // Clicked later date: sets end date for range
+                // Clicked later date: confirm range
                 calEndDate = dateStr;
+                calLastHoverDate = null;
+                isSelecting = false;
             }
         }
 
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
-        // Stays open so user can review and click Apply!
+    }
+
+    function handleCellMouseEnter(dateStr) {
+        if (!isSelecting) return;
+        const todayStr = getLocalTodayStr();
+        if (dateStr > todayStr) return;
+        calLastHoverDate = dateStr;
+        updateCalendarStyles(dateStr);
+    }
+
+    function updateCalendarStyles(hoverDate = null) {
+        const todayStr = getLocalTodayStr();
+        let start = calStartDate;
+        let end = calEndDate;
+
+        if (isSelecting && start && hoverDate && hoverDate <= todayStr) {
+            if (hoverDate < start) {
+                start = hoverDate;
+                end = calStartDate;
+            } else if (hoverDate > start) {
+                end = hoverDate;
+            }
+        }
+
+        const cells = document.querySelectorAll('#calDaysGrid .cal-day-cell');
+        cells.forEach(cell => {
+            const dateStr = cell.getAttribute('data-date');
+            if (!dateStr) return;
+
+            const isToday = dateStr === todayStr;
+            const isStart = start && dateStr === start;
+            const isEnd = end && dateStr === end;
+            const isBetween = start && end && dateStr > start && dateStr < end;
+
+            const bg = cell.querySelector('.cal-range-bg');
+            const btn = cell.querySelector('.cal-day-btn');
+            if (!btn) return;
+
+            // Range background styling
+            if (bg) {
+                if (isStart && end && start !== end) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-gradient-to-r from-transparent 50% to-[#fef3c7] 50%';
+                } else if (isEnd && start && start !== end) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-gradient-to-l from-transparent 50% to-[#fef3c7] 50%';
+                } else if (isBetween) {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none bg-[#fef3c7]';
+                } else {
+                    bg.className = 'cal-range-bg absolute inset-y-0 inset-x-0 pointer-events-none hidden';
+                }
+            }
+
+            // Button styling
+            let btnClasses = 'cal-day-btn w-7 h-7 mx-auto rounded-xl flex items-center justify-center text-xs font-bold relative z-10 transition-colors pointer-events-none select-none ';
+
+            if (isStart && isEnd) {
+                btnClasses += 'bg-amber-500 text-white shadow-xs';
+            } else if (isStart || isEnd) {
+                btnClasses += 'bg-amber-500 text-white shadow-xs';
+            } else if (isBetween) {
+                btnClasses += 'text-[#92400e] font-bold';
+            } else if (isToday) {
+                btnClasses += 'border-2 border-amber-500 text-amber-600 hover:bg-amber-50';
+            } else {
+                btnClasses += 'text-slate-700 hover:bg-amber-50 hover:text-amber-700';
+            }
+
+            btn.className = btnClasses;
+        });
     }
 
     function updateDisplayPreview() {
@@ -968,46 +1074,146 @@
     }
 
     function applyDateSelection(event) {
-        if (event) event.stopPropagation();
-        const dropdown = document.getElementById('customCalendarDropdown');
-        if (dropdown) dropdown.classList.add('hidden');
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         const todayStr = getLocalTodayStr();
+
+        // If user hovered over an end date and clicked Apply without a 2nd cell click:
+        if (isSelecting && calStartDate) {
+            if (calLastHoverDate && calLastHoverDate !== calStartDate && calLastHoverDate <= todayStr) {
+                if (calLastHoverDate < calStartDate) {
+                    calEndDate = calStartDate;
+                    calStartDate = calLastHoverDate;
+                } else {
+                    calEndDate = calLastHoverDate;
+                }
+            } else {
+                calEndDate = null;
+            }
+            isSelecting = false;
+        }
+
         if (calStartDate && calStartDate > todayStr) calStartDate = todayStr;
         if (calEndDate && calEndDate > todayStr) calEndDate = todayStr;
+        if (calStartDate && calEndDate && calStartDate > calEndDate) {
+            const tmp = calStartDate;
+            calStartDate = calEndDate;
+            calEndDate = tmp;
+        }
 
         const inputDate = document.getElementById('filter_date');
         const inputFrom = document.getElementById('filter_date_from');
         const inputTo = document.getElementById('filter_date_to');
+
+        let previewLabel = 'All Dates';
 
         if (calStartDate && calEndDate && calStartDate !== calEndDate) {
             // Date Range
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = calStartDate;
             if (inputTo) inputTo.value = calEndDate;
+            previewLabel = `${formatCalDisplay(calStartDate)} — ${formatCalDisplay(calEndDate)}`;
         } else if (calStartDate) {
             // Single Date (None Date Range)
             if (inputDate) inputDate.value = calStartDate;
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
+            previewLabel = formatCalDisplay(calStartDate);
         } else {
             // Cleared
             if (inputDate) inputDate.value = '';
             if (inputFrom) inputFrom.value = '';
             if (inputTo) inputTo.value = '';
+            previewLabel = 'All Dates';
         }
 
-        updateDisplayPreview();
+        // 1. Immediate visual feedback on Apply Button: Spinner + "Applying..." + Disabled
+        const btnApply = document.getElementById('btnApplyCalendar');
+        if (btnApply) {
+            btnApply.disabled = true;
+            btnApply.classList.add('opacity-80', 'cursor-wait');
+            btnApply.innerHTML = `<span class="inline-flex items-center gap-1.5"><svg class="animate-spin h-3.5 w-3.5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Applying...</span>`;
+        }
 
-        // Submit form now that user clicked Apply
-        const form = document.getElementById('datePickerContainer')?.closest('form');
-        if (form) form.submit();
+        // 2. Immediate visual feedback on Trigger Button Box
+        const display = document.getElementById('display_selected_date');
+        if (display) {
+            display.innerHTML = `<span class="inline-flex items-center gap-1.5 text-amber-700 font-bold"><svg class="animate-spin h-3.5 w-3.5 text-amber-600 inline shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Filtering: ${previewLabel}</span>`;
+            display.className = 'truncate text-amber-700 font-bold';
+        }
+
+        // 3. Smooth table opacity dimming to visually confirm filtering is in progress
+        const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+        if (tableWrap) {
+            tableWrap.style.opacity = '0.35';
+            tableWrap.style.pointerEvents = 'none';
+        }
+
+        // 4. Close popup dropdown immediately
+        const dropdown = document.getElementById('customCalendarDropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+
+        // 5. Guaranteed Direct URL Navigation (Unblockable by form submit listeners or quirks)
+        try {
+            const targetUrl = new URL(window.location.origin + window.location.pathname);
+
+            const searchInput = document.getElementById('ledgerSearchInput');
+            if (searchInput && searchInput.value.trim()) {
+                targetUrl.searchParams.set('search', searchInput.value.trim());
+            }
+
+            const driverSelect = document.querySelector('#fundsLedgerFilterForm select[name="driver_id"]');
+            if (driverSelect && driverSelect.value) {
+                targetUrl.searchParams.set('driver_id', driverSelect.value);
+            }
+
+            const typeSelect = document.querySelector('#fundsLedgerFilterForm select[name="type"]');
+            if (typeSelect && typeSelect.value && typeSelect.value !== 'all') {
+                targetUrl.searchParams.set('type', typeSelect.value);
+            }
+
+            if (calStartDate && calEndDate && calStartDate !== calEndDate) {
+                targetUrl.searchParams.set('date_from', calStartDate);
+                targetUrl.searchParams.set('date_to', calEndDate);
+                targetUrl.searchParams.delete('date');
+            } else if (calStartDate) {
+                targetUrl.searchParams.set('date', calStartDate);
+                targetUrl.searchParams.delete('date_from');
+                targetUrl.searchParams.delete('date_to');
+            } else {
+                targetUrl.searchParams.delete('date');
+                targetUrl.searchParams.delete('date_from');
+                targetUrl.searchParams.delete('date_to');
+            }
+
+            targetUrl.searchParams.delete('page');
+
+            window.location.href = targetUrl.toString();
+        } catch (e) {
+            // Fallback to standard form submit
+            const form = document.getElementById('fundsLedgerFilterForm') || document.getElementById('datePickerContainer')?.closest('form');
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        }
     }
 
     function setCalPreset(preset, event) {
-        if (event) event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         const todayStr = getLocalTodayStr();
         const now = new Date();
+        isSelecting = false;
+        calLastHoverDate = null;
 
         if (preset === 'today') {
             calStartDate = todayStr;
@@ -1021,18 +1227,31 @@
             calViewMonth = now.getMonth();
         }
 
+        buildCalendarGrid();
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
-        // Stays open!
     }
 
     function clearSelectedDate(event, autoSubmit = false) {
-        if (event) event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         calStartDate = null;
         calEndDate = null;
+        calLastHoverDate = null;
+        isSelecting = false;
 
+        const inputDate = document.getElementById('filter_date');
+        const inputFrom = document.getElementById('filter_date_from');
+        const inputTo = document.getElementById('filter_date_to');
+        if (inputDate) inputDate.value = '';
+        if (inputFrom) inputFrom.value = '';
+        if (inputTo) inputTo.value = '';
+
+        buildCalendarGrid();
+        updateCalendarStyles();
         updateDisplayPreview();
-        renderCustomCalendar();
 
         if (autoSubmit) {
             applyDateSelection(event);
@@ -1043,13 +1262,33 @@
     document.addEventListener('click', function(e) {
         const container = document.getElementById('datePickerContainer');
         const dropdown = document.getElementById('customCalendarDropdown');
-        if (container && dropdown && !container.contains(e.target)) {
+        if (dropdown && !dropdown.classList.contains('hidden')) {
+            if (container && container.contains(e.target)) return;
+            if (isSelecting) {
+                calStartDate = "{{ request('date') ?: request('date_from') }}" || null;
+                calEndDate = "{{ request('date') ? '' : request('date_to') }}" || null;
+                calLastHoverDate = null;
+                isSelecting = false;
+                updateCalendarStyles();
+                updateDisplayPreview();
+            }
             dropdown.classList.add('hidden');
         }
     });
 
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const form = document.getElementById('fundsLedgerFilterForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const tableWrap = document.getElementById('fundsTransactionsTableWrap');
+                if (tableWrap) {
+                    tableWrap.style.opacity = '0.35';
+                    tableWrap.style.pointerEvents = 'none';
+                }
+            });
+        }
     });
 </script>
 @endsection
