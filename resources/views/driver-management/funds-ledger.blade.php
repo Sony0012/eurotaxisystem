@@ -10,14 +10,8 @@
 <div class="space-y-6">
     <!-- Top Action Toolbar -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
-                    <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
-                    <circle cx="16" cy="11" r="1"></circle>
-                </svg>
-            </div>
+        <div class="flex items-center gap-3.5">
+            <img src="{{ asset('image/kpi/fleet_index_3d.svg') }}" alt="Driver Savings & Pondo Ledger" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none shrink-0 filter drop-shadow-md">
             <div>
                 <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Driver Savings & Pondo Ledger</h1>
                 <p class="text-xs text-slate-500 font-medium">Tracking {{ $stats['funded_drivers'] ?? 0 }} drivers with active funds & reserves</p>
@@ -50,98 +44,58 @@
     <!-- KPI Summary Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Card 1: Available Vault Balance -->
-        <div class="relative overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-500/10 via-teal-50/40 to-white p-5 shadow-xs">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 block mb-1">Total Available Pondo</span>
-                    <div class="text-2xl font-black text-emerald-700 leading-none">
-                        ₱{{ number_format($stats['total_available'], 2) }}
-                    </div>
-                    <span class="text-[10px] font-bold text-emerald-600 mt-2 block">In Driver Savings Vault</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path>
-                        <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
-                    </svg>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/50 to-emerald-100/40 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-emerald-500 my-auto"></div>
+            <div class="flex-1 min-w-0 pl-1.5 relative z-10">
+                <p class="text-emerald-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1 truncate">Total Available Pondo</p>
+                <h3 class="text-slate-900 text-xl sm:text-2xl font-black tracking-tight leading-none mb-1 truncate tabular-nums">₱{{ number_format($stats['total_available'], 2) }}</h3>
+                <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-tight">In Driver Savings Vault</p>
             </div>
+            <img src="{{ asset('image/kpi/reward_cash_3d.svg') }}" alt="Available Pondo 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0 filter drop-shadow-md">
         </div>
 
         <!-- Card 2: Lifetime Shift Deposits -->
-        <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Lifetime Deposited</span>
-                    <div class="text-xl font-black text-slate-900 leading-none">
-                        ₱{{ number_format($stats['total_deposited'], 2) }}
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-500 mt-2 block">From shift remittances</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="17" y1="7" x2="7" y2="17"></line>
-                        <polyline points="17 17 7 17 7 7"></polyline>
-                    </svg>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/40 to-blue-100/30 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-blue-500 my-auto"></div>
+            <div class="flex-1 min-w-0 pl-1.5 relative z-10">
+                <p class="text-blue-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1 truncate">Lifetime Deposited</p>
+                <h3 class="text-slate-900 text-xl sm:text-2xl font-black tracking-tight leading-none mb-1 truncate tabular-nums">₱{{ number_format($stats['total_deposited'], 2) }}</h3>
+                <p class="text-[9px] text-blue-500 font-bold uppercase tracking-tight">From shift remittances</p>
             </div>
+            <img src="{{ asset('image/kpi/revenue_3d.svg') }}" alt="Lifetime Deposited 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0 filter drop-shadow-md">
         </div>
 
         <!-- Card 3: Accident & Damage Deductions -->
-        <div class="relative overflow-hidden rounded-2xl border border-rose-200 bg-rose-50/30 p-5 shadow-xs">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block mb-1">Accident & Damages</span>
-                    <div class="text-xl font-black text-rose-600 leading-none">
-                        ₱{{ number_format($stats['total_damages'], 2) }}
-                    </div>
-                    <span class="text-[10px] font-bold text-rose-500 mt-2 block">Deducted for unit repairs</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-rose-200/80 bg-gradient-to-br from-white via-rose-50/50 to-rose-100/40 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-rose-500 my-auto"></div>
+            <div class="flex-1 min-w-0 pl-1.5 relative z-10">
+                <p class="text-rose-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1 truncate">Accident & Damages</p>
+                <h3 class="text-slate-900 text-xl sm:text-2xl font-black tracking-tight leading-none mb-1 truncate tabular-nums">₱{{ number_format($stats['total_damages'], 2) }}</h3>
+                <p class="text-[9px] text-rose-500 font-bold uppercase tracking-tight">Deducted for unit repairs</p>
             </div>
+            <img src="{{ asset('image/kpi/accident_3d.svg') }}" alt="Accident & Damages 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0 filter drop-shadow-md">
         </div>
 
         <!-- Card 4: Maintenance Co-Payments -->
-        <div class="relative overflow-hidden rounded-2xl border border-amber-200 bg-amber-50/30 p-5 shadow-xs">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-800 block mb-1">Maintenance Share</span>
-                    <div class="text-xl font-black text-amber-700 leading-none">
-                        ₱{{ number_format($stats['total_maintenance'], 2) }}
-                    </div>
-                    <span class="text-[10px] font-bold text-amber-600 mt-2 block">Contract maintenance split</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                    </svg>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/50 to-amber-100/40 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-amber-500 my-auto"></div>
+            <div class="flex-1 min-w-0 pl-1.5 relative z-10">
+                <p class="text-amber-700 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1 truncate">Maintenance Share</p>
+                <h3 class="text-slate-900 text-xl sm:text-2xl font-black tracking-tight leading-none mb-1 truncate tabular-nums">₱{{ number_format($stats['total_maintenance'], 2) }}</h3>
+                <p class="text-[9px] text-amber-600 font-bold uppercase tracking-tight">Contract maintenance split</p>
             </div>
+            <img src="{{ asset('image/kpi/maintenance_3d.svg') }}" alt="Maintenance Share 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0 filter drop-shadow-md">
         </div>
 
         <!-- Card 5: Cashout Withdrawals -->
-        <div class="relative overflow-hidden rounded-2xl border border-indigo-200 bg-indigo-50/20 p-5 shadow-xs">
-            <div class="flex items-start justify-between">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 block mb-1">Driver Cashouts</span>
-                    <div class="text-xl font-black text-indigo-600 leading-none">
-                        ₱{{ number_format($stats['total_cashouts'], 2) }}
-                    </div>
-                    <span class="text-[10px] font-bold text-indigo-500 mt-2 block">Personal savings payouts</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="7" y1="17" x2="17" y2="7"></line>
-                        <polyline points="7 7 17 7 17 17"></polyline>
-                    </svg>
-                </div>
+        <div class="relative overflow-hidden rounded-2xl shadow-xs border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/50 to-purple-100/40 p-4 sm:p-5 flex items-center justify-between min-w-0">
+            <div class="absolute left-0 inset-y-0 h-8 w-1 rounded-r-full bg-purple-500 my-auto"></div>
+            <div class="flex-1 min-w-0 pl-1.5 relative z-10">
+                <p class="text-purple-600 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1 truncate">Driver Cashouts</p>
+                <h3 class="text-slate-900 text-xl sm:text-2xl font-black tracking-tight leading-none mb-1 truncate tabular-nums">₱{{ number_format($stats['total_cashouts'], 2) }}</h3>
+                <p class="text-[9px] text-purple-500 font-bold uppercase tracking-tight">Personal savings payouts</p>
             </div>
+            <img src="{{ asset('image/kpi/payout_3d.svg') }}" alt="Driver Cashouts 3D" class="w-12 h-12 sm:w-14 sm:h-14 object-contain pointer-events-none flex-shrink-0 filter drop-shadow-md">
         </div>
     </div>
 
@@ -578,16 +532,7 @@
                         @empty
                         <tr>
                             <td colspan="7" class="p-12 text-center text-slate-500">
-                                <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                                        <line x1="10" y1="14" x2="14" y2="18"></line>
-                                        <line x1="14" y1="14" x2="10" y2="18"></line>
-                                    </svg>
-                                </div>
+                                <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="No Transactions" class="w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none mx-auto mb-3 filter drop-shadow-md">
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"></circle>
@@ -742,14 +687,8 @@
 <div id="ledgerDisburseModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
         <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"></path>
-                        <path d="M2 9v1c0 1.1.9 2 2 2h1"></path>
-                        <circle cx="16" cy="11" r="1"></circle>
-                    </svg>
-                </div>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('image/kpi/payout_3d.svg') }}" alt="Disburse / Deduct" class="w-9 h-9 object-contain pointer-events-none filter drop-shadow-sm shrink-0">
                 <div>
                     <h3 class="text-sm font-black uppercase tracking-wider">Disburse / Deduct Fund</h3>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Driver Savings & Maintenance Reserve</p>
@@ -889,13 +828,8 @@
 <div id="ledgerDepositModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
         <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="17" y1="7" x2="7" y2="17"></line>
-                        <polyline points="17 17 7 17 7 7"></polyline>
-                    </svg>
-                </div>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('image/kpi/reward_cash_3d.svg') }}" alt="Manual Pondo Deposit" class="w-9 h-9 object-contain pointer-events-none filter drop-shadow-sm shrink-0">
                 <div>
                     <h3 class="text-sm font-black uppercase tracking-wider">Manual Pondo Deposit</h3>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Driver Savings & Emergency Reserve</p>
