@@ -542,17 +542,67 @@
         </div>
 
         <form id="ledgerDisburseForm" onsubmit="submitLedgerDisbursement(event)" class="p-6 space-y-4">
-            <!-- Driver Selection -->
+            <!-- Driver Selection (Searchable with instant suggestions) -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Driver <span class="text-red-500">*</span></label>
-                <select id="disburseDriverSelect" required onchange="onDriverSelectChanged()" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option value="">-- Choose Driver --</option>
-                    @foreach($drivers as $d)
-                        <option value="{{ $d->id }}" data-balance="{{ $d->current_balance }}" data-name="{{ $d->full_name }}">
-                            {{ $d->full_name }} ({{ $d->assigned_plate ?: 'Unassigned' }}) — Available: ₱{{ number_format($d->current_balance, 2) }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="relative" id="disburseDriverSearchContainer">
+                    <div class="relative">
+                        <input type="text" id="disburseDriverSearchInput" required
+                               autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
+                               class="w-full pl-9 pr-9 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-2xs"
+                               placeholder="Type driver name or plate to search...">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        <button type="button" onclick="toggleDisburseDriverDropdown(event)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="disburseDriverSelect" name="driver_id" required value="">
+
+                    <!-- Driver Suggestions Dropdown -->
+                    <div id="disburseDriverDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-56 overflow-y-auto z-50 divide-y divide-slate-100">
+                        <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+                            <span>Available Drivers</span>
+                            <span id="disburseDriverMatchCount" class="font-mono">{{ count($drivers) }} drivers</span>
+                        </div>
+                        <div id="disburseDriverList" class="divide-y divide-slate-100">
+                            @foreach($drivers as $d)
+                                <div class="disburse-driver-item px-3.5 py-2.5 hover:bg-rose-50/70 cursor-pointer transition-colors flex items-center justify-between gap-2"
+                                     data-id="{{ $d->id }}"
+                                     data-name="{{ $d->full_name }}"
+                                     data-plate="{{ $d->assigned_plate ?: 'Unassigned' }}"
+                                     data-license="{{ $d->license_number ?: '' }}"
+                                     data-balance="{{ $d->current_balance }}"
+                                     onclick="selectDisburseDriver(this)">
+                                    <div class="min-w-0 flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-black text-[10px] flex items-center justify-center shrink-0 border border-slate-200 uppercase">
+                                            @if(!empty($d->profile_photo))
+                                                <img src="{{ asset('storage/' . $d->profile_photo) }}" alt="" class="w-full h-full object-cover rounded-full">
+                                            @else
+                                                {{ substr($d->first_name, 0, 1) }}{{ substr($d->last_name, 0, 1) }}
+                                            @endif
+                                        </div>
+                                        <div class="truncate">
+                                            <div class="font-black text-xs text-slate-900 truncate">{{ $d->full_name }}</div>
+                                            <div class="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5">
+                                                <span class="font-mono font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{{ $d->assigned_plate ?: 'Unassigned' }}</span>
+                                                @if($d->license_number)
+                                                    <span class="font-mono text-[9px]">Lic: {{ $d->license_number }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Available</span>
+                                        <span class="text-xs font-mono font-black {{ $d->current_balance > 0 ? 'text-emerald-700' : 'text-slate-400' }}">₱{{ number_format($d->current_balance, 2) }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div id="disburseDriverNoMatch" class="hidden p-4 text-center text-xs text-slate-400 font-semibold">
+                            No drivers found matching your search.
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Available Balance Display -->
@@ -623,17 +673,67 @@
         </div>
 
         <form id="ledgerDepositForm" onsubmit="submitLedgerDeposit(event)" class="p-6 space-y-4">
-            <!-- Driver Selection -->
+            <!-- Driver Selection (Searchable with instant suggestions) -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Driver <span class="text-red-500">*</span></label>
-                <select id="depositDriverSelect" required onchange="onDepositDriverChanged()" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option value="">-- Choose Driver --</option>
-                    @foreach($drivers as $d)
-                        <option value="{{ $d->id }}" data-balance="{{ $d->current_balance }}" data-name="{{ $d->full_name }}">
-                            {{ $d->full_name }} ({{ $d->assigned_plate ?: 'Unassigned' }}) — Current Pondo: ₱{{ number_format($d->current_balance, 2) }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="relative" id="depositDriverSearchContainer">
+                    <div class="relative">
+                        <input type="text" id="depositDriverSearchInput" required
+                               autocomplete="new-password" spellcheck="false" autocorrect="off" autocapitalize="off" data-lpignore="true" data-form-type="other"
+                               class="w-full pl-9 pr-9 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs"
+                               placeholder="Type driver name or plate to search...">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        <button type="button" onclick="toggleDepositDriverDropdown(event)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="depositDriverSelect" name="driver_id" required value="">
+
+                    <!-- Driver Suggestions Dropdown -->
+                    <div id="depositDriverDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl max-h-56 overflow-y-auto z-50 divide-y divide-slate-100">
+                        <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+                            <span>Available Drivers</span>
+                            <span id="depositDriverMatchCount" class="font-mono">{{ count($drivers) }} drivers</span>
+                        </div>
+                        <div id="depositDriverList" class="divide-y divide-slate-100">
+                            @foreach($drivers as $d)
+                                <div class="deposit-driver-item px-3.5 py-2.5 hover:bg-emerald-50/70 cursor-pointer transition-colors flex items-center justify-between gap-2"
+                                     data-id="{{ $d->id }}"
+                                     data-name="{{ $d->full_name }}"
+                                     data-plate="{{ $d->assigned_plate ?: 'Unassigned' }}"
+                                     data-license="{{ $d->license_number ?: '' }}"
+                                     data-balance="{{ $d->current_balance }}"
+                                     onclick="selectDepositDriver(this)">
+                                    <div class="min-w-0 flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-black text-[10px] flex items-center justify-center shrink-0 border border-slate-200 uppercase">
+                                            @if(!empty($d->profile_photo))
+                                                <img src="{{ asset('storage/' . $d->profile_photo) }}" alt="" class="w-full h-full object-cover rounded-full">
+                                            @else
+                                                {{ substr($d->first_name, 0, 1) }}{{ substr($d->last_name, 0, 1) }}
+                                            @endif
+                                        </div>
+                                        <div class="truncate">
+                                            <div class="font-black text-xs text-slate-900 truncate">{{ $d->full_name }}</div>
+                                            <div class="text-[10px] font-semibold text-slate-400 flex items-center gap-1.5">
+                                                <span class="font-mono font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{{ $d->assigned_plate ?: 'Unassigned' }}</span>
+                                                @if($d->license_number)
+                                                    <span class="font-mono text-[9px]">Lic: {{ $d->license_number }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Pondo</span>
+                                        <span class="text-xs font-mono font-black text-emerald-700">₱{{ number_format($d->current_balance, 2) }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div id="depositDriverNoMatch" class="hidden p-4 text-center text-xs text-slate-400 font-semibold">
+                            No drivers found matching your search.
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Current Balance & Projected Balance Display -->
@@ -748,40 +848,77 @@
     });
 
     function openLedgerDisburseModal(driverId = null, driverName = null, balance = null) {
-        const select = document.getElementById('disburseDriverSelect');
+        const hiddenInput = document.getElementById('disburseDriverSelect');
+        const searchInput = document.getElementById('disburseDriverSearchInput');
         if (driverId) {
-            select.value = driverId;
+            hiddenInput.value = driverId;
+            searchInput.value = driverName || '';
             currentSelectedDriverBal = balance !== null ? parseFloat(balance) : 0;
             document.getElementById('disburseAvailableDisplay').textContent = '₱' + currentSelectedDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
             document.getElementById('disburseAmountInput').max = currentSelectedDriverBal;
         } else {
-            select.value = '';
+            hiddenInput.value = '';
+            searchInput.value = '';
             currentSelectedDriverBal = 0;
             document.getElementById('disburseAvailableDisplay').textContent = '₱0.00';
             document.getElementById('disburseAmountInput').max = 0;
+            filterDisburseDrivers('');
         }
+        document.getElementById('disburseDriverDropdown')?.classList.add('hidden');
         document.getElementById('disburseAmountInput').value = '';
         document.getElementById('disburseDescriptionInput').value = '';
         document.getElementById('ledgerDisburseModal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function onDriverSelectChanged() {
-        const select = document.getElementById('disburseDriverSelect');
-        const opt = select.options[select.selectedIndex];
-        if (opt && opt.value) {
-            currentSelectedDriverBal = parseFloat(opt.getAttribute('data-balance') || 0);
-            document.getElementById('disburseAvailableDisplay').textContent = '₱' + currentSelectedDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
-            document.getElementById('disburseAmountInput').max = currentSelectedDriverBal;
+    function toggleDisburseDriverDropdown(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('disburseDriverDropdown');
+        if (dd.classList.contains('hidden')) {
+            filterDisburseDrivers(document.getElementById('disburseDriverSearchInput').value);
+            dd.classList.remove('hidden');
         } else {
-            currentSelectedDriverBal = 0;
-            document.getElementById('disburseAvailableDisplay').textContent = '₱0.00';
-            document.getElementById('disburseAmountInput').max = 0;
+            dd.classList.add('hidden');
         }
+    }
+
+    function filterDisburseDrivers(term) {
+        const cleanTerm = (term || '').toLowerCase().trim();
+        const items = document.querySelectorAll('.disburse-driver-item');
+        let matches = 0;
+        items.forEach(item => {
+            const name = (item.getAttribute('data-name') || '').toLowerCase();
+            const plate = (item.getAttribute('data-plate') || '').toLowerCase();
+            const license = (item.getAttribute('data-license') || '').toLowerCase();
+            if (!cleanTerm || name.includes(cleanTerm) || plate.includes(cleanTerm) || license.includes(cleanTerm)) {
+                item.style.display = 'flex';
+                matches++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        const countEl = document.getElementById('disburseDriverMatchCount');
+        if (countEl) countEl.textContent = `${matches} driver${matches === 1 ? '' : 's'}`;
+        const noMatchEl = document.getElementById('disburseDriverNoMatch');
+        if (noMatchEl) noMatchEl.classList.toggle('hidden', matches > 0);
+    }
+
+    function selectDisburseDriver(el) {
+        const id = el.getAttribute('data-id');
+        const name = el.getAttribute('data-name');
+        const balance = parseFloat(el.getAttribute('data-balance') || 0);
+
+        document.getElementById('disburseDriverSelect').value = id;
+        document.getElementById('disburseDriverSearchInput').value = name;
+        currentSelectedDriverBal = balance;
+        document.getElementById('disburseAvailableDisplay').textContent = '₱' + balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('disburseAmountInput').max = balance;
+        document.getElementById('disburseDriverDropdown').classList.add('hidden');
     }
 
     function closeLedgerDisburseModal() {
         document.getElementById('ledgerDisburseModal').classList.add('hidden');
+        document.getElementById('disburseDriverDropdown')?.classList.add('hidden');
     }
 
     function submitLedgerDisbursement(e) {
@@ -864,16 +1001,21 @@
     let currentDepositDriverBal = 0;
 
     function openLedgerDepositModal(driverId = null, driverName = null, balance = null) {
-        const select = document.getElementById('depositDriverSelect');
+        const hiddenInput = document.getElementById('depositDriverSelect');
+        const searchInput = document.getElementById('depositDriverSearchInput');
         if (driverId) {
-            select.value = driverId;
+            hiddenInput.value = driverId;
+            searchInput.value = driverName || '';
             currentDepositDriverBal = balance !== null ? parseFloat(balance) : 0;
             document.getElementById('depositCurrentBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
         } else {
-            select.value = '';
+            hiddenInput.value = '';
+            searchInput.value = '';
             currentDepositDriverBal = 0;
             document.getElementById('depositCurrentBalDisplay').textContent = '₱0.00';
+            filterDepositDrivers('');
         }
+        document.getElementById('depositDriverDropdown')?.classList.add('hidden');
         document.getElementById('depositAmountInput').value = '';
         document.getElementById('depositDescriptionInput').value = '';
         document.getElementById('depositProjectedBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
@@ -881,17 +1023,49 @@
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function onDepositDriverChanged() {
-        const select = document.getElementById('depositDriverSelect');
-        const opt = select.options[select.selectedIndex];
-        if (opt && opt.value) {
-            currentDepositDriverBal = parseFloat(opt.getAttribute('data-balance') || 0);
-            document.getElementById('depositCurrentBalDisplay').textContent = '₱' + currentDepositDriverBal.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    function toggleDepositDriverDropdown(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('depositDriverDropdown');
+        if (dd.classList.contains('hidden')) {
+            filterDepositDrivers(document.getElementById('depositDriverSearchInput').value);
+            dd.classList.remove('hidden');
         } else {
-            currentDepositDriverBal = 0;
-            document.getElementById('depositCurrentBalDisplay').textContent = '₱0.00';
+            dd.classList.add('hidden');
         }
+    }
+
+    function filterDepositDrivers(term) {
+        const cleanTerm = (term || '').toLowerCase().trim();
+        const items = document.querySelectorAll('.deposit-driver-item');
+        let matches = 0;
+        items.forEach(item => {
+            const name = (item.getAttribute('data-name') || '').toLowerCase();
+            const plate = (item.getAttribute('data-plate') || '').toLowerCase();
+            const license = (item.getAttribute('data-license') || '').toLowerCase();
+            if (!cleanTerm || name.includes(cleanTerm) || plate.includes(cleanTerm) || license.includes(cleanTerm)) {
+                item.style.display = 'flex';
+                matches++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        const countEl = document.getElementById('depositDriverMatchCount');
+        if (countEl) countEl.textContent = `${matches} driver${matches === 1 ? '' : 's'}`;
+        const noMatchEl = document.getElementById('depositDriverNoMatch');
+        if (noMatchEl) noMatchEl.classList.toggle('hidden', matches > 0);
+    }
+
+    function selectDepositDriver(el) {
+        const id = el.getAttribute('data-id');
+        const name = el.getAttribute('data-name');
+        const balance = parseFloat(el.getAttribute('data-balance') || 0);
+
+        document.getElementById('depositDriverSelect').value = id;
+        document.getElementById('depositDriverSearchInput').value = name;
+        currentDepositDriverBal = balance;
+        document.getElementById('depositCurrentBalDisplay').textContent = '₱' + balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
         updateDepositProjectedBal();
+        document.getElementById('depositDriverDropdown').classList.add('hidden');
     }
 
     function updateDepositProjectedBal() {
@@ -902,6 +1076,7 @@
 
     function closeLedgerDepositModal() {
         document.getElementById('ledgerDepositModal').classList.add('hidden');
+        document.getElementById('depositDriverDropdown')?.classList.add('hidden');
     }
 
     function submitLedgerDeposit(e) {
@@ -1491,6 +1666,48 @@
                 }
             });
         }
+
+        // Searchable Driver Suggestions for Deposit Modal
+        const depInput = document.getElementById('depositDriverSearchInput');
+        const depDd = document.getElementById('depositDriverDropdown');
+        if (depInput && depDd) {
+            depInput.addEventListener('focus', function() {
+                filterDepositDrivers(this.value);
+                depDd.classList.remove('hidden');
+            });
+            depInput.addEventListener('input', function() {
+                document.getElementById('depositDriverSelect').value = '';
+                filterDepositDrivers(this.value);
+                depDd.classList.remove('hidden');
+            });
+        }
+
+        // Searchable Driver Suggestions for Disburse Modal
+        const disbInput = document.getElementById('disburseDriverSearchInput');
+        const disbDd = document.getElementById('disburseDriverDropdown');
+        if (disbInput && disbDd) {
+            disbInput.addEventListener('focus', function() {
+                filterDisburseDrivers(this.value);
+                disbDd.classList.remove('hidden');
+            });
+            disbInput.addEventListener('input', function() {
+                document.getElementById('disburseDriverSelect').value = '';
+                filterDisburseDrivers(this.value);
+                disbDd.classList.remove('hidden');
+            });
+        }
+
+        // Close driver suggestions on outside click
+        document.addEventListener('click', function(e) {
+            const depContainer = document.getElementById('depositDriverSearchContainer');
+            if (depContainer && !depContainer.contains(e.target)) {
+                document.getElementById('depositDriverDropdown')?.classList.add('hidden');
+            }
+            const disbContainer = document.getElementById('disburseDriverSearchContainer');
+            if (disbContainer && !disbContainer.contains(e.target)) {
+                document.getElementById('disburseDriverDropdown')?.classList.add('hidden');
+            }
+        });
     });
 </script>
 @endsection

@@ -1077,34 +1077,41 @@ class AdditionalModulesController extends Controller
         $date_from = $request->input('date_from', date('Y-m-01'));
         $date_to = $request->input('date_to', date('Y-m-t'));
 
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_revenue'), DB::raw('COUNT(DISTINCT id) as active_days'))
+            ->groupBy('unit_id');
+
+        $maintSub = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
+            ->whereBetween('date_started', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(cost) as total_maintenance'))
+            ->groupBy('unit_id');
+
+        $expensesSub = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(amount) as total_expenses'))
+            ->groupBy('unit_id');
+
         $stats = DB::table('units as u')
-            ->leftJoin('boundaries as b', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'b.unit_id')->whereBetween('b.date', [$date_from, $date_to])->whereNull('b.deleted_at');
-            })
-            ->leftJoin('maintenance as m', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'm.unit_id')
-                    ->whereBetween('m.date_started', [$date_from, $date_to])
-                    ->whereNull('m.deleted_at')
-                    ->where(function($q) {
-                        $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
-                    });
-            })
-            ->leftJoin('expenses as e', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'e.unit_id')
-                    ->whereBetween('e.date', [$date_from, $date_to])
-                    ->whereNull('e.deleted_at')
-                    ->where('e.status', 'approved')
-                    ->where('e.category', '!=', 'Damage Recovery');
-            })
+            ->leftJoinSub($boundariesSub, 'b', 'u.id', '=', 'b.unit_id')
+            ->leftJoinSub($maintSub, 'm', 'u.id', '=', 'm.unit_id')
+            ->leftJoinSub($expensesSub, 'e', 'u.id', '=', 'e.unit_id')
             ->select(
                 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost',
-                DB::raw('COALESCE(SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)), 0) as total_revenue'),
-                DB::raw('COALESCE(SUM(m.cost), 0) as total_maintenance'),
-                DB::raw('COALESCE(SUM(e.amount), 0) as total_expenses'),
-                DB::raw('COUNT(DISTINCT b.id) as active_days')
+                DB::raw('COALESCE(b.total_revenue, 0) as total_revenue'),
+                DB::raw('COALESCE(m.total_maintenance, 0) as total_maintenance'),
+                DB::raw('COALESCE(e.total_expenses, 0) as total_expenses'),
+                DB::raw('COALESCE(b.active_days, 0) as active_days')
             )
             ->whereNull('u.deleted_at')
-            ->groupBy('u.id', 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost')
             ->get();
 
         $totalUnits = $stats->count();
