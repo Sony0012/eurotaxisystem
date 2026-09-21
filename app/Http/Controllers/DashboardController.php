@@ -70,8 +70,9 @@ class DashboardController extends Controller
         $period = $request->get('period', 30);
         $revenue_trend = $this->getRevenueTrendData($period);
 
-        // Weekly financial trend (last 7 days real data)
-        $weekly_data = $this->getWeeklyFinancialData();
+        // Weekly financial trend (last 7 days real data & 4 weeks monthly overview)
+        $weekly_data = $this->getWeeklyFinancialData('days');
+        $weekly_weeks_data = $this->getWeeklyFinancialData('weeks');
 
         // Unit performance (top performing units)
         $unit_performance = $this->getUnitPerformanceData();
@@ -93,7 +94,7 @@ class DashboardController extends Controller
         $initial_maintenance = $this->fetchMaintenanceData('all');
 
         return view('dashboard', compact(
-            'stats', 'alerts', 'revenue_trend', 'weekly_data', 
+            'stats', 'alerts', 'revenue_trend', 'weekly_data', 'weekly_weeks_data',
             'unit_status_data', 'unit_status_distribution_data', 
             'unit_performance', 'fleet_insights', 'expense_breakdown', 'top_drivers',
             'initial_maintenance'
@@ -103,8 +104,14 @@ class DashboardController extends Controller
     public function getRealTimeData()
     {
         try {
-            // Get dashboard statistics (Skip monitorSystemStatus for AJAX to avoid load and flickering)
-            $stats = $this->getDashboardStats(false);
+            $today = now()->toDateString();
+            $yesterday = now()->subDay()->toDateString();
+            $month = now()->month;
+            $year = now()->year;
+            $todayDay = now()->format('l');
+
+            // Quick stats (matching getDashboardStats)
+            $stats = $this->getDashboardStats();
             
             // System alerts
             $alerts = DB::table('system_alerts')
@@ -121,7 +128,8 @@ class DashboardController extends Controller
                 });
 
             // Weekly data
-            $weekly_data = $this->getWeeklyFinancialData();
+            $weekly_data = $this->getWeeklyFinancialData('days');
+            $weekly_weeks_data = $this->getWeeklyFinancialData('weeks');
 
             // Charts data
             $unit_status_data = $this->getUnitStatusDistributionData();
@@ -137,6 +145,7 @@ class DashboardController extends Controller
                 'alerts' => $alerts,
                 'charts' => [
                     'weekly_data' => $weekly_data,
+                    'weekly_weeks_data' => $weekly_weeks_data,
                     'unit_status_data' => $unit_status_data,
                     'revenue_trend' => $revenue_trend,
                     'unit_performance' => $unit_performance,

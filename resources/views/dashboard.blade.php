@@ -935,9 +935,22 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-yellow-50 rounded-lg text-yellow-600">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
+                </div>
+                <div class="flex gap-1.5">
+                    <button type="button" onclick="updateWeeklyView('days')" id="btn-weekly-days" class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
+                        7 Days
+                    </button>
+                    <button type="button" onclick="updateWeeklyView('weeks')" id="btn-weekly-weeks" class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
+                        4 Weeks
+                    </button>
+                </div>
             </div>
             <div class="p-4">
                 <canvas id="weeklyChart" width="400" height="200"></canvas>
@@ -2415,31 +2428,35 @@
         }
         
         
-        // Weekly Financial Chart
+        // Weekly Financial Chart - Supporting 7 Days and 4 Weeks Month Overview
         try {
             const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-            const weeklyData = @json($weekly_data);
+            const weeklyDaysData = @json($weekly_data) || [];
+            const weeklyWeeksData = @json($weekly_weeks_data ?? []) || [];
+            window.currentWeeklyData = weeklyDaysData;
+
             const wGrad1 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad1.addColorStop(0, 'rgba(234,179,8,0.25)'); wGrad1.addColorStop(1, 'rgba(234,179,8,0.01)');
             const wGrad2 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad2.addColorStop(0, 'rgba(239,68,68,0.2)'); wGrad2.addColorStop(1, 'rgba(239,68,68,0.01)');
             const wGrad3 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad3.addColorStop(0, 'rgba(34,197,94,0.25)'); wGrad3.addColorStop(1, 'rgba(34,197,94,0.01)');
-            let isWeeklyChartInitialized = false;
-            function getWeeklyChartConfig() {
+
+            function getWeeklyChartConfig(initData) {
+                const dList = initData && initData.length > 0 ? initData : (window.currentWeeklyData || []);
                 return {
                     type: 'line',
                     data: {
-                        labels: weeklyData.map(d => d.day),
+                        labels: dList.map(d => d.day),
                         datasets: [
-                            { label: 'Boundary', data: weeklyData.map(d => 0), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
-                            { label: 'Expenses', data: weeklyData.map(d => 0), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
-                            { label: 'Net Income', data: weeklyData.map(d => 0), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
+                            { label: 'Boundary', data: dList.map(d => Number(d.boundary) || 0), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Expenses', data: dList.map(d => Number(d.expenses) || 0), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Net Income', data: dList.map(d => Number(d.net) || 0), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
                         ]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        animation: { duration: 1200, easing: 'easeOutQuart' },
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
                             legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, font: { size: 12, weight: '600' }, padding: 18 } },
@@ -2453,22 +2470,32 @@
                 };
             }
 
-            const weeklyObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!isWeeklyChartInitialized) {
-                            window.weeklyChart = new Chart(weeklyCtx, getWeeklyChartConfig());
-                            isWeeklyChartInitialized = true;
-                        }
-                        window.weeklyChart.data.datasets[0].data = weeklyData.map(d => d.boundary);
-                        window.weeklyChart.data.datasets[1].data = weeklyData.map(d => d.expenses);
-                        window.weeklyChart.data.datasets[2].data = weeklyData.map(d => d.net);
-                        window.weeklyChart.update();
-                        weeklyObserver.unobserve(entry.target);
+            // Immediately instantiate chart with real data so it is never 0
+            window.weeklyChart = new Chart(weeklyCtx, getWeeklyChartConfig(window.currentWeeklyData));
+
+            window.updateWeeklyView = function(mode) {
+                const btnDays = document.getElementById('btn-weekly-days');
+                const btnWeeks = document.getElementById('btn-weekly-weeks');
+                const targetData = mode === 'weeks' ? weeklyWeeksData : (window.currentWeeklyData || weeklyDaysData);
+
+                if (btnDays && btnWeeks) {
+                    if (mode === 'days') {
+                        btnDays.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm';
+                        btnWeeks.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200';
+                    } else {
+                        btnWeeks.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm';
+                        btnDays.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200';
                     }
-                });
-            }, { threshold: 0.1 });
-            weeklyObserver.observe(document.getElementById('weeklyChart'));
+                }
+
+                if (window.weeklyChart && targetData) {
+                    window.weeklyChart.data.labels = targetData.map(d => d.day);
+                    window.weeklyChart.data.datasets[0].data = targetData.map(d => Number(d.boundary) || 0);
+                    window.weeklyChart.data.datasets[1].data = targetData.map(d => Number(d.expenses) || 0);
+                    window.weeklyChart.data.datasets[2].data = targetData.map(d => Number(d.net) || 0);
+                    window.weeklyChart.update();
+                }
+            };
         } catch (error) { console.error('Weekly Chart Error:', error); }
 
         // Unit Status Chart - (Handled by the premium donut chart below)

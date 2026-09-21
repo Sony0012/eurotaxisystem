@@ -145,12 +145,20 @@ class RealTimeDashboard {
     updateCharts(charts) {
         if (!charts) return;
 
-        if (window.weeklyChart && charts.weekly_data) {
-            window.weeklyChart.data.labels = charts.weekly_data.map(d => d.day);
-            window.weeklyChart.data.datasets[0].data = charts.weekly_data.map(d => d.boundary);
-            window.weeklyChart.data.datasets[1].data = charts.weekly_data.map(d => d.expenses);
-            window.weeklyChart.data.datasets[2].data = charts.weekly_data.map(d => d.net);
-            window.weeklyChart.update('none');
+        if (charts.weekly_data) {
+            window.currentWeeklyData = charts.weekly_data;
+            if (window.weeklyChart) {
+                // If user is viewing days mode (default), update chart
+                const btnDays = document.getElementById('btn-weekly-days');
+                const isDaysActive = !btnDays || btnDays.classList.contains('bg-blue-600');
+                if (isDaysActive) {
+                    window.weeklyChart.data.labels = charts.weekly_data.map(d => d.day);
+                    window.weeklyChart.data.datasets[0].data = charts.weekly_data.map(d => Number(d.boundary) || 0);
+                    window.weeklyChart.data.datasets[1].data = charts.weekly_data.map(d => Number(d.expenses) || 0);
+                    window.weeklyChart.data.datasets[2].data = charts.weekly_data.map(d => Number(d.net) || 0);
+                    window.weeklyChart.update('none');
+                }
+            }
         }
 
         if (window.unitStatusChart && charts.unit_status_data) {
