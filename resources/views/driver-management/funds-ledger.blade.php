@@ -435,6 +435,7 @@
                             <th class="p-4 whitespace-nowrap text-right">Amount</th>
                             <th class="p-4 whitespace-nowrap text-right">Balance After</th>
                             <th class="p-4 whitespace-nowrap">Encoded By</th>
+                            <th class="p-4 whitespace-nowrap text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
@@ -492,7 +493,7 @@
                                 @elseif($t->type === 'company_liability')
                                     <span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1">
                                         <svg class="w-3 h-3 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"></path>
+                                            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"></path>
                                             <line x1="16" y1="8" x2="8" y2="8"></line>
                                             <line x1="16" y1="12" x2="8" y2="12"></line>
                                             <line x1="13" y1="16" x2="8" y2="16"></line>
@@ -528,10 +529,33 @@
                             <td class="p-4 whitespace-nowrap text-[11px] font-bold text-slate-400">
                                 {{ $t->creator_name ?: 'System' }}
                             </td>
+                            <td class="p-4 whitespace-nowrap text-center">
+                                <button type="button" 
+                                        onclick="openLedgerEditModal({{ json_encode([
+                                            'id'             => $t->id,
+                                            'driver_id'      => $t->driver_id,
+                                            'driver_name'    => $t->driver_name,
+                                            'license_number' => $t->license_number,
+                                            'shift_plate'    => $t->shift_plate,
+                                            'boundary_id'    => $t->boundary_id,
+                                            'type'           => $t->type,
+                                            'amount'         => (float)$t->amount,
+                                            'date'           => $t->date,
+                                            'description'    => $t->description,
+                                        ]) }})" 
+                                        class="px-2.5 py-1.5 bg-slate-100 hover:bg-amber-500 text-slate-700 hover:text-white rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer group" 
+                                        title="Edit Transaction">
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    <span>Edit</span>
+                                </button>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="p-12 text-center text-slate-500">
+                            <td colspan="8" class="p-12 text-center text-slate-500">
                                 <img src="{{ asset('image/kpi/history_3d.svg') }}" alt="No Transactions" class="w-14 h-14 sm:w-16 sm:h-16 object-contain pointer-events-none mx-auto mb-3 filter drop-shadow-md">
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider mb-2">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -957,9 +981,318 @@
     </div>
 </div>
 
+<!-- Edit Fund Transaction Modal -->
+<div id="ledgerEditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <!-- Modal Header -->
+        <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider">Edit Fund Transaction</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Modify Record Details & Amounts</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLedgerEditModal()" class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800 cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form id="ledgerEditForm" onsubmit="submitLedgerEdit(event)" class="p-6 space-y-4">
+            <input type="hidden" id="editTransactionId" value="">
+
+            <!-- Driver Info Card (Readonly Reference) -->
+            <div class="p-3.5 bg-slate-50 border border-slate-200/90 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-black text-xs flex items-center justify-center shrink-0 uppercase" id="editDriverInitials">
+                        DR
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Driver</span>
+                        <h4 class="text-xs font-black text-slate-900" id="editDriverNameDisplay">—</h4>
+                        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500">
+                            <span id="editDriverLicenseDisplay">Lic: —</span>
+                            <span id="editDriverPlateDot">•</span>
+                            <span class="font-bold text-slate-700" id="editDriverPlateDisplay">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Tx Ref ID</span>
+                    <span class="text-xs font-mono font-black text-slate-800" id="editTxIdDisplay">#—</span>
+                </div>
+            </div>
+
+            <!-- Boundary Link Notice Banner (if linked) -->
+            <div id="editBoundaryBanner" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-blue-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div class="text-[11px] text-blue-900 leading-snug">
+                    <strong class="font-bold">Shift Boundary Linked:</strong>
+                    <span id="editBoundaryBannerText">This transaction is tied to a shift boundary remittance. Updating the amount will synchronize the boundary's driver fund record.</span>
+                </div>
+            </div>
+
+            <!-- Transaction Type -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Transaction Type <span class="text-red-500">*</span></label>
+                <select id="editTypeSelect" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                    <option value="deposit">Pondo Deposit (Savings Remittance)</option>
+                    <option value="damage_deduction">Accident / Damage Deduction</option>
+                    <option value="maintenance_share">Maintenance Share (Co-payment)</option>
+                    <option value="company_liability">Debt / Liability Settlement</option>
+                    <option value="withdrawal">Driver Cashout / Savings Payout</option>
+                </select>
+                <p id="editTypeNotice" class="hidden text-[10px] text-slate-400 font-medium mt-1 italic">Type is locked to Deposit because this was generated by a shift boundary.</p>
+            </div>
+
+            <!-- Amount & Date -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Amount (₱) <span class="text-red-500">*</span></label>
+                    <input type="number" id="editAmountInput" required min="0.01" step="0.01" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Transaction Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="editDateInput" required max="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+            </div>
+
+            <!-- Description / Notes -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Reference Notes <span class="text-red-500">*</span></label>
+                <textarea id="editDescriptionInput" required rows="2" maxlength="255" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 font-medium" placeholder="Reference notes or remarks..."></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
+                <button type="button" onclick="confirmDeleteFundTransaction()" class="px-3.5 py-2 text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-transparent rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer" title="Delete this entry">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span>Delete</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeLedgerEditModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitLedgerEdit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg> Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @include('driver-management.partials._driver_details_modal')
 
 <script>
+    // --- Edit Fund Transaction Handlers ---
+    let currentEditingTx = null;
+
+    function openLedgerEditModal(tx) {
+        currentEditingTx = tx;
+        document.getElementById('editTransactionId').value = tx.id;
+        document.getElementById('editTxIdDisplay').textContent = '#' + tx.id;
+
+        // Initials
+        let initials = 'DR';
+        if (tx.driver_name) {
+            const parts = tx.driver_name.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            } else if (parts.length === 1 && parts[0].length > 0) {
+                initials = parts[0].substring(0, 2).toUpperCase();
+            }
+        }
+        document.getElementById('editDriverInitials').textContent = initials;
+        document.getElementById('editDriverNameDisplay').textContent = tx.driver_name || '—';
+        document.getElementById('editDriverLicenseDisplay').textContent = tx.license_number ? 'Lic: ' + tx.license_number : 'Lic: N/A';
+        document.getElementById('editDriverPlateDisplay').textContent = tx.shift_plate || 'Unassigned';
+
+        // Boundary linked state
+        const banner = document.getElementById('editBoundaryBanner');
+        const bannerText = document.getElementById('editBoundaryBannerText');
+        const typeSelect = document.getElementById('editTypeSelect');
+        const typeNotice = document.getElementById('editTypeNotice');
+
+        if (tx.boundary_id) {
+            banner.classList.remove('hidden');
+            if (bannerText) {
+                bannerText.textContent = `This transaction is tied to shift boundary #${tx.boundary_id}. Updating the amount will synchronize the boundary's driver fund record.`;
+            }
+            typeSelect.value = 'deposit';
+            typeSelect.disabled = true;
+            typeNotice.classList.remove('hidden');
+        } else {
+            banner.classList.add('hidden');
+            typeSelect.disabled = false;
+            typeSelect.value = tx.type || 'deposit';
+            typeNotice.classList.add('hidden');
+        }
+
+        document.getElementById('editAmountInput').value = parseFloat(tx.amount || 0).toFixed(2);
+        document.getElementById('editDateInput').value = tx.date ? tx.date.split('T')[0] : '';
+        document.getElementById('editDescriptionInput').value = tx.description || '';
+
+        document.getElementById('ledgerEditModal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeLedgerEditModal() {
+        document.getElementById('ledgerEditModal').classList.add('hidden');
+        currentEditingTx = null;
+    }
+
+    function submitLedgerEdit(e) {
+        e.preventDefault();
+        if (!currentEditingTx) return;
+
+        const id = document.getElementById('editTransactionId').value;
+        const type = currentEditingTx.boundary_id ? 'deposit' : document.getElementById('editTypeSelect').value;
+        const amount = parseFloat(document.getElementById('editAmountInput').value || 0);
+        const date = document.getElementById('editDateInput').value;
+        const description = document.getElementById('editDescriptionInput').value.trim();
+
+        if (isNaN(amount) || amount <= 0) {
+            Swal.fire({ icon: 'warning', title: 'Invalid Amount', text: 'Please enter a valid amount greater than ₱0.00.' });
+            return;
+        }
+
+        const todayStr = (typeof getLocalTodayStr === 'function') ? getLocalTodayStr() : new Date().toISOString().split('T')[0];
+        if (date > todayStr) {
+            Swal.fire({ icon: 'warning', title: 'Invalid Date', text: 'Transaction date cannot be in the future.' });
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitLedgerEdit');
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Saving...';
+
+        fetch(`/driver-management/funds-ledger/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ amount, date, type, description })
+        })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes';
+
+            if (res.success) {
+                closeLedgerEditModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Transaction Updated!',
+                    text: res.message || 'Ledger transaction updated successfully.',
+                    timer: 1800,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: res.message || 'Failed to update transaction.'
+                });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes';
+            Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
+        });
+    }
+
+    function confirmDeleteFundTransaction() {
+        if (!currentEditingTx) return;
+        const id = currentEditingTx.id;
+        const isBoundaryLinked = !!currentEditingTx.boundary_id;
+
+        let warningHtml = 'Are you sure you want to delete this ledger transaction? This will automatically recalculate all subsequent running balances for this driver.';
+        if (isBoundaryLinked) {
+            warningHtml += '<br><br><strong class="text-rose-600">Note:</strong> This entry is linked to shift boundary remittance #' + currentEditingTx.boundary_id + '. Deleting it will also reset the boundary\'s driver fund to ₱0.00.';
+        }
+
+        Swal.fire({
+            title: 'Delete Transaction #' + id + '?',
+            html: warningHtml,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, Delete Entry',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while removing record and recalculating balances.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(`/driver-management/funds-ledger/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        closeLedgerEditModal();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: res.message || 'Transaction deleted successfully.',
+                            timer: 1800,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Failed',
+                            text: res.message || 'Failed to delete transaction.'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Something went wrong while connecting to the server.' });
+                });
+            }
+        });
+    }
+
     let currentSelectedDriverBal = 0;
 
     function switchLedgerView(view) {
@@ -2054,6 +2387,20 @@
             const disbContainer = document.getElementById('disburseDriverSearchContainer');
             if (disbContainer && !disbContainer.contains(e.target)) {
                 document.getElementById('disburseDriverDropdown')?.classList.add('hidden');
+            }
+
+            const editModal = document.getElementById('ledgerEditModal');
+            if (editModal && e.target === editModal) {
+                closeLedgerEditModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const editModal = document.getElementById('ledgerEditModal');
+                if (editModal && !editModal.classList.contains('hidden')) {
+                    closeLedgerEditModal();
+                }
             }
         });
     });
