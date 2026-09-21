@@ -1260,7 +1260,7 @@ class BoundaryController extends Controller
 
     public function edit($id) { return back(); }
     public function update(Request $request, $id) { return back(); }
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $boundary = Boundary::where('id', $id)->firstOrFail();
         $plate = DB::table('units')->where('id', $boundary->unit_id)->value('plate_number');
@@ -1297,14 +1297,43 @@ class BoundaryController extends Controller
                   });
             })
             ->whereIn('incident_type', ['Short Boundary', 'Absent / No Show', 'Late Remittance', 'Vehicle Damage', 'Other', 'other'])
-            ->delete();
+            ->forceDelete();
 
-        // Clean up linked DriverFund transaction
-        \App\Models\DriverFund::where('boundary_id', $boundary->id)->delete();
+        // Clean up linked DriverFund transaction (forceDelete so no ghost row remains)
+        \App\Models\DriverFund::where('boundary_id', $boundary->id)->forceDelete();
+
+        // If this boundary updated the unit's shifting schedule, restore or reset it
+        $unit = \App\Models\Unit::find($boundary->unit_id);
+        if ($unit && $unit->last_swapping_at && str_starts_with($unit->last_swapping_at, (string)$boundary->date)) {
+            $prevBoundary = Boundary::where('unit_id', $boundary->unit_id)
+                ->where('id', '!=', $boundary->id)
+                ->whereNull('deleted_at')
+                ->orderBy('date', 'desc')
+                ->first();
+            if ($prevBoundary) {
+                $unit->current_turn_driver_id = $prevBoundary->driver_id;
+            } else {
+                $unit->last_swapping_at = null;
+                $unit->shift_deadline_at = null;
+            }
+            $unit->save();
+        }
 
         $boundary->delete();
 
+        // Flush application and dashboard statistics caches
+        \Illuminate\Support\Facades\Cache::forget('web_dashboard_stats');
+        \Illuminate\Support\Facades\Cache::forget('api_dashboard_stats_7');
+        \Illuminate\Support\Facades\Cache::forget('api_dashboard_stats_30');
+
         ActivityLogController::log('Archived Boundary Record', "Unit: {$plate}\nDate: {$date}");
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Boundary record deleted cleanly with zero orphaned data.'
+            ]);
+        }
 
         $targetDate = $request->input('filter_date_state') ?: ($date ?: date('Y-m-d'));
         $redirectParams = ['date' => $targetDate];
@@ -1315,7 +1344,7 @@ class BoundaryController extends Controller
             $redirectParams['status'] = $request->input('filter_status_state');
         }
 
-        return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record archived.');
+        return redirect()->route('boundaries.index', $redirectParams)->with('success', 'Boundary record deleted successfully without ghost data.');
     }
     public function show($id) { return back(); }
     public function create() { return back(); }

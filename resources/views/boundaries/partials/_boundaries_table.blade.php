@@ -129,13 +129,21 @@
                                 </div>
                             </td>
                             <td class="px-5 py-3.5 whitespace-nowrap text-right" onclick="event.stopPropagation();">
-                                <button type="button" 
-                                        onclick="event.stopPropagation(); editBoundary({{ $boundary['id'] }})" 
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl font-black text-xs transition-all shadow-xs hover:shadow hover:border-amber-400 active:scale-95 cursor-pointer"
-                                        title="Edit Boundary Record">
-                                    <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-600"></i>
-                                    <span>Edit</span>
-                                </button>
+                                <div class="inline-flex items-center gap-1.5 justify-end">
+                                    <button type="button" 
+                                            onclick="event.stopPropagation(); editBoundary({{ $boundary['id'] }})" 
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 border border-amber-300 rounded-xl font-black text-xs transition-all shadow-xs hover:shadow hover:border-amber-400 active:scale-95 cursor-pointer"
+                                            title="Edit Boundary Record">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-600"></i>
+                                        <span>Edit</span>
+                                    </button>
+                                    <button type="button" 
+                                            onclick="event.stopPropagation(); deleteBoundaryRecord({{ $boundary['id'] }}, '{{ $boundary['plate_number'] }}', '{{ $boundary['date'] }}')" 
+                                            class="inline-flex items-center justify-center p-1.5 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-200 hover:border-rose-300 rounded-xl font-black text-xs transition-all shadow-xs hover:shadow active:scale-95 cursor-pointer"
+                                            title="Delete Boundary Record">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

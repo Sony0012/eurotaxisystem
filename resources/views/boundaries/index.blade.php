@@ -677,13 +677,21 @@
             </div>
             
             {{-- Footer --}}
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
-                <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm">
-                    Cancel
-                </button>
-                <button type="submit" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
-                    Save Record
-                </button>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center gap-3 shrink-0">
+                <div>
+                    <button type="button" id="modalDeleteBtn" onclick="deleteCurrentEditingBoundary()" class="hidden px-4 py-2.5 text-xs font-black text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-xs active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-4 h-4 text-rose-600"></i>
+                        <span>Delete Record</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all shadow-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 text-sm font-black text-white bg-yellow-500 rounded-xl hover:bg-yellow-400 focus:ring-4 focus:ring-yellow-100 transition-all shadow-sm">
+                        Save Record
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -2327,6 +2335,7 @@ function addBoundary() {
     updateEarlyFailureHoursDisplay();
 
     document.getElementById('boundaryModal').classList.remove('is-editing');
+    document.getElementById('modalDeleteBtn')?.classList.add('hidden');
     const btc = document.getElementById('breakdownTimeContainer');
     if (btc) btc.classList.add('hidden');
     const tOut = document.getElementById('breakdownTimeOut');
@@ -2486,6 +2495,7 @@ function editBoundary(id) {
         updateBreakdownComputation();
 
         document.getElementById('boundaryModal').classList.add('is-editing');
+        document.getElementById('modalDeleteBtn')?.classList.remove('hidden');
         document.getElementById('boundaryModal').classList.remove('hidden');
         lucide.createIcons();
     } else {
@@ -2496,6 +2506,50 @@ function editBoundary(id) {
 function closeModal() {
     document.getElementById('boundaryModal').classList.add('hidden');
     document.getElementById('boundaryModal').classList.remove('is-editing');
+    document.getElementById('modalDeleteBtn')?.classList.add('hidden');
+}
+
+function deleteBoundaryRecord(id, plate, date) {
+    if (!confirm(`Are you sure you want to permanently delete the boundary record for Unit ${plate || 'Unit'} (${date || ''})?\n\nThis will cleanly remove the record, revert linked driver funds, and clear associated incident debts without leaving ghost data.`)) {
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/boundaries/${id}`;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    form.appendChild(csrfInput);
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
+
+    const curFilterDate = document.getElementById('filterDate')?.value || '';
+    if (curFilterDate) {
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'filter_date_state';
+        dateInput.value = curFilterDate;
+        form.appendChild(dateInput);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function deleteCurrentEditingBoundary() {
+    const id = document.getElementById('boundaryId')?.value;
+    const plate = document.getElementById('unitDisplay')?.value || 'Unit';
+    const date = document.getElementById('date')?.value || '';
+    if (id) {
+        deleteBoundaryRecord(id, plate, date);
+    }
 }
 
 function validatePondoInput(input) {
