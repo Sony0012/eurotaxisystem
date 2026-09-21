@@ -2453,14 +2453,8 @@
                         window.weeklyChart.data.datasets[1].data = weeklyData.map(d => d.expenses);
                         window.weeklyChart.data.datasets[2].data = weeklyData.map(d => d.net);
                         window.weeklyChart.update();
-                    } else {
-                        if (isWeeklyChartInitialized && window.weeklyChart) {
-                            window.weeklyChart.data.datasets[0].data = weeklyData.map(d => 0);
-                            window.weeklyChart.data.datasets[1].data = weeklyData.map(d => 0);
-                            window.weeklyChart.data.datasets[2].data = weeklyData.map(d => 0);
-                            window.weeklyChart.update('none');
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 });
             weeklyObserver.observe(document.getElementById('weeklyChart'));
@@ -2524,12 +2518,8 @@
                         }
                         window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues;
                         window.revenueTrendChart.update();
-                    } else {
-                        if (isRevenueTrendChartInitialized && window.revenueTrendChart) {
-                            window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues.map(d => 0);
-                            window.revenueTrendChart.update('none');
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 });
             revenueTrendObserver.observe(document.getElementById('revenueTrendChart'));
@@ -2653,20 +2643,12 @@
                             window.unitPerformanceChart = new Chart(unitPerformanceCtx, getChartConfig());
                             isUnitChartInitialized = true;
                         }
-                        
                         // Animate bars growing to actual values
                         window.unitPerformanceChart.data.datasets[0].data = unitPerformanceData.map(d => d.performance);
                         window.unitPerformanceChart.data.datasets[1].data = unitPerformanceData.map(d => d.target);
                         window.unitPerformanceChart.update();
-                        
-                    } else {
-                        // Reset bars to zero instantly when out of view
-                        if (isUnitChartInitialized && window.unitPerformanceChart) {
-                            window.unitPerformanceChart.data.datasets[0].data = unitPerformanceData.map(d => 0);
-                            window.unitPerformanceChart.data.datasets[1].data = unitPerformanceData.map(d => 0);
-                            window.unitPerformanceChart.update('none'); // Update instantly without animation
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 }); // Use 0.3 so it safely triggers on small screens too
             
@@ -2773,12 +2755,8 @@
                         }
                         window.expenseBreakdownChart.data.datasets[0].data = expValues;
                         window.expenseBreakdownChart.update();
-                    } else {
-                        if (isExpenseChartInitialized && window.expenseBreakdownChart) {
-                            window.expenseBreakdownChart.data.datasets[0].data = expValues.map(d => 0);
-                            window.expenseBreakdownChart.update('none');
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 });
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
@@ -2842,12 +2820,8 @@
                         }
                         window.topDriversChart.data.datasets[0].data = driverScores;
                         window.topDriversChart.update();
-                    } else {
-                        if (isTopDriversChartInitialized && window.topDriversChart) {
-                            window.topDriversChart.data.datasets[0].data = driverScores.map(d => 0);
-                            window.topDriversChart.update('none');
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 });
             topDriversObserver.observe(document.getElementById('topDriversChart'));
@@ -2902,12 +2876,8 @@
                         }
                         window.unitStatusChart.data.datasets[0].data = distValues;
                         window.unitStatusChart.update();
-                    } else {
-                        if (isUnitStatusChartInitialized && window.unitStatusChart) {
-                            window.unitStatusChart.data.datasets[0].data = distValues.map(d => 0);
-                            window.unitStatusChart.update('none');
-                        }
                     }
+                    // No else: never zero-out data when scrolled out of view
                 });
             }, { threshold: 0.3 });
             unitStatusObserver.observe(document.getElementById('unitStatusChart'));

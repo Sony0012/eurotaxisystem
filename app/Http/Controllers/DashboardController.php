@@ -1477,6 +1477,9 @@ class DashboardController extends Controller
     {
         $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
 
+        // Include ALL operational fleet units (active + coding + vacant).
+        // Coding units still remit boundaries — only their rate/day may differ.
+        // Only 'retired' and 'missing' units are excluded from performance tracking.
         return DB::table('units as u')
             ->whereNull('u.deleted_at')
             ->leftJoin('boundaries as b', function($join) use ($thirtyDaysAgo) {
@@ -1485,7 +1488,7 @@ class DashboardController extends Controller
                      ->where('b.date', '>=', $thirtyDaysAgo);
             })
             ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
-            ->where('u.status', 'active')
+            ->whereNotIn('u.status', ['retired', 'missing'])
             ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
             ->limit(10)
@@ -1519,7 +1522,7 @@ class DashboardController extends Controller
             ->join('units as u', 'b.unit_id', '=', 'u.id')
             ->whereNull('b.deleted_at')
             ->whereNull('u.deleted_at')
-            ->where('u.status', 'active')
+            ->whereNotIn('u.status', ['retired', 'missing'])
             ->whereBetween('b.date', [$sixtyDaysAgo, $thirtyDaysAgo])
             ->sum('b.actual_boundary');
 
@@ -1545,11 +1548,11 @@ class DashboardController extends Controller
 
         // Dynamic insight message based on real data
         if ($totalActual <= 0) {
-            $insightMessage = 'No boundary collections recorded for active units in the last 30 days yet.';
+            $insightMessage = 'No boundary collections recorded for the fleet in the last 30 days yet.';
         } elseif ($healthPercentage >= 80) {
             $insightMessage = 'Most units are meeting or exceeding their 30-day boundary targets.';
         } elseif ($healthPercentage >= 50) {
-            $insightMessage = 'Fleet is operating at moderate efficiency across active units.';
+            $insightMessage = 'Fleet is operating at moderate efficiency across all deployed units.';
         } else {
             $insightMessage = 'Fleet boundary collections are currently below 50% of monthly targets.';
         }
@@ -1615,21 +1618,32 @@ class DashboardController extends Controller
 
     private function getTopDriversData()
     {
+        // Show top drivers by completed boundary shifts. Includes any driver with a shift record,
+        // not just perfectly-violation-free ones. Sort by good_days desc then total_boundary desc.
+        $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
+
         $data = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->leftJoin('boundaries as b', function($join) {
-                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
+            ->whereNotIn('d.driver_status', ['archived'])
+            ->leftJoin('boundaries as b', function($join) use ($thirtyDaysAgo) {
+                $join->on('d.id', '=', 'b.driver_id')
+                     ->whereNull('b.deleted_at')
+                     ->where('b.date', '>=', $thirtyDaysAgo);
             })
-            ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
+            ->leftJoin('driver_behavior as db', function($join) use ($thirtyDaysAgo) {
+                $join->on('d.id', '=', 'db.driver_id')
+                     ->whereNull('db.deleted_at')
+                     ->where('db.incident_date', '>=', $thirtyDaysAgo);
+            })
             ->select(
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
-                DB::raw('SUM(b.actual_boundary) as total_boundary'),
-                DB::raw('COUNT(CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN 1 END) as violation_count')
+                DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
+                DB::raw('SUM(DISTINCT COALESCE(b.actual_boundary, 0)) as total_boundary'),
+                DB::raw('COUNT(DISTINCT CASE WHEN (' . $this->getViolationQuerySnippet() . ') AND db.id IS NOT NULL THEN db.id END) as violation_count')
             )
-            ->whereIn('d.driver_status', ['available', 'assigned'])
             ->groupBy('d.id', 'd.first_name', 'd.last_name')
-            ->having('violation_count', '=', 0)
+            ->having('good_days', '>', 0)
+            ->orderBy('violation_count', 'asc')
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
             ->limit(5)
