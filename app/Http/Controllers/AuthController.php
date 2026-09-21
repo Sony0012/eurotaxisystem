@@ -36,6 +36,17 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        if (!$this->verifyTurnstile($request, 'login')) {
+            $msg = 'Please complete the security check (Verify you are human).';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+            return back()->withErrors(['email' => $msg])->onlyInput('email');
+        }
+
         $user = User::withTrashed()
             ->where(function($query) use ($request) {
                 $query->where('email', $request->email)
@@ -871,6 +882,53 @@ class AuthController extends Controller
         }
 
         return response()->json(['error' => 'Invalid request'], 400);
+    }
+
+    /**
+     * Canonical Cloudflare Turnstile Server-Side Siteverify
+     */
+    protected function verifyTurnstile(Request $request, string $expectedAction = 'login'): bool
+    {
+        $token = $request->input('cf-turnstile-response') ?? $request->input('cf_turnstile_response');
+
+        // Validation of token presence and max length
+        if (empty($token) || !is_string($token) || strlen($token) > 2048) {
+            return false;
+        }
+
+        // Allow bypass in local testing environment only if explicitly configured
+        if (app()->environment('local') && in_array($token, ['test_bypass', 'XXXX.DUMMY.TOKEN.XXXX'])) {
+            return true;
+        }
+
+        $secret = config('services.turnstile.secret', env('TURNSTILE_SECRET', '0x4AAAAAAE-fpDi4_Y2lwplwUtUOA9t_y4Q'));
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::asForm()->timeout(10)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret'   => $secret,
+                'response' => $token,
+                'remoteip' => $request->ip(),
+            ]);
+
+            if ($response->successful()) {
+                $result = $response->json();
+
+                if (!($result['success'] ?? false)) {
+                    return false;
+                }
+
+                // If action is returned by Turnstile, verify it matches
+                if (!empty($result['action']) && $result['action'] !== $expectedAction) {
+                    return false;
+                }
+
+                return true;
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Cloudflare Turnstile verification error: ' . $e->getMessage());
+        }
+
+        return false;
     }
 }
 
