@@ -1412,8 +1412,33 @@ class DashboardController extends Controller
         }
     }
 
-    private function getWeeklyFinancialData()
+    private function getWeeklyFinancialData($type = 'days')
     {
+        if ($type === 'weeks') {
+            $monthStart = now()->timezone('Asia/Manila')->startOfMonth();
+            $monthEnd = now()->timezone('Asia/Manila')->endOfMonth();
+            $currentMonthName = now()->timezone('Asia/Manila')->format('M');
+
+            return collect([
+                ['label' => "W1 ({$currentMonthName} 1-7)",   'start' => $monthStart->copy()->toDateString(), 'end' => $monthStart->copy()->addDays(6)->toDateString()],
+                ['label' => "W2 ({$currentMonthName} 8-14)",  'start' => $monthStart->copy()->addDays(7)->toDateString(), 'end' => $monthStart->copy()->addDays(13)->toDateString()],
+                ['label' => "W3 ({$currentMonthName} 15-21)", 'start' => $monthStart->copy()->addDays(14)->toDateString(), 'end' => $monthStart->copy()->addDays(20)->toDateString()],
+                ['label' => "W4 ({$currentMonthName} 22+)",   'start' => $monthStart->copy()->addDays(21)->toDateString(), 'end' => $monthEnd->toDateString()],
+            ])->map(function ($w) {
+                $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereBetween('date', [$w['start'], $w['end']])->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+                $expenses = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereBetween('date', [$w['start'], $w['end']])->sum('amount') ?? 0);
+                $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereBetween('date', [$w['start'], $w['end']])->sum(DB::raw('ABS(amount)')) ?? 0);
+                $totalInflow = $boundary + $recovery;
+
+                return [
+                    'day'      => $w['label'],
+                    'boundary' => $totalInflow,
+                    'expenses' => $expenses,
+                    'net'      => (float) ($totalInflow - $expenses),
+                ];
+            })->values()->toArray();
+        }
+
         return collect(range(6, 0))->map(function ($daysAgo) {
             $carbonDate = now()->timezone('Asia/Manila')->subDays($daysAgo);
             $date = $carbonDate->toDateString();

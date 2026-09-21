@@ -21,11 +21,18 @@ class BoundaryController extends Controller
     public function index(Request $request)
     {
         $search        = $request->get('search', '');
-        $date_filter   = $request->get('date', date('Y-m-d')); // Default to today
         $status_filter = $request->get('status', '');
+        $date_filter   = $request->get('date');
+        $date_from     = $request->get('date_from');
+        $date_to       = $request->get('date_to');
         $page          = max(1, (int) $request->get('page', 1));
         $limit         = 10;
         $offset        = ($page - 1) * $limit;
+
+        // Default to today on initial visit when no date parameters are set
+        if (!$request->has('date') && !$request->has('date_from') && !$request->has('date_to')) {
+            $date_filter = date('Y-m-d');
+        }
 
         // Build query joining units and drivers tables
         $query = DB::table('boundaries as b')
@@ -52,8 +59,15 @@ class BoundaryController extends Controller
             });
         }
 
+        $today = now()->toDateString();
         if (!empty($date_filter)) {
-            $query->whereDate('b.date', $date_filter);
+            $query->whereDate('b.date', min($date_filter, $today));
+        }
+        if (!empty($date_from)) {
+            $query->whereDate('b.date', '>=', min($date_from, $today));
+        }
+        if (!empty($date_to)) {
+            $query->whereDate('b.date', '<=', min($date_to, $today));
         }
 
         if (!empty($status_filter)) {
@@ -78,11 +92,18 @@ class BoundaryController extends Controller
             ->toArray();
 
         // --- Fleet Utilization Tracking ---
-        $remitted_unit_ids = DB::table('boundaries')
-            ->whereNull('deleted_at')
-            ->whereDate('date', $date_filter)
-            ->pluck('unit_id')
-            ->toArray();
+        $remittedQuery = DB::table('boundaries')
+            ->whereNull('deleted_at');
+        if (!empty($date_filter)) {
+            $remittedQuery->whereDate('date', min($date_filter, $today));
+        }
+        if (!empty($date_from)) {
+            $remittedQuery->whereDate('date', '>=', min($date_from, $today));
+        }
+        if (!empty($date_to)) {
+            $remittedQuery->whereDate('date', '<=', min($date_to, $today));
+        }
+        $remitted_unit_ids = $remittedQuery->pluck('unit_id')->toArray();
 
         $deployable_units = DB::table('units')
             ->whereNull('deleted_at')
@@ -258,6 +279,8 @@ class BoundaryController extends Controller
                 'pagination' => $pagination,
                 'search'     => $search,
                 'date_filter' => $date_filter,
+                'date_from'   => $date_from,
+                'date_to'     => $date_to,
                 'status_filter' => $status_filter
             ])->render();
 
@@ -276,6 +299,8 @@ class BoundaryController extends Controller
             'page', 
             'search', 
             'date_filter',
+            'date_from',
+            'date_to',
             'status_filter', 
             'units', 
             'all_drivers', 
