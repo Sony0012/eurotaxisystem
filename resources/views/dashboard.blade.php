@@ -957,12 +957,14 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow flex flex-col">
             <div class="p-4 border-b">
                 <h3 class="text-base font-semibold text-slate-800">Unit Status Distribution</h3>
             </div>
-            <div class="p-4">
-                <canvas id="unitStatusChart" width="400" height="200"></canvas>
+            <div class="p-4 flex-1 flex items-center justify-center">
+                <div class="relative w-full h-[220px]">
+                    <canvas id="unitStatusChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -978,11 +980,10 @@
                     Leaderboard
                 </span>
             </div>
-            <div class="p-4 flex-1 flex flex-col justify-center min-h-[220px]">
-                <div id="topDriversLeaderboard" class="space-y-3">
+            <div class="p-4 flex-1 flex flex-col justify-center">
+                <div id="topDriversLeaderboard" class="space-y-2.5">
                     <!-- Dynamic Enhanced Leaderboard with driver profile, medals, and animated progress bars -->
                 </div>
-                <canvas id="topDriversChart" class="hidden" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -2834,7 +2835,7 @@
                 ];
 
                 let html = '';
-                list.slice(0, 5).forEach((d, idx) => {
+                list.slice(0, 3).forEach((d, idx) => {
                     const meta = medalMeta[idx] || {
                         icon: `<span class="text-xs font-bold text-slate-500">#${idx + 1}</span>`,
                         label: `${idx + 1}th Place`,
@@ -2913,35 +2914,7 @@
 
             // Initial render
             window.renderTopDriversLeaderboard(rawTopDriversData);
-
-            // Also maintain hidden Chart.js instance for backwards compatibility
-            const topDriversCanvas = document.getElementById('topDriversChart');
-            if (topDriversCanvas) {
-                const topDriversCtx = topDriversCanvas.getContext('2d');
-                const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
-                const driverLabels = hasTopDrivers 
-                    ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
-                    : ['No Shift Records Yet'];
-                const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
-                const barColors = hasTopDrivers 
-                    ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
-                    : ['#e2e8f0'];
-                    
-                window.topDriversChart = new Chart(topDriversCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: driverLabels,
-                        datasets: [{ label: 'Reliability Score', data: driverScores,
-                            backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
-                            borderRadius: 10, borderSkipped: false, barThickness: 28 }]
-                    },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { x: { beginAtZero: true }, y: { display: true } }
-                    }
-                });
-            }
+            window.topDriversChart = null;
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
         // Unit Status Distribution Chart - Premium Donut
