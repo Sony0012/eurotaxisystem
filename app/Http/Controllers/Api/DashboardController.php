@@ -172,23 +172,33 @@ class DashboardController extends Controller
                     $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
                 })
                 ->select(
+                    'd.id',
+                    'd.profile_photo',
                     DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
                     DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
                     DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total')
                 )
                 ->whereNotIn('d.driver_status', ['archived'])
-                ->groupBy('d.id', 'd.first_name', 'd.last_name')
+                ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.profile_photo')
                 ->having('good_days', '>', 0)
                 ->orderByDesc('good_days')
                 ->orderByDesc('total')
                 ->limit(10)
                 ->get();
 
-            $topDrivers = $topDriversData->map(fn($d) => [
-                'name' => $d->name,
-                'total' => (float)$d->total,
-                'score' => (int)$d->good_days
-            ])->toArray();
+            $topDrivers = $topDriversData->map(function($d) {
+                $photo = $d->profile_photo ?? '';
+                $photoUrl = !empty($photo)
+                    ? (str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/')))
+                    : asset('image/avatars/driver.svg');
+                return [
+                    'id'    => $d->id,
+                    'name'  => $d->name,
+                    'photo' => $photoUrl,
+                    'total' => (float)$d->total,
+                    'score' => (int)$d->good_days
+                ];
+            })->toArray();
 
 
             // 4. Weekly Financial Overview (Matching Web Exactly: Boundaries vs Expenses)

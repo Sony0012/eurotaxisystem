@@ -1626,20 +1626,36 @@ class DashboardController extends Controller
                 $join->on('d.id', '=', 'db.driver_id')->whereNull('db.deleted_at');
             })
             ->select(
+                'd.id',
+                'd.profile_photo',
+                'd.nickname',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
                 DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'),
                 DB::raw('COUNT(DISTINCT CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN db.id END) as violation_count')
             )
             ->whereNotIn('d.driver_status', ['archived'])
-            ->groupBy('d.id', 'd.first_name', 'd.last_name')
+            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.nickname', 'd.profile_photo')
             ->having('good_days', '>', 0)
             ->orderBy('violation_count', 'asc')
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
             ->limit(5)
             ->get()
-            ->map(fn($d) => ['name' => $d->full_name, 'score' => (int) $d->good_days, 'total' => (float) $d->total_boundary]);
+            ->map(function($d) {
+                $photo = $d->profile_photo ?? '';
+                $photoUrl = !empty($photo)
+                    ? (str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/')))
+                    : asset('image/avatars/driver.svg');
+                return [
+                    'id'       => $d->id,
+                    'name'     => $d->full_name,
+                    'nickname' => $d->nickname,
+                    'photo'    => $photoUrl,
+                    'score'    => (int) $d->good_days,
+                    'total'    => (float) $d->total_boundary,
+                ];
+            });
 
         if ($data->isEmpty() || $data->every(fn($d) => $d['score'] == 0)) {
             return collect([]);

@@ -953,12 +953,23 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
+        <div class="bg-white rounded-lg shadow overflow-hidden flex flex-col">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-amber-50 rounded-lg text-amber-600">
+                        <i data-lucide="trophy" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
+                </div>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+                    Leaderboard
+                </span>
             </div>
-            <div class="p-4">
-                <canvas id="topDriversChart" width="400" height="200"></canvas>
+            <div class="p-4 flex-1 flex flex-col justify-center min-h-[220px]">
+                <div id="topDriversLeaderboard" class="space-y-3">
+                    <!-- Dynamic Enhanced Leaderboard with driver profile, medals, and animated progress bars -->
+                </div>
+                <canvas id="topDriversChart" class="hidden" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
@@ -2763,69 +2774,147 @@
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
-        // Top Drivers Chart - Premium Horizontal Bar
+        // Top Drivers - Enhanced Leaderboard & Progress Graph
         try {
-            const topDriversCtx = document.getElementById('topDriversChart').getContext('2d');
             const rawTopDriversData = @json($top_drivers) || [];
-            const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
-            
-            const driverLabels = hasTopDrivers 
-                ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
-                : ['No Shift Records Yet'];
-            const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
-            const barColors = hasTopDrivers 
-                ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
-                : ['#e2e8f0'];
-                
-            let isTopDriversChartInitialized = false;
-            function getTopDriversChartConfig() {
-                return {
+
+            window.renderTopDriversLeaderboard = function(drivers) {
+                const container = document.getElementById('topDriversLeaderboard');
+                if (!container) return;
+
+                const list = Array.isArray(drivers) ? drivers.filter(d => (Number(d.score) || 0) > 0) : [];
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-8 text-center text-slate-400">
+                            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-100">
+                                <i data-lucide="award" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-600">No Shift Records Yet</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Top performing drivers will appear here as shifts are completed.</p>
+                        </div>
+                    `;
+                    if (window.lucide) window.lucide.createIcons();
+                    return;
+                }
+
+                const maxScore = Math.max(...list.map(d => Number(d.score) || 1), 1);
+
+                const medalMeta = [
+                    { icon: '🥇', label: '1st Place', badgeBg: 'bg-amber-50 text-amber-700 border-amber-200/80 shadow-amber-100/50', barGrad: 'from-blue-600 to-indigo-600', ring: 'ring-amber-400/50' },
+                    { icon: '🥈', label: '2nd Place', badgeBg: 'bg-slate-100 text-slate-700 border-slate-200 shadow-slate-100', barGrad: 'from-indigo-500 to-purple-600', ring: 'ring-slate-300' },
+                    { icon: '🥉', label: '3rd Place', badgeBg: 'bg-orange-50 text-orange-700 border-orange-200 shadow-orange-100/50', barGrad: 'from-cyan-500 to-blue-600', ring: 'ring-orange-300/50' },
+                ];
+
+                let html = '';
+                list.slice(0, 5).forEach((d, idx) => {
+                    const meta = medalMeta[idx] || {
+                        icon: `<span class="text-xs font-bold text-slate-500">#${idx + 1}</span>`,
+                        label: `${idx + 1}th Place`,
+                        badgeBg: 'bg-slate-50 text-slate-600 border-slate-200',
+                        barGrad: 'from-slate-500 to-slate-600',
+                        ring: 'ring-slate-200'
+                    };
+
+                    const score = Number(d.score) || 0;
+                    const total = Number(d.total) || 0;
+                    const targetPct = Math.max(Math.round((score / maxScore) * 100), 12);
+                    const photo = d.photo || '{{ asset("image/avatars/driver.svg") }}';
+                    const shiftText = score === 1 ? 'Clean Shift' : 'Clean Shifts';
+
+                    html += `
+                        <div class="group p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/20 transition-all duration-200 bg-white">
+                            <div class="flex items-center gap-3">
+                                <!-- Medal & Rank Badge -->
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center border ${meta.badgeBg} shadow-sm text-base font-bold select-none" title="${meta.label}">
+                                    ${typeof meta.icon === 'string' && meta.icon.startsWith('<') ? meta.icon : meta.icon}
+                                </div>
+
+                                <!-- Driver Profile Photo with Ring & Active Indicator -->
+                                <div class="relative flex-shrink-0">
+                                    <img src="${photo}" 
+                                         alt="${d.name}" 
+                                         class="w-10 h-10 rounded-full object-cover ring-2 ${meta.ring} shadow-sm bg-slate-100 group-hover:scale-105 transition-transform"
+                                         onerror="this.onerror=null; this.src='{{ asset("image/avatars/driver.svg") }}';">
+                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                                </div>
+
+                                <!-- Driver Info & Horizontal Progress Bar Graph -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="truncate">
+                                            <span class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">${d.name}</span>
+                                            ${d.nickname ? `<span class="text-[11px] text-slate-400 font-normal ml-1">("${d.nickname}")</span>` : ''}
+                                        </div>
+                                        <div class="flex items-center gap-2 flex-shrink-0">
+                                            <span class="text-xs font-semibold text-slate-500">₱${total.toLocaleString()}</span>
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                                                ${score} ${shiftText}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Graph Bar (Animated Horizontal Progress Meter) -->
+                                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-200/40">
+                                        <div class="driver-bar-fill h-full rounded-full bg-gradient-to-r ${meta.barGrad} shadow-sm transition-all duration-1000 ease-out" 
+                                             style="width: 0%" 
+                                             data-target-width="${targetPct}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+                // Animate bars smoothly into view
+                requestAnimationFrame(() => {
+                    container.querySelectorAll('.driver-bar-fill').forEach(bar => {
+                        const target = bar.getAttribute('data-target-width');
+                        if (target) {
+                            setTimeout(() => { bar.style.width = target; }, 60);
+                        }
+                    });
+                });
+
+                if (window.lucide) window.lucide.createIcons();
+            };
+
+            window.updateTopDriversLeaderboard = window.renderTopDriversLeaderboard;
+
+            // Initial render
+            window.renderTopDriversLeaderboard(rawTopDriversData);
+
+            // Also maintain hidden Chart.js instance for backwards compatibility
+            const topDriversCanvas = document.getElementById('topDriversChart');
+            if (topDriversCanvas) {
+                const topDriversCtx = topDriversCanvas.getContext('2d');
+                const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
+                const driverLabels = hasTopDrivers 
+                    ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
+                    : ['No Shift Records Yet'];
+                const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
+                const barColors = hasTopDrivers 
+                    ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
+                    : ['#e2e8f0'];
+                    
+                window.topDriversChart = new Chart(topDriversCtx, {
                     type: 'bar',
                     data: {
                         labels: driverLabels,
-                        datasets: [{ label: 'Reliability Score', data: driverScores.map(d => 0),
+                        datasets: [{ label: 'Reliability Score', data: driverScores,
                             backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
                             borderRadius: 10, borderSkipped: false, barThickness: 28 }]
                     },
                     options: {
                         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
-                                callbacks: {
-                                    label: ctx => hasTopDrivers ? ` ⭐ Reliability: ${ctx.parsed.x} clean service days` : ' No driver performance records yet',
-                                    footer: items => { 
-                                        if (!hasTopDrivers) return '';
-                                        const amt = rawTopDriversData[items[0].dataIndex]?.total || 0; 
-                                        return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; 
-                                    }
-                                }
-                            },
-                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
-                        },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94a3b8' } },
-                            y: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 13, weight: '600' }, color: '#1e293b' } }
-                        },
-                        animation: { duration: 1500, easing: 'easeOutQuart' }
-                    }
-                };
-            }
-
-            const topDriversObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!isTopDriversChartInitialized) {
-                            window.topDriversChart = new Chart(topDriversCtx, getTopDriversChartConfig());
-                            isTopDriversChartInitialized = true;
-                        }
-                        window.topDriversChart.data.datasets[0].data = driverScores;
-                        window.topDriversChart.update();
-                        topDriversObserver.unobserve(entry.target);
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true }, y: { display: true } }
                     }
                 });
-            }, { threshold: 0.1 });
-            topDriversObserver.observe(document.getElementById('topDriversChart'));
+            }
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
         // Unit Status Distribution Chart - Premium Donut

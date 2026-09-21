@@ -172,6 +172,10 @@ class RealTimeDashboard {
             window.unitPerformanceChart.update('none');
         }
 
+        if (typeof window.updateTopDriversLeaderboard === 'function' && charts.top_drivers) {
+            window.updateTopDriversLeaderboard(charts.top_drivers);
+        }
+
         if (window.topDriversChart && charts.top_drivers && Array.isArray(charts.top_drivers)) {
             const hasDrivers = charts.top_drivers.length > 0 && charts.top_drivers.some(d => (Number(d.score) || 0) > 0);
             if (hasDrivers) {
