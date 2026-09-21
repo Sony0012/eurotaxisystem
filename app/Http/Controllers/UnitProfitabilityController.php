@@ -120,7 +120,7 @@ class UnitProfitabilityController extends Controller
         $ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
         $forecast_unit_profits = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->where('u.status', 'active')
+            ->whereNotIn('u.status', ['retired'])
             ->leftJoin(DB::raw("(
                 SELECT unit_id,
                        AVG(actual_boundary + COALESCE(damage_payment, 0)) as avg_daily_boundary,

@@ -1415,14 +1415,15 @@ class DashboardController extends Controller
     private function getWeeklyFinancialData()
     {
         return collect(range(6, 0))->map(function ($daysAgo) {
-            $date = now()->subDays($daysAgo)->toDateString();
+            $carbonDate = now()->timezone('Asia/Manila')->subDays($daysAgo);
+            $date = $carbonDate->toDateString();
             $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
             $expenses = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereDate('date', $date)->sum('amount') ?? 0);
             $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
             $totalInflow = $boundary + $recovery;
 
             return [
-                'day'      => now()->subDays($daysAgo)->format('D'),
+                'day'      => $carbonDate->format('D'),
                 'boundary' => $totalInflow,
                 'expenses' => $expenses,
                 'net'      => (float) ($totalInflow - $expenses),
@@ -1433,8 +1434,9 @@ class DashboardController extends Controller
     private function getRevenueTrendData($period)
     {
         return collect(range($period - 1, 0))->map(function ($daysAgo) {
-            $label = now()->subDays($daysAgo)->format('M j');
-            $date = now()->subDays($daysAgo)->toDateString();
+            $carbonDate = now()->timezone('Asia/Manila')->subDays($daysAgo);
+            $label = $carbonDate->format('M j');
+            $date = $carbonDate->toDateString();
             $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
             $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
             return [
@@ -1477,9 +1479,6 @@ class DashboardController extends Controller
     {
         $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
 
-        // Include ALL operational fleet units (active + coding + vacant).
-        // Coding units still remit boundaries — only their rate/day may differ.
-        // Only 'retired' and 'missing' units are excluded from performance tracking.
         return DB::table('units as u')
             ->whereNull('u.deleted_at')
             ->leftJoin('boundaries as b', function($join) use ($thirtyDaysAgo) {
@@ -1488,7 +1487,7 @@ class DashboardController extends Controller
                      ->where('b.date', '>=', $thirtyDaysAgo);
             })
             ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
-            ->whereNotIn('u.status', ['retired', 'missing'])
+            ->whereNotIn('u.status', ['retired'])
             ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
             ->limit(10)
@@ -1522,7 +1521,7 @@ class DashboardController extends Controller
             ->join('units as u', 'b.unit_id', '=', 'u.id')
             ->whereNull('b.deleted_at')
             ->whereNull('u.deleted_at')
-            ->whereNotIn('u.status', ['retired', 'missing'])
+            ->whereNotIn('u.status', ['retired'])
             ->whereBetween('b.date', [$sixtyDaysAgo, $thirtyDaysAgo])
             ->sum('b.actual_boundary');
 
@@ -1548,11 +1547,11 @@ class DashboardController extends Controller
 
         // Dynamic insight message based on real data
         if ($totalActual <= 0) {
-            $insightMessage = 'No boundary collections recorded for the fleet in the last 30 days yet.';
+            $insightMessage = 'No boundary collections recorded for active units in the last 30 days yet.';
         } elseif ($healthPercentage >= 80) {
             $insightMessage = 'Most units are meeting or exceeding their 30-day boundary targets.';
         } elseif ($healthPercentage >= 50) {
-            $insightMessage = 'Fleet is operating at moderate efficiency across all deployed units.';
+            $insightMessage = 'Fleet is operating at moderate efficiency across active units.';
         } else {
             $insightMessage = 'Fleet boundary collections are currently below 50% of monthly targets.';
         }
@@ -1571,8 +1570,8 @@ class DashboardController extends Controller
 
     private function getExpenseBreakdownData()
     {
-        $month = now()->month;
-        $year = now()->year;
+        $month = now()->timezone('Asia/Manila')->month;
+        $year = now()->timezone('Asia/Manila')->year;
 
         // 1. General Expenses from 'expenses' table (approved, non-recovery)
         $genExpenses = DB::table('expenses')
@@ -1618,29 +1617,21 @@ class DashboardController extends Controller
 
     private function getTopDriversData()
     {
-        // Show top drivers by completed boundary shifts. Includes any driver with a shift record,
-        // not just perfectly-violation-free ones. Sort by good_days desc then total_boundary desc.
-        $thirtyDaysAgo = now()->timezone('Asia/Manila')->subDays(30)->toDateString();
-
         $data = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->whereNotIn('d.driver_status', ['archived'])
-            ->leftJoin('boundaries as b', function($join) use ($thirtyDaysAgo) {
-                $join->on('d.id', '=', 'b.driver_id')
-                     ->whereNull('b.deleted_at')
-                     ->where('b.date', '>=', $thirtyDaysAgo);
+            ->leftJoin('boundaries as b', function($join) {
+                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
             })
-            ->leftJoin('driver_behavior as db', function($join) use ($thirtyDaysAgo) {
-                $join->on('d.id', '=', 'db.driver_id')
-                     ->whereNull('db.deleted_at')
-                     ->where('db.incident_date', '>=', $thirtyDaysAgo);
+            ->leftJoin('driver_behavior as db', function($join) {
+                $join->on('d.id', '=', 'db.driver_id')->whereNull('db.deleted_at');
             })
             ->select(
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
                 DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
-                DB::raw('SUM(DISTINCT COALESCE(b.actual_boundary, 0)) as total_boundary'),
-                DB::raw('COUNT(DISTINCT CASE WHEN (' . $this->getViolationQuerySnippet() . ') AND db.id IS NOT NULL THEN db.id END) as violation_count')
+                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'),
+                DB::raw('COUNT(DISTINCT CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN db.id END) as violation_count')
             )
+            ->whereNotIn('d.driver_status', ['archived'])
             ->groupBy('d.id', 'd.first_name', 'd.last_name')
             ->having('good_days', '>', 0)
             ->orderBy('violation_count', 'asc')

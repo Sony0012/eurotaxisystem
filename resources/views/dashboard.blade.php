@@ -903,10 +903,10 @@
                     <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Revenue Trend</h3>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
+                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
                         7 Days
                     </button>
-                    <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
+                    <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
                         30 Days
                     </button>
                     <button onclick="updateRevenueTrend('90')" id="btn-90days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
@@ -2453,10 +2453,10 @@
                         window.weeklyChart.data.datasets[1].data = weeklyData.map(d => d.expenses);
                         window.weeklyChart.data.datasets[2].data = weeklyData.map(d => d.net);
                         window.weeklyChart.update();
+                        weeklyObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             weeklyObserver.observe(document.getElementById('weeklyChart'));
         } catch (error) { console.error('Weekly Chart Error:', error); }
 
@@ -2518,10 +2518,10 @@
                         }
                         window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues;
                         window.revenueTrendChart.update();
+                        revenueTrendObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             revenueTrendObserver.observe(document.getElementById('revenueTrendChart'));
         } catch (error) { console.error('Revenue Trend Chart Error:', error); }
 
@@ -2643,14 +2643,15 @@
                             window.unitPerformanceChart = new Chart(unitPerformanceCtx, getChartConfig());
                             isUnitChartInitialized = true;
                         }
+                        
                         // Animate bars growing to actual values
                         window.unitPerformanceChart.data.datasets[0].data = unitPerformanceData.map(d => d.performance);
                         window.unitPerformanceChart.data.datasets[1].data = unitPerformanceData.map(d => d.target);
                         window.unitPerformanceChart.update();
+                        chartObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 }); // Use 0.3 so it safely triggers on small screens too
+            }, { threshold: 0.1 });
             
             chartObserver.observe(document.getElementById('unitPerformanceChart'));
 
@@ -2755,10 +2756,10 @@
                         }
                         window.expenseBreakdownChart.data.datasets[0].data = expValues;
                         window.expenseBreakdownChart.update();
+                        expenseObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
@@ -2820,10 +2821,10 @@
                         }
                         window.topDriversChart.data.datasets[0].data = driverScores;
                         window.topDriversChart.update();
+                        topDriversObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             topDriversObserver.observe(document.getElementById('topDriversChart'));
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
@@ -2876,10 +2877,10 @@
                         }
                         window.unitStatusChart.data.datasets[0].data = distValues;
                         window.unitStatusChart.update();
+                        unitStatusObserver.unobserve(entry.target);
                     }
-                    // No else: never zero-out data when scrolled out of view
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             unitStatusObserver.observe(document.getElementById('unitStatusChart'));
         } catch (error) { console.error('Unit Status Distribution Chart Error:', error); }
 

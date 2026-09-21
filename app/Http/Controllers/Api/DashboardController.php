@@ -154,7 +154,7 @@ class DashboardController extends Controller
                     $join->on('u.id', '=', 'b.unit_id')->whereNull('b.deleted_at');
                 })
                 ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
-                ->where('u.status', 'active')
+                ->whereNotIn('u.status', ['retired'])
                 ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
                 ->orderByDesc('total_boundary')
                 ->limit(10)
@@ -173,11 +173,12 @@ class DashboardController extends Controller
                 })
                 ->select(
                     DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
-                    DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
-                    DB::raw('SUM(b.actual_boundary) as total')
+                    DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
+                    DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total')
                 )
-                ->whereIn('d.driver_status', ['available', 'assigned'])
+                ->whereNotIn('d.driver_status', ['archived'])
                 ->groupBy('d.id', 'd.first_name', 'd.last_name')
+                ->having('good_days', '>', 0)
                 ->orderByDesc('good_days')
                 ->orderByDesc('total')
                 ->limit(10)

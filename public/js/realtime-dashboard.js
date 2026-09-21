@@ -172,6 +172,37 @@ class RealTimeDashboard {
             window.unitPerformanceChart.update('none');
         }
 
+        if (window.topDriversChart && charts.top_drivers && Array.isArray(charts.top_drivers)) {
+            const hasDrivers = charts.top_drivers.length > 0 && charts.top_drivers.some(d => (Number(d.score) || 0) > 0);
+            if (hasDrivers) {
+                const medals = ['🥇', '🥈', '🥉'];
+                window.topDriversChart.data.labels = charts.top_drivers.map((d, i) => `${medals[i] || '  '} ${d.name}`);
+                window.topDriversChart.data.datasets[0].data = charts.top_drivers.map(d => Number(d.score) || 0);
+                window.topDriversChart.data.datasets[0].backgroundColor = charts.top_drivers.map((_, i) => i === 0 ? '#2563eb' : i === 1 ? '#7c3aed' : i === 2 ? '#0891b2' : '#64748b');
+                window.topDriversChart.data.datasets[0].borderColor = window.topDriversChart.data.datasets[0].backgroundColor;
+            } else {
+                window.topDriversChart.data.labels = ['No Shift Records Yet'];
+                window.topDriversChart.data.datasets[0].data = [0];
+                window.topDriversChart.data.datasets[0].backgroundColor = ['#e2e8f0'];
+                window.topDriversChart.data.datasets[0].borderColor = ['#e2e8f0'];
+            }
+            window.topDriversChart.update('none');
+        }
+
+        if (window.expenseBreakdownChart && charts.expense_breakdown && Array.isArray(charts.expense_breakdown)) {
+            const hasExp = charts.expense_breakdown.length > 0 && charts.expense_breakdown.some(d => (Number(d.amount) || 0) > 0);
+            if (hasExp) {
+                window.expenseBreakdownChart.data.labels = charts.expense_breakdown.map(d => d.category);
+                window.expenseBreakdownChart.data.datasets[0].data = charts.expense_breakdown.map(d => Number(d.amount) || 0);
+                window.expenseBreakdownChart.data.datasets[0].backgroundColor = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
+            } else {
+                window.expenseBreakdownChart.data.labels = ['No Expenses Recorded'];
+                window.expenseBreakdownChart.data.datasets[0].data = [0];
+                window.expenseBreakdownChart.data.datasets[0].backgroundColor = ['#e2e8f0'];
+            }
+            window.expenseBreakdownChart.update('none');
+        }
+
         if (charts.fleet_insights && typeof window.updateExecutiveInsights === 'function') {
             window.updateExecutiveInsights(charts.fleet_insights);
         }
