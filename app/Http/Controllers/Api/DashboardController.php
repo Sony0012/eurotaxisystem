@@ -196,7 +196,11 @@ class DashboardController extends Controller
                     DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
                     DB::raw('COALESCE(b.good_days, 0) as good_days'),
                     DB::raw('COALESCE(b.total_boundary, 0) as total'),
-                    DB::raw('COALESCE(db.violation_count, 0) as violation_count')
+                    DB::raw('COALESCE(db.violation_count, 0) as violation_count'),
+                    DB::raw("COALESCE(
+                        (SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1),
+                        (SELECT u.plate_number FROM boundaries b_sub JOIN units u ON b_sub.unit_id = u.id WHERE b_sub.driver_id = d.id AND b_sub.deleted_at IS NULL ORDER BY b_sub.date DESC, b_sub.id DESC LIMIT 1)
+                    ) as plate_number")
                 )
                 ->where('b.good_days', '>', 0)
                 ->orderBy('violation_count', 'asc')
@@ -211,11 +215,12 @@ class DashboardController extends Controller
                     ? (str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/')))
                     : asset('image/avatars/driver.svg');
                 return [
-                    'id'    => $d->id,
-                    'name'  => $d->name,
-                    'photo' => $photoUrl,
-                    'total' => (float)$d->total,
-                    'score' => (int)$d->good_days
+                    'id'           => $d->id,
+                    'name'         => $d->name,
+                    'photo'        => $photoUrl,
+                    'total'        => (float)$d->total,
+                    'score'        => (int)$d->good_days,
+                    'plate_number' => $d->plate_number ?? null,
                 ];
             })->toArray();
 

@@ -2870,9 +2870,22 @@
                                 <!-- Driver Info & Horizontal Progress Bar Graph -->
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-2 mb-1">
-                                        <div class="truncate">
-                                            <span class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">${d.name}</span>
-                                            ${d.nickname ? `<span class="text-[11px] text-slate-400 font-normal ml-1">("${d.nickname}")</span>` : ''}
+                                        <div class="flex items-center gap-1.5 truncate">
+                                            <span class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">${d.name}</span>
+                                            ${d.nickname ? `<span class="text-[11px] text-slate-400 font-normal truncate">("${d.nickname}")</span>` : ''}
+                                            ${d.plate_number ? `
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-amber-50 text-amber-800 border border-amber-200/90 flex-shrink-0 shadow-2xs" title="Regular / Assigned Unit: ${d.plate_number}">
+                                                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                                                    </svg>
+                                                    <span>${d.plate_number}</span>
+                                                </span>
+                                            ` : `
+                                                <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-semibold text-slate-400 bg-slate-50 border border-slate-200/60 rounded flex-shrink-0" title="Extra Driver">
+                                                    Extra
+                                                </span>
+                                            `}
                                         </div>
                                         <div class="flex items-center gap-2 flex-shrink-0">
                                             <span class="text-xs font-semibold text-slate-500">₱${total.toLocaleString()}</span>
