@@ -741,76 +741,199 @@ class BoundaryV2Controller extends Controller
 
                 $has_incentive = true;
 
+                // Helper to retrieve incidents associated with this boundary (by boundary_id OR fallback unit+driver+date)
+                $getBoundaryIncidents = function($types) use ($boundary) {
+                    $types = (array) $types;
+                    return \App\Models\DriverBehavior::where(function($q) use ($boundary) {
+                            $q->where('boundary_id', $boundary->id)
+                              ->orWhere(function($sub) use ($boundary) {
+                                  $sub->where('unit_id', $boundary->unit_id)
+                                      ->where('incident_date', $boundary->date)
+                                      ->where(function($w) use ($boundary) {
+                                          $w->where('driver_id', $boundary->driver_id)
+                                            ->orWhere('driver_id', $boundary->expected_driver_id ?: $boundary->driver_id);
+                                      });
+                              });
+                        })
+                        ->whereIn('incident_type', $types)
+                        ->get();
+                };
+
+                // --- 1. ABSENT / NO SHOW SYNC ---
+                $absentIncidents = $getBoundaryIncidents('Absent / No Show');
+                $target_absent_id = $boundary->expected_driver_id ?: $boundary->driver_id;
                 if ($is_absent) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Absent / No Show]";
-                    
-                    // Log behavior for update (prevent duplicates)
-                    $target_absent_id = $boundary->expected_driver_id ?: $boundary->driver_id;
-                    $exists = DB::table('driver_behavior')
-                        ->where('driver_id', $target_absent_id)
-                        ->whereDate('incident_date', $boundary->date)
-                        ->where('incident_type', 'Absent / No Show')
-                        ->whereNull('deleted_at')
-                        ->exists();
+                    $absentDesc = 'Auto-logged [Absent/Update]: Marked as Absent / No Show during record update.';
 
-                    if (!$exists) {
-                        DB::table('driver_behavior')->insert([
+                    if ($absentIncidents->isNotEmpty()) {
+                        $firstAbsent = $absentIncidents->first();
+                        $firstAbsent->update([
+                            'boundary_id'   => $boundary->id,
+                            'driver_id'     => $target_absent_id,
+                            'description'   => $absentDesc,
+                            'incident_date' => $boundary->date,
+                            'deleted_at'    => null,
+                        ]);
+                        foreach ($absentIncidents->slice(1) as $dup) {
+                            $dup->delete();
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'boundary_id'   => $boundary->id,
                             'unit_id'       => $boundary->unit_id,
                             'driver_id'     => $target_absent_id,
                             'incident_type' => 'Absent / No Show',
                             'severity'      => 'medium',
-                            'description'   => 'Auto-logged [Absent/Update]: Marked as Absent / No Show during record update.',
+                            'description'   => $absentDesc,
                             'incident_date' => $boundary->date,
                             'timestamp'     => $now_ts,
-                            'created_at'    => $now_ts,
+                        ]);
+                    }
+                } else {
+                    foreach ($absentIncidents as $absentInc) {
+                        $absentInc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
                         ]);
                     }
                 }
+
+                // --- 2. LATE REMITTANCE SYNC ("Late ni unlate") ---
+                $lateIncidents = $getBoundaryIncidents('Late Remittance');
                 if ($past_cutoff) {
                     $has_incentive = false;
-                    $clean_notes .= " [Automatic Violation: Late Remittance (Past 10:00 AM)]";
-                    
-                    // Log behavior for update
-                    DB::table('driver_behavior')->insert([
-                        'unit_id'       => $boundary->unit_id,
-                        'driver_id'     => $boundary->driver_id,
-                        'incident_type' => 'Late Remittance',
-                        'severity'      => 'medium',
-                        'description'   => 'Auto-logged [Late/Update]: Boundary update marked as Late Remittance (Past 10:00 AM).',
-                        'timestamp'     => $now_ts,
-                        'created_at'    => $now_ts,
-                    ]);
+                    $late_cutoff_raw = $request->input('late_cutoff_time', '10:00');
+                    try {
+                        $formatted_cutoff = Carbon::createFromFormat('H:i', $late_cutoff_raw)->format('h:i A');
+                    } catch (\Exception $e) {
+                        $formatted_cutoff = '10:00 AM';
+                    }
+                    $clean_notes .= " [Automatic Violation: Late Remittance (Past " . $formatted_cutoff . ")]";
+                    $lateDesc = "Auto-logged [Late/Update]: Boundary update marked as Late Remittance (Past " . $formatted_cutoff . ").";
+
+                    if ($lateIncidents->isNotEmpty()) {
+                        $firstLate = $lateIncidents->first();
+                        $firstLate->update([
+                            'boundary_id'   => $boundary->id,
+                            'driver_id'     => $boundary->driver_id,
+                            'description'   => $lateDesc,
+                            'incident_date' => $boundary->date,
+                            'deleted_at'    => null,
+                        ]);
+                        foreach ($lateIncidents->slice(1) as $dup) {
+                            $dup->delete();
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'boundary_id'   => $boundary->id,
+                            'unit_id'       => $boundary->unit_id,
+                            'driver_id'     => $boundary->driver_id,
+                            'incident_type' => 'Late Remittance',
+                            'severity'      => 'medium',
+                            'description'   => $lateDesc,
+                            'incident_date' => $boundary->date,
+                            'timestamp'     => $now_ts,
+                        ]);
+                    }
+                } else {
+                    foreach ($lateIncidents as $lateInc) {
+                        $lateInc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
+                        ]);
+                    }
                 }
+
+                // --- 3. VEHICLE DAMAGE SYNC ---
+                $damageIncidents = $getBoundaryIncidents(['Vehicle Damage', 'other'])->filter(function($item) {
+                    return str_contains(strtolower($item->description ?? ''), 'damage') || $item->incident_type === 'Vehicle Damage';
+                });
                 if ($vehicle_damaged) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Vehicle Damaged]";
-                    
-                    // Log behavior for update
-                    DB::table('driver_behavior')->insert([
-                        'unit_id'       => $boundary->unit_id,
-                        'driver_id'     => $boundary->driver_id,
-                        'incident_type' => 'other',
-                        'severity'      => 'high',
-                        'description'   => 'Auto-logged [Damage/Update]: Vehicle damage reported during record update.',
-                        'timestamp'     => $now_ts,
-                        'created_at'    => $now_ts,
-                    ]);
+                    $damageDesc = 'Auto-logged [Damage/Update]: Vehicle damage reported during record update.';
+
+                    if ($damageIncidents->isNotEmpty()) {
+                        $firstDmg = $damageIncidents->first();
+                        $firstDmg->update([
+                            'boundary_id'   => $boundary->id,
+                            'driver_id'     => $boundary->driver_id,
+                            'incident_type' => 'Vehicle Damage',
+                            'description'   => $damageDesc,
+                            'incident_date' => $boundary->date,
+                            'deleted_at'    => null,
+                        ]);
+                        foreach ($damageIncidents->slice(1) as $dup) {
+                            $dup->delete();
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'boundary_id'     => $boundary->id,
+                            'unit_id'         => $boundary->unit_id,
+                            'driver_id'       => $boundary->driver_id,
+                            'incident_type'   => 'Vehicle Damage',
+                            'severity'        => 'high',
+                            'description'     => $damageDesc,
+                            'incident_date'   => $boundary->date,
+                            'timestamp'       => $now_ts,
+                            'is_driver_fault' => true,
+                        ]);
+                    }
+                } else {
+                    foreach ($damageIncidents as $dmgInc) {
+                        $dmgInc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
+                        ]);
+                    }
                 }
+
+                // --- 4. LOW FUEL SYNC ---
+                $fuelIncidents = $getBoundaryIncidents(['Other', 'other'])->filter(function($item) {
+                    return str_contains(strtolower($item->description ?? ''), 'fuel');
+                });
                 if ($low_fuel) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Low Fuel on Return]";
-                    
-                    // Log behavior for update
-                    DB::table('driver_behavior')->insert([
-                        'unit_id'       => $boundary->unit_id,
-                        'driver_id'     => $boundary->driver_id,
-                        'incident_type' => 'other',
-                        'severity'      => 'medium',
-                        'description'   => 'Auto-logged [Low Fuel/Update]: Driver returned unit without refueling (Update).',
-                        'timestamp'     => $now_ts,
-                        'created_at'    => $now_ts,
-                    ]);
+                    $fuelDesc = 'Auto-logged [Low Fuel/Update]: Driver returned unit without refueling (Update).';
+
+                    if ($fuelIncidents->isNotEmpty()) {
+                        $firstFuel = $fuelIncidents->first();
+                        $firstFuel->update([
+                            'boundary_id'   => $boundary->id,
+                            'driver_id'     => $boundary->driver_id,
+                            'description'   => $fuelDesc,
+                            'incident_date' => $boundary->date,
+                            'deleted_at'    => null,
+                        ]);
+                        foreach ($fuelIncidents->slice(1) as $dup) {
+                            $dup->delete();
+                        }
+                    } else {
+                        \App\Models\DriverBehavior::create([
+                            'boundary_id'   => $boundary->id,
+                            'unit_id'       => $boundary->unit_id,
+                            'driver_id'     => $boundary->driver_id,
+                            'incident_type' => 'Other',
+                            'severity'      => 'medium',
+                            'description'   => $fuelDesc,
+                            'incident_date' => $boundary->date,
+                            'timestamp'     => $now_ts,
+                        ]);
+                    }
+                } else {
+                    foreach ($fuelIncidents as $fuelInc) {
+                        $fuelInc->update([
+                            'charge_status'     => 'cancelled',
+                            'remaining_balance' => 0,
+                            'deleted_at'        => now(),
+                        ]);
+                    }
                 }
 
                 if ($needs_maintenance_half) {
@@ -829,6 +952,12 @@ class BoundaryV2Controller extends Controller
                 if ($shortage > 0) {
                     $has_incentive = false;
                     $clean_notes .= " [Automatic Violation: Short Boundary]";
+                }
+
+                // Check for ANY other violations for this driver today if currently clean
+                if ($has_incentive && !$this->isEligibleToday(\App\Models\Driver::find($boundary->driver_id), $boundary->date)) {
+                    $has_incentive = false;
+                    $clean_notes = trim($clean_notes . " [Prior Incident Violation]");
                 }
 
                 $boundary->update([
