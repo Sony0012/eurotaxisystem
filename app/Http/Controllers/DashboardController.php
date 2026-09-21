@@ -1651,30 +1651,44 @@ class DashboardController extends Controller
 
     private function getTopDriversData()
     {
+        $violationSnippet = $this->getViolationQuerySnippet();
+
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->select(
+                'driver_id',
+                DB::raw('COUNT(DISTINCT CASE WHEN status IN ("paid", "excess", "shortage") THEN id END) as good_days'),
+                DB::raw('COALESCE(SUM(actual_boundary), 0) as total_boundary')
+            )
+            ->groupBy('driver_id');
+
+        $behaviorSub = DB::table('driver_behavior')
+            ->whereNull('deleted_at')
+            ->select(
+                'driver_id',
+                DB::raw('COUNT(DISTINCT CASE WHEN ' . $violationSnippet . ' THEN id END) as violation_count')
+            )
+            ->groupBy('driver_id');
+
         $data = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->leftJoin('boundaries as b', function($join) {
-                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
-            })
-            ->leftJoin('driver_behavior as db', function($join) {
-                $join->on('d.id', '=', 'db.driver_id')->whereNull('db.deleted_at');
-            })
+            ->whereNotIn('d.driver_status', ['archived'])
+            ->leftJoinSub($boundariesSub, 'b', 'd.id', '=', 'b.driver_id')
+            ->leftJoinSub($behaviorSub, 'db', 'd.id', '=', 'db.driver_id')
             ->select(
                 'd.id',
                 'd.profile_photo',
                 'd.nickname',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw('COUNT(DISTINCT CASE WHEN b.status IN ("paid", "excess", "shortage") THEN b.id END) as good_days'),
-                DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'),
-                DB::raw('COUNT(DISTINCT CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN db.id END) as violation_count')
+                DB::raw('COALESCE(b.good_days, 0) as good_days'),
+                DB::raw('COALESCE(b.total_boundary, 0) as total_boundary'),
+                DB::raw('COALESCE(db.violation_count, 0) as violation_count')
             )
-            ->whereNotIn('d.driver_status', ['archived'])
-            ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.nickname', 'd.profile_photo')
-            ->having('good_days', '>', 0)
+            ->where('b.good_days', '>', 0)
             ->orderBy('violation_count', 'asc')
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
-            ->limit(5)
+            ->limit(3)
             ->get()
             ->map(function($d) {
                 $photo = $d->profile_photo ?? '';
