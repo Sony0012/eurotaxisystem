@@ -206,10 +206,10 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Disbursement / Deduction Type <span class="text-red-500">*</span></label>
                 <select id="withdrawType" required class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout / Ipon)</option>
-                    <option value="damage_deduction">Accident / Collision Damage Deduction (Bawas Bangga / Sira sa Taxi)</option>
-                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (Hatian sa Pagawa after 6 mos)</option>
-                    <option value="company_liability">Company Liability / Debt Settlement (Kaltas sa Utang/Shortage)</option>
+                    <option value="withdrawal">Driver Personal Savings Withdrawal (Cashout / Payout)</option>
+                    <option value="damage_deduction">Accident / Collision Damage Deduction (Vehicle Repair)</option>
+                    <option value="maintenance_share">Vehicle Maintenance Co-Payment (Maintenance Share)</option>
+                    <option value="company_liability">Company Liability / Debt Settlement (Debt Deduction)</option>
                 </select>
             </div>
 
@@ -220,7 +220,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date <span class="text-red-500">*</span></label>
-                    <input type="date" id="withdrawDate" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <input type="date" id="withdrawDate" required value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
             </div>
 
@@ -231,8 +231,66 @@
 
             <div class="pt-2 flex justify-end gap-2">
                 <button type="button" onclick="closeWithdrawFundModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
-                <button type="submit" id="btnSubmitWithdrawFund" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                <button type="submit" id="btnSubmitWithdrawFund" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
                     <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Disbursement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Manual Deposit Driver Fund Modal --}}
+<div id="depositFundModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[70] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+        <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider">Manual Pondo Deposit</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Driver Savings & Emergency Reserve</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeDepositFundModal()" class="text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="depositFundForm" onsubmit="submitDepositFund(event)" class="p-6 space-y-4">
+            <input type="hidden" id="depositDriverId" value="">
+
+            <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800">Current Pondo Balance</span>
+                    <p id="depositAvailableDisplay" class="text-lg font-black text-emerald-700">₱0.00</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500">Projected Balance</span>
+                    <p id="depositProjectedDisplay" class="text-sm font-black text-slate-700">₱0.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Amount (₱) <span class="text-red-500">*</span></label>
+                    <input type="number" id="depositAmount" required min="1" step="0.01" oninput="calcDepositProjected()" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm font-black text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date <span class="text-red-500">*</span></label>
+                    <input type="date" id="depositDate" required value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Purpose / Notes <span class="text-red-500">*</span></label>
+                <textarea id="depositDescription" required rows="2" maxlength="250" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium" placeholder="E.g., Direct manual deposit / emergency fund top-up / cash remittance..."></textarea>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button type="button" onclick="closeDepositFundModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
+                <button type="submit" id="btnSubmitDepositFund" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm Deposit
                 </button>
             </div>
         </form>
@@ -1426,10 +1484,11 @@
                     let typeBadge = '';
                     let amtDisplay = '';
                     if (item.type === 'deposit') {
-                        typeBadge = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> Boundary Pondo</span>';
+                        const isManual = !item.boundary_id;
+                        typeBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="arrow-down-left" class="w-3 h-3 text-emerald-600"></i> ${isManual ? 'Manual Deposit' : 'Boundary Deposit'}</span>`;
                         amtDisplay = `<span class="font-black text-emerald-600">+₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
                     } else if (item.type === 'damage_deduction') {
-                        typeBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Bangga / Damage</span>';
+                        typeBadge = '<span class="px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="shield-alert" class="w-3 h-3 text-rose-600"></i> Accident / Damage</span>';
                         amtDisplay = `<span class="font-black text-rose-600">-₱${amt.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
                     } else if (item.type === 'maintenance_share') {
                         typeBadge = '<span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"><i data-lucide="wrench" class="w-3 h-3 text-amber-600"></i> Maintenance Share</span>';
@@ -1461,6 +1520,27 @@
             const fundsEl = document.getElementById('fundsContent');
             if (fundsEl) {
                 fundsEl.innerHTML = `
+                    <!-- Pondo Action Toolbar -->
+                    <div class="flex items-center justify-between gap-3 mb-5 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-slate-50 border border-emerald-200/80 flex-wrap">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                                <i data-lucide="wallet" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">Driver Pondo Account</h4>
+                                <p class="text-[10px] text-slate-500 font-medium">Deposit savings or disburse funds for repairs and personal payouts</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="openDepositFundModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm shadow-emerald-500/20 cursor-pointer">
+                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Manual Deposit
+                            </button>
+                            <button type="button" onclick="openWithdrawFundModal()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm shadow-rose-500/20 cursor-pointer">
+                                <i data-lucide="minus-circle" class="w-3.5 h-3.5"></i> Disburse / Deduct
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Fund Summary KPI Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <!-- Card 1: Available Balance -->
@@ -1492,7 +1572,7 @@
                                     </div>
                                     <div class="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
                                         <span class="inline-flex h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                                        <span>Total Contributed From Shifts</span>
+                                        <span>Total Contributed From Shifts & Deposits</span>
                                     </div>
                                 </div>
                                 <div class="w-12 h-12 sm:w-14 sm:h-14 shrink-0">
@@ -1551,6 +1631,80 @@
             }
 
             lucide.createIcons();
+        });
+    }
+
+    function openDepositFundModal(defaultAmount = '', defaultDesc = '') {
+        if (!window.currentDriverFundData) return;
+        const d = window.currentDriverFundData;
+        document.getElementById('depositDriverId').value = d.id;
+        document.getElementById('depositAvailableDisplay').textContent = '₱' + d.balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('depositProjectedDisplay').textContent = '₱' + d.balance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        document.getElementById('depositAmount').value = defaultAmount ? defaultAmount : '';
+        document.getElementById('depositDescription').value = defaultDesc ? defaultDesc : '';
+        document.getElementById('depositDate').value = new Date().toLocaleDateString('en-CA');
+        document.getElementById('depositFundModal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function calcDepositProjected() {
+        if (!window.currentDriverFundData) return;
+        const current = window.currentDriverFundData.balance || 0;
+        const addAmt = parseFloat(document.getElementById('depositAmount').value || 0);
+        const projected = current + (addAmt > 0 ? addAmt : 0);
+        document.getElementById('depositProjectedDisplay').textContent = '₱' + projected.toLocaleString('en-PH', {minimumFractionDigits: 2});
+    }
+
+    function closeDepositFundModal() {
+        document.getElementById('depositFundModal').classList.add('hidden');
+    }
+
+    function submitDepositFund(e) {
+        e.preventDefault();
+        const driverId = document.getElementById('depositDriverId').value;
+        const amount = parseFloat(document.getElementById('depositAmount').value || 0);
+        const date = document.getElementById('depositDate').value;
+        const description = document.getElementById('depositDescription').value;
+
+        if (amount <= 0) {
+            alert('Please enter a valid deposit amount greater than ₱0.00.');
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitDepositFund');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+
+        fetch(`/driver-management/${driverId}/deposit-fund`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ amount, date, description })
+        })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (res.success) {
+                closeDepositFundModal();
+                if (typeof showNotification === 'function') {
+                    showNotification(res.message, 'success');
+                } else {
+                    alert(res.message);
+                }
+                openDriverDetails(driverId);
+            } else {
+                alert(res.message || 'Error processing deposit.');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert('Network error occurred while processing deposit.');
         });
     }
 

@@ -9,8 +9,8 @@ const config = {
     readyTimeout: 30000
 };
 
-const localPath = 'c:/xampp/htdocs/eurotaxisystem/app/Http/Controllers/LiveTrackingController.php';
-const remotePath = '/home/u747826271/domains/eurotaxisystem.site/public_html/app/Http/Controllers/LiveTrackingController.php';
+const localPath = 'c:/xampp/htdocs/eurotaxisystem/app/Http/Controllers/SuperAdminController.php';
+const remotePath = '/home/u747826271/domains/eurotaxisystem.site/public_html/app/Http/Controllers/SuperAdminController.php';
 
 const conn = new Client();
 conn.on('ready', () => {
@@ -23,7 +23,7 @@ conn.on('ready', () => {
         const writeStream = sftp.createWriteStream(remotePath);
         
         writeStream.on('close', () => {
-            console.log('LiveTrackingController.php successfully transferred to Hostinger!');
+            console.log('SuperAdminController.php successfully transferred to Hostinger!');
             conn.end();
         });
         

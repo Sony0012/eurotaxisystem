@@ -29,6 +29,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+
+    <!-- Cloudflare Turnstile API -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('favicon_euro_transparent.png') }}?v=1.6">
@@ -829,6 +832,11 @@
                                         </label>
                                         <button type="button" onclick="setState('forgot')"
                                             class="text-blue-600 hover:underline text-sm">Forgot password?</button>
+                                    </div>
+
+                                    <!-- Cloudflare Turnstile Bot Protection Widget -->
+                                    <div class="mb-4 flex justify-center w-full overflow-hidden">
+                                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key', '0x4AAAAAAE-fpPCYahCfL3UL') }}" data-action="login" data-theme="light"></div>
                                     </div>
 
                                     <button type="submit" class="btn-primary" style="letter-spacing:0.08em;font-size:0.95rem;">
@@ -3054,11 +3062,23 @@
                     const email = document.getElementById('loginEmail').value;
                     const password = document.getElementById('loginPassword').value;
                     const remember = document.getElementById('remember').checked;
+                    const turnstileToken = (document.querySelector('#loginForm [name="cf-turnstile-response"]') || document.querySelector('[name="cf-turnstile-response"]'))?.value || '';
+
+                    if (!turnstileToken) {
+                        showToast('Please complete the security check (Verify you are human).', 'error');
+                        return;
+                    }
 
                     const btn = this.querySelector('button[type="submit"]');
                     const originalText = btn.innerHTML;
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing In...';
+
+                    function resetTurnstileWidget() {
+                        if (typeof turnstile !== 'undefined') {
+                            try { turnstile.reset(); } catch (err) {}
+                        }
+                    }
 
                     fetch(this.action, {
                         method: 'POST',
@@ -3067,20 +3087,26 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify({ email, password, remember })
+                        body: JSON.stringify({ 
+                            email, 
+                            password, 
+                            remember, 
+                            'cf-turnstile-response': turnstileToken 
+                        })
                     })
                     .then(async res => {
                         const data = await res.json();
                         if (res.status === 419) {
                             throw new Error('Session expired. Page will refresh to update your security token.');
                         }
-                        if (res.status === 403 || res.status === 401) {
+                        if (res.status === 403 || res.status === 401 || res.status === 422) {
                             throw new Error(data.message);
                         }
                         return data;
                     })
                     .then(data => {
                         if (data.account_disabled) {
+                            resetTurnstileWidget();
                             showDisabledModal(data.message);
                             btn.disabled = false;
                             btn.innerHTML = originalText;
@@ -3089,6 +3115,7 @@
                             btn.disabled = false;
                             btn.innerHTML = originalText;
                         } else if (data.force_password_change) {
+                            resetTurnstileWidget();
                             showForcePasswordModal(data.message);
                             btn.disabled = false;
                             btn.innerHTML = originalText;
@@ -3096,12 +3123,14 @@
                             showToast('Login successful!', 'success');
                             window.location.href = data.redirect;
                         } else {
+                            resetTurnstileWidget();
                             showToast(data.message || 'Login failed.', 'error');
                             btn.disabled = false;
                             btn.innerHTML = originalText;
                         }
                     })
                     .catch(error => {
+                        resetTurnstileWidget();
                         showToast(error.message || 'An error occurred.', 'error');
                         btn.disabled = false;
                         btn.innerHTML = originalText;

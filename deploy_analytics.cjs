@@ -7,10 +7,7 @@ const config = {
     port: 65002,
     username: 'u747826271',
     password: '@Admineuro2026',
-    readyTimeout: 30000,
-    algorithms: {
-        serverHostKey: ['ssh-ed25519', 'ssh-rsa', 'rsa-sha2-512', 'rsa-sha2-256']
-    }
+    readyTimeout: 30000
 };
 
 const REMOTE_DIR = '/home/u747826271/domains/eurotaxisystem.site/public_html';
@@ -18,7 +15,10 @@ const LOCAL_DIR = __dirname;
 
 const filesToUpload = [
     'app/Http/Controllers/AnalyticsController.php',
-    'resources/views/analytics/index.blade.php'
+    'resources/views/analytics/index.blade.php',
+    'resources/views/analytics/history.blade.php',
+    'routes/web.php',
+    'app/Services/DecisionSupportService.php'
 ];
 
 const conn = new Client();

@@ -70,8 +70,9 @@ class DashboardController extends Controller
         $period = $request->get('period', 30);
         $revenue_trend = $this->getRevenueTrendData($period);
 
-        // Weekly financial trend (last 7 days real data)
-        $weekly_data = $this->getWeeklyFinancialData();
+        // Weekly financial trend (last 7 days real data & 4 weeks monthly overview)
+        $weekly_data = $this->getWeeklyFinancialData('days');
+        $weekly_weeks_data = $this->getWeeklyFinancialData('weeks');
 
         // Unit performance (top performing units)
         $unit_performance = $this->getUnitPerformanceData();
@@ -93,7 +94,7 @@ class DashboardController extends Controller
         $initial_maintenance = $this->fetchMaintenanceData('all');
 
         return view('dashboard', compact(
-            'stats', 'alerts', 'revenue_trend', 'weekly_data', 
+            'stats', 'alerts', 'revenue_trend', 'weekly_data', 'weekly_weeks_data',
             'unit_status_data', 'unit_status_distribution_data', 
             'unit_performance', 'fleet_insights', 'expense_breakdown', 'top_drivers',
             'initial_maintenance'
@@ -103,8 +104,14 @@ class DashboardController extends Controller
     public function getRealTimeData()
     {
         try {
-            // Get dashboard statistics (Skip monitorSystemStatus for AJAX to avoid load and flickering)
-            $stats = $this->getDashboardStats(false);
+            $today = now()->toDateString();
+            $yesterday = now()->subDay()->toDateString();
+            $month = now()->month;
+            $year = now()->year;
+            $todayDay = now()->format('l');
+
+            // Quick stats (matching getDashboardStats)
+            $stats = $this->getDashboardStats();
             
             // System alerts
             $alerts = DB::table('system_alerts')
@@ -121,7 +128,8 @@ class DashboardController extends Controller
                 });
 
             // Weekly data
-            $weekly_data = $this->getWeeklyFinancialData();
+            $weekly_data = $this->getWeeklyFinancialData('days');
+            $weekly_weeks_data = $this->getWeeklyFinancialData('weeks');
 
             // Charts data
             $unit_status_data = $this->getUnitStatusDistributionData();
@@ -137,6 +145,7 @@ class DashboardController extends Controller
                 'alerts' => $alerts,
                 'charts' => [
                     'weekly_data' => $weekly_data,
+                    'weekly_weeks_data' => $weekly_weeks_data,
                     'unit_status_data' => $unit_status_data,
                     'revenue_trend' => $revenue_trend,
                     'unit_performance' => $unit_performance,
@@ -1412,17 +1421,43 @@ class DashboardController extends Controller
         }
     }
 
-    private function getWeeklyFinancialData()
+    private function getWeeklyFinancialData($type = 'days')
     {
+        if ($type === 'weeks') {
+            $monthStart = now()->timezone('Asia/Manila')->startOfMonth();
+            $monthEnd = now()->timezone('Asia/Manila')->endOfMonth();
+            $currentMonthName = now()->timezone('Asia/Manila')->format('M');
+
+            return collect([
+                ['label' => "W1 ({$currentMonthName} 1-7)",   'start' => $monthStart->copy()->toDateString(), 'end' => $monthStart->copy()->addDays(6)->toDateString()],
+                ['label' => "W2 ({$currentMonthName} 8-14)",  'start' => $monthStart->copy()->addDays(7)->toDateString(), 'end' => $monthStart->copy()->addDays(13)->toDateString()],
+                ['label' => "W3 ({$currentMonthName} 15-21)", 'start' => $monthStart->copy()->addDays(14)->toDateString(), 'end' => $monthStart->copy()->addDays(20)->toDateString()],
+                ['label' => "W4 ({$currentMonthName} 22+)",   'start' => $monthStart->copy()->addDays(21)->toDateString(), 'end' => $monthEnd->toDateString()],
+            ])->map(function ($w) {
+                $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereBetween('date', [$w['start'], $w['end']])->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
+                $expenses = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereBetween('date', [$w['start'], $w['end']])->sum('amount') ?? 0);
+                $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereBetween('date', [$w['start'], $w['end']])->sum(DB::raw('ABS(amount)')) ?? 0);
+                $totalInflow = $boundary + $recovery;
+
+                return [
+                    'day'      => $w['label'],
+                    'boundary' => $totalInflow,
+                    'expenses' => $expenses,
+                    'net'      => (float) ($totalInflow - $expenses),
+                ];
+            })->values()->toArray();
+        }
+
         return collect(range(6, 0))->map(function ($daysAgo) {
-            $date = now()->subDays($daysAgo)->toDateString();
+            $carbonDate = now()->timezone('Asia/Manila')->subDays($daysAgo);
+            $date = $carbonDate->toDateString();
             $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
             $expenses = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', '!=', 'Damage Recovery')->whereDate('date', $date)->sum('amount') ?? 0);
             $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
             $totalInflow = $boundary + $recovery;
 
             return [
-                'day'      => now()->subDays($daysAgo)->format('D'),
+                'day'      => $carbonDate->format('D'),
                 'boundary' => $totalInflow,
                 'expenses' => $expenses,
                 'net'      => (float) ($totalInflow - $expenses),
@@ -1433,8 +1468,9 @@ class DashboardController extends Controller
     private function getRevenueTrendData($period)
     {
         return collect(range($period - 1, 0))->map(function ($daysAgo) {
-            $label = now()->subDays($daysAgo)->format('M j');
-            $date = now()->subDays($daysAgo)->toDateString();
+            $carbonDate = now()->timezone('Asia/Manila')->subDays($daysAgo);
+            $label = $carbonDate->format('M j');
+            $date = $carbonDate->toDateString();
             $boundary = (float) (DB::table('boundaries')->whereNull('deleted_at')->whereDate('date', $date)->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0);
             $recovery = (float) (DB::table('expenses')->whereNull('deleted_at')->where('status', 'approved')->where('category', 'Damage Recovery')->whereDate('date', $date)->sum(DB::raw('ABS(amount)')) ?? 0);
             return [
@@ -1485,7 +1521,7 @@ class DashboardController extends Controller
                      ->where('b.date', '>=', $thirtyDaysAgo);
             })
             ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
-            ->where('u.status', 'active')
+            ->whereNotIn('u.status', ['retired'])
             ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
             ->orderByDesc('total_boundary')
             ->limit(10)
@@ -1519,7 +1555,7 @@ class DashboardController extends Controller
             ->join('units as u', 'b.unit_id', '=', 'u.id')
             ->whereNull('b.deleted_at')
             ->whereNull('u.deleted_at')
-            ->where('u.status', 'active')
+            ->whereNotIn('u.status', ['retired'])
             ->whereBetween('b.date', [$sixtyDaysAgo, $thirtyDaysAgo])
             ->sum('b.actual_boundary');
 
@@ -1568,8 +1604,8 @@ class DashboardController extends Controller
 
     private function getExpenseBreakdownData()
     {
-        $month = now()->month;
-        $year = now()->year;
+        $month = now()->timezone('Asia/Manila')->month;
+        $year = now()->timezone('Asia/Manila')->year;
 
         // 1. General Expenses from 'expenses' table (approved, non-recovery)
         $genExpenses = DB::table('expenses')
@@ -1615,26 +1651,64 @@ class DashboardController extends Controller
 
     private function getTopDriversData()
     {
+        $violationSnippet = $this->getViolationQuerySnippet();
+
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->select(
+                'driver_id',
+                DB::raw('COUNT(DISTINCT CASE WHEN status IN ("paid", "excess", "shortage") THEN id END) as good_days'),
+                DB::raw('COALESCE(SUM(actual_boundary), 0) as total_boundary')
+            )
+            ->groupBy('driver_id');
+
+        $behaviorSub = DB::table('driver_behavior')
+            ->whereNull('deleted_at')
+            ->select(
+                'driver_id',
+                DB::raw('COUNT(DISTINCT CASE WHEN ' . $violationSnippet . ' THEN id END) as violation_count')
+            )
+            ->groupBy('driver_id');
+
         $data = DB::table('drivers as d')
             ->whereNull('d.deleted_at')
-            ->leftJoin('boundaries as b', function($join) {
-                $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
-            })
-            ->leftJoin('driver_behavior as db', 'd.id', '=', 'db.driver_id')
+            ->whereNotIn('d.driver_status', ['archived'])
+            ->leftJoinSub($boundariesSub, 'b', 'd.id', '=', 'b.driver_id')
+            ->leftJoinSub($behaviorSub, 'db', 'd.id', '=', 'db.driver_id')
             ->select(
+                'd.id',
+                'd.profile_photo',
+                'd.nickname',
                 DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as full_name"),
-                DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
-                DB::raw('SUM(b.actual_boundary) as total_boundary'),
-                DB::raw('COUNT(CASE WHEN ' . $this->getViolationQuerySnippet() . ' THEN 1 END) as violation_count')
+                DB::raw('COALESCE(b.good_days, 0) as good_days'),
+                DB::raw('COALESCE(b.total_boundary, 0) as total_boundary'),
+                DB::raw('COALESCE(db.violation_count, 0) as violation_count'),
+                DB::raw("COALESCE(
+                    (SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1),
+                    (SELECT u.plate_number FROM boundaries b_sub JOIN units u ON b_sub.unit_id = u.id WHERE b_sub.driver_id = d.id AND b_sub.deleted_at IS NULL ORDER BY b_sub.date DESC, b_sub.id DESC LIMIT 1)
+                ) as plate_number")
             )
-            ->whereIn('d.driver_status', ['available', 'assigned'])
-            ->groupBy('d.id', 'd.first_name', 'd.last_name')
-            ->having('violation_count', '=', 0)
+            ->where('b.good_days', '>', 0)
+            ->orderBy('violation_count', 'asc')
             ->orderByDesc('good_days')
             ->orderByDesc('total_boundary')
-            ->limit(5)
+            ->limit(3)
             ->get()
-            ->map(fn($d) => ['name' => $d->full_name, 'score' => (int) $d->good_days, 'total' => (float) $d->total_boundary]);
+            ->map(function($d) {
+                $photo = $d->profile_photo ?? '';
+                $photoUrl = !empty($photo)
+                    ? (str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/')))
+                    : asset('image/avatars/driver.svg');
+                return [
+                    'id'           => $d->id,
+                    'name'         => $d->full_name,
+                    'nickname'     => $d->nickname,
+                    'photo'        => $photoUrl,
+                    'score'        => (int) $d->good_days,
+                    'total'        => (float) $d->total_boundary,
+                    'plate_number' => $d->plate_number ?? null,
+                ];
+            });
 
         if ($data->isEmpty() || $data->every(fn($d) => $d['score'] == 0)) {
             return collect([]);

@@ -17,14 +17,14 @@ class BoundarySettingsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'           => 'required|string|max:100',
-            'start_year'     => 'required|integer|min:2000|max:2099',
-            'end_year'       => 'required|integer|min:2000|max:2099|gte:start_year',
-            'regular_rate'   => 'required|numeric|min:1',
-            'sat_discount'   => 'required|numeric|min:0',
-            'sun_discount'   => 'required|numeric|min:0',
-            'coding_rate'    => 'required|numeric|min:0',
-            'coding_is_fixed'=> 'required|boolean',
+            'name' => 'required|string|max:100',
+            'start_year' => 'required|integer|min:2000|max:2099',
+            'end_year' => 'required|integer|min:2000|max:2099|gte:start_year',
+            'regular_rate' => 'required|numeric|min:1',
+            'sat_discount' => 'required|numeric|min:0',
+            'sun_discount' => 'required|numeric|min:0',
+            'coding_rate' => 'required|numeric|min:0',
+            'coding_is_fixed' => 'required|boolean',
         ]);
 
         BoundaryRule::create($request->all());
@@ -39,14 +39,14 @@ class BoundarySettingsController extends Controller
         $rule = BoundaryRule::findOrFail($id);
 
         $request->validate([
-            'name'           => 'required|string|max:100',
-            'start_year'     => 'required|integer|min:2000|max:2099',
-            'end_year'       => 'required|integer|min:2000|max:2099|gte:start_year',
-            'regular_rate'   => 'required|numeric|min:1',
-            'sat_discount'   => 'required|numeric|min:0',
-            'sun_discount'   => 'required|numeric|min:0',
-            'coding_rate'    => 'required|numeric|min:0',
-            'coding_is_fixed'=> 'required|boolean',
+            'name' => 'required|string|max:100',
+            'start_year' => 'required|integer|min:2000|max:2099',
+            'end_year' => 'required|integer|min:2000|max:2099|gte:start_year',
+            'regular_rate' => 'required|numeric|min:1',
+            'sat_discount' => 'required|numeric|min:0',
+            'sun_discount' => 'required|numeric|min:0',
+            'coding_rate' => 'required|numeric|min:0',
+            'coding_is_fixed' => 'required|boolean',
         ]);
 
         $rule->update($request->all());

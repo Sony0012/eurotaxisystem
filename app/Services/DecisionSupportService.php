@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 class DecisionSupportService
 {
     protected string $apiKey;
-    protected string $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+    protected string $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
     public function __construct()
     {
@@ -31,6 +31,8 @@ class DecisionSupportService
         $activeUnits   = $units->where('status', 'active')->count();
         $idleUnits     = $units->where('status', 'idle')->count();
         $maintUnits    = $units->where('status', 'maintenance')->count();
+        $missingUnits  = $units->where('status', 'missing')->count();
+        $inactiveUnits = $units->where('status', 'inactive')->count();
 
         // ─── DRIVERS ─────────────────────────────────────────────────────────
         $drivers = DB::table('drivers')
@@ -46,47 +48,70 @@ class DecisionSupportService
             ->where('date', '>=', now()->subDays(60)->toDateString())
             ->selectRaw('
                 COUNT(*) as total_records,
-                SUM(actual_boundary) as total_collected,
+                SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_collected,
                 SUM(shortage) as total_shortage,
                 SUM(excess) as total_excess,
-                AVG(actual_boundary) as avg_daily,
+                AVG(actual_boundary + COALESCE(damage_payment, 0)) as avg_daily,
                 COUNT(CASE WHEN shortage > 0 THEN 1 END) as shortage_days
             ')
             ->first();
 
-        // ─── UNIT ROI (Lifetime boundary vs purchase cost) ───────────────────
+        // ─── UNIT ROI (Lifetime boundary & maintenance vs purchase cost) ─────
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->select('unit_id',
+                DB::raw('COALESCE(SUM(actual_boundary + COALESCE(damage_payment, 0)), 0) as lifetime_collected'),
+                DB::raw('COUNT(DISTINCT id) as total_days_operated')
+            )
+            ->groupBy('unit_id');
+
+        $maintenanceSub = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
+            ->select('unit_id',
+                DB::raw('COALESCE(SUM(cost), 0) as lifetime_maintenance')
+            )
+            ->groupBy('unit_id');
+
         $unitROI = DB::table('units as u')
             ->whereNull('u.deleted_at')
-            ->leftJoin('boundaries as b', function ($join) {
-                $join->on('b.unit_id', '=', 'u.id')->whereNull('b.deleted_at');
-            })
-            ->selectRaw('
-                u.id,
-                u.plate_number,
-                u.purchase_cost,
-                u.boundary_rate,
-                COALESCE(SUM(b.actual_boundary), 0) as lifetime_collected,
-                COUNT(b.id) as total_days_operated
-            ')
-            ->groupBy('u.id', 'u.plate_number', 'u.purchase_cost', 'u.boundary_rate')
+            ->leftJoinSub($boundariesSub, 'b', 'u.id', '=', 'b.unit_id')
+            ->leftJoinSub($maintenanceSub, 'm', 'u.id', '=', 'm.unit_id')
+            ->select(
+                'u.id',
+                'u.plate_number',
+                'u.purchase_cost',
+                'u.boundary_rate',
+                DB::raw('COALESCE(b.lifetime_collected, 0) as lifetime_collected'),
+                DB::raw('COALESCE(b.total_days_operated, 0) as total_days_operated'),
+                DB::raw('COALESCE(m.lifetime_maintenance, 0) as lifetime_maintenance')
+            )
             ->get()
             ->map(function ($u) {
+                $netProfit = $u->lifetime_collected - $u->lifetime_maintenance;
                 $roi = $u->purchase_cost > 0
-                    ? round(($u->lifetime_collected / $u->purchase_cost) * 100, 1)
+                    ? round(($netProfit / $u->purchase_cost) * 100, 1)
                     : 0;
                 return [
-                    'plate'             => $u->plate_number,
-                    'purchase_cost'     => $u->purchase_cost,
-                    'lifetime_collected'=> $u->lifetime_collected,
-                    'roi_pct'           => $roi,
-                    'days_operated'     => $u->total_days_operated,
-                    'roi_achieved'      => $roi >= 100,
+                    'plate'                => $u->plate_number,
+                    'purchase_cost'        => (float)$u->purchase_cost,
+                    'lifetime_collected'   => (float)$u->lifetime_collected,
+                    'lifetime_maintenance' => (float)$u->lifetime_maintenance,
+                    'net_profit'           => (float)$netProfit,
+                    'roi_pct'              => $roi,
+                    'days_operated'        => (int)$u->total_days_operated,
+                    'roi_achieved'         => $roi >= 100,
                 ];
             });
 
         // ─── MAINTENANCE (Last 90 days) ───────────────────────────────────────
         $maintenanceStats = DB::table('maintenance as m')
             ->whereNull('m.deleted_at')
+            ->where(function($q) {
+                $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
+            })
             ->where('m.date_started', '>=', now()->subDays(90)->toDateString())
             ->join('units as u', 'u.id', '=', 'm.unit_id')
             ->selectRaw('
@@ -102,12 +127,17 @@ class DecisionSupportService
 
         $totalMaintenanceCost = DB::table('maintenance')
             ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
             ->where('date_started', '>=', now()->subDays(90)->toDateString())
-            ->sum('cost');
+            ->sum('cost') ?? 0;
 
         // ─── EXPENSES (Last 60 days) ──────────────────────────────────────────
         $expenseStats = DB::table('expenses')
             ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
             ->where('date', '>=', now()->subDays(60)->toDateString())
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->groupBy('category')
@@ -125,10 +155,10 @@ class DecisionSupportService
             ->selectRaw('
                 CONCAT(COALESCE(d.first_name,\'\'),\' \',COALESCE(d.last_name,\'\')) as driver_name,
                 COUNT(b.id) as days_worked,
-                SUM(b.actual_boundary) as total_collected,
+                SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)) as total_collected,
                 SUM(b.shortage) as total_shortage,
                 SUM(b.excess) as total_excess,
-                AVG(b.actual_boundary) as avg_daily,
+                AVG(b.actual_boundary + COALESCE(b.damage_payment, 0)) as avg_daily,
                 COUNT(CASE WHEN b.shortage > 0 THEN 1 END) as shortage_days
             ')
             ->groupBy('d.id', 'driver_name')
@@ -143,10 +173,24 @@ class DecisionSupportService
             $endDate   = date('Y-m-t',  strtotime("-$i months"));
             $monthLabel = date('Y-m',   strtotime("-$i months"));
 
-            $rev = DB::table('boundaries')->whereNull('deleted_at')
-                ->whereBetween('date', [$startDate, $endDate])->sum('actual_boundary') ?? 0;
+            $boundRev = DB::table('boundaries')->whereNull('deleted_at')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum(DB::raw('actual_boundary + COALESCE(damage_payment, 0)')) ?? 0;
+
+            $recoveryInflow = abs(DB::table('expenses')
+                ->whereNull('deleted_at')
+                ->where('status', 'approved')
+                ->where('category', 'Damage Recovery')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount') ?? 0);
+
+            $rev = $boundRev + $recoveryInflow;
+
             $exp = DB::table('expenses')->whereNull('deleted_at')
-                ->whereBetween('date', [$startDate, $endDate])->sum('amount') ?? 0;
+                ->where('status', 'approved')
+                ->where('category', '!=', 'Damage Recovery')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount') ?? 0;
 
             $monthlyFinancials[] = [
                 'month'   => $monthLabel,
@@ -204,17 +248,123 @@ class DecisionSupportService
             ->select('name', 'stock_quantity', 'price', 'supplier')
             ->get();
 
+        // ─── PROBLEMATIC UNITS (Maintenance, Missing, Chronic Breakdowns) ────
+        $inMaintUnitsList = $units->where('status', 'maintenance')->map(function($u) {
+            return [
+                'id'           => $u->id,
+                'plate_number' => $u->plate_number,
+                'model'        => $u->model ?? '',
+                'status'       => 'maintenance',
+            ];
+        })->values()->toArray();
+
+        $missingUnitsList = $units->where('status', 'missing')->map(function($u) {
+            return [
+                'id'           => $u->id,
+                'plate_number' => $u->plate_number,
+                'model'        => $u->model ?? '',
+                'status'       => 'missing',
+            ];
+        })->values()->toArray();
+
+        // Chronic breakdowns (3 or more repairs in last 90 days)
+        $chronicBreakdowns = DB::table('maintenance as m')
+            ->whereNull('m.deleted_at')
+            ->where(function($q) {
+                $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
+            })
+            ->where('m.date_started', '>=', now()->subDays(90)->toDateString())
+            ->join('units as u', 'u.id', '=', 'm.unit_id')
+            ->whereNull('u.deleted_at')
+            ->selectRaw('u.id, u.plate_number, COUNT(m.id) as repair_count, SUM(m.cost) as total_repair_cost')
+            ->groupBy('u.id', 'u.plate_number')
+            ->havingRaw('COUNT(m.id) >= 3')
+            ->orderByDesc('repair_count')
+            ->get();
+
+        // ─── DRIVER FUNDS & ESCROW RESERVE (PONDO) ───────────────────────────
+        $totalDepositedPondo = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', 'deposit')
+            ->sum('amount');
+
+        $totalDeductedPondo = (float) DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->whereIn('type', ['withdrawal', 'damage_deduction', 'maintenance_share', 'company_liability'])
+            ->sum('amount');
+
+        $activeEscrowReserve = max(0, $totalDepositedPondo - $totalDeductedPondo);
+
+        $pondoDeductions = DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->where('type', '!=', 'deposit')
+            ->selectRaw('type, SUM(amount) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type')
+            ->toArray();
+
+        $fundedDriversCount = DB::table('driver_funds')
+            ->whereNull('deleted_at')
+            ->distinct('driver_id')
+            ->count('driver_id');
+
+        $recentPondoTurnover = (float) DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->where('date', '>=', now()->subDays(60)->toDateString())
+            ->sum('driver_fund');
+
+        // ─── DRIVER INCENTIVES & COMPLIANCE (Last 60 days) ───────────────────
+        $incentiveStats = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->where('date', '>=', now()->subDays(60)->toDateString())
+            ->selectRaw('
+                COUNT(*) as total_shifts,
+                SUM(CASE WHEN has_incentive = 1 THEN 1 ELSE 0 END) as shifts_with_incentive,
+                SUM(CASE WHEN has_incentive = 0 OR shortage > 0 THEN 1 ELSE 0 END) as voided_incentive_shifts,
+                SUM(CASE WHEN has_incentive = 1 AND incentive_released_at IS NULL THEN 1 ELSE 0 END) as pending_unreleased_shifts
+            ')
+            ->first();
+
+        $shiftsTotal = (int)($incentiveStats->total_shifts ?? 0);
+        $shiftsWithIncentive = (int)($incentiveStats->shifts_with_incentive ?? 0);
+        $shiftsVoided = (int)($incentiveStats->voided_incentive_shifts ?? 0);
+        $shiftsPending = (int)($incentiveStats->pending_unreleased_shifts ?? 0);
+        $incentiveComplianceRate = $shiftsTotal > 0 ? round(($shiftsWithIncentive / $shiftsTotal) * 100, 1) : 0;
+
         return [
             'fleet' => [
-                'total'       => $totalUnits,
-                'active'      => $activeUnits,
-                'idle'        => $idleUnits,
-                'maintenance' => $maintUnits,
-                'utilization_pct' => $totalUnits > 0 ? round(($activeUnits / $totalUnits) * 100, 1) : 0,
+                'total'            => $totalUnits,
+                'active'           => $activeUnits,
+                'idle'             => $idleUnits,
+                'maintenance'      => $maintUnits,
+                'missing'          => $missingUnits,
+                'inactive'         => $inactiveUnits,
+                'utilization_pct'  => $totalUnits > 0 ? round(($activeUnits / $totalUnits) * 100, 1) : 0,
+            ],
+            'problematic_units' => [
+                'in_maintenance'     => $inMaintUnitsList,
+                'missing'            => $missingUnitsList,
+                'chronic_breakdowns' => $chronicBreakdowns->toArray(),
+                'total_problematic'  => count($inMaintUnitsList) + count($missingUnitsList) + count($chronicBreakdowns),
             ],
             'drivers' => [
                 'total'  => $drivers->count(),
                 'active' => $activeDrivers,
+            ],
+            'driver_funds' => [
+                'total_deposited'        => round($totalDepositedPondo, 2),
+                'total_deducted'         => round($totalDeductedPondo, 2),
+                'active_escrow_reserve'  => round($activeEscrowReserve, 2),
+                'funded_drivers_count'   => $fundedDriversCount,
+                'deductions_by_type'     => $pondoDeductions,
+                'recent_turnover_60d'    => round($recentPondoTurnover, 2),
+            ],
+            'driver_incentives' => [
+                'total_shifts_60d'       => $shiftsTotal,
+                'shifts_with_incentive'  => $shiftsWithIncentive,
+                'shifts_voided'          => $shiftsVoided,
+                'shifts_pending_payout'  => $shiftsPending,
+                'compliance_rate_pct'    => $incentiveComplianceRate,
             ],
             'financials' => [
                 'monthly'        => $monthlyFinancials,
@@ -261,7 +411,9 @@ class DecisionSupportService
 
         return <<<PROMPT
 You are the AI Strategic Advisor for "Euro Taxi Inc.", a professional taxi fleet management company in the Philippines. 
-You have been given a FULL real-time data snapshot of the company's operations.
+You have been given a FULL real-time data snapshot of the company's complete operations.
+This snapshot includes all financial flows (boundary inflows, damage payments, operating expenses, maintenance, salaries), Driver Funds Escrow (Pondo), Driver Incentives & compliance, Problematic Units (breakdowns, maintenance downtime, missing vehicles), Driver Safety & Debts, Inventory levels, and Legal franchise expirations.
+
 Your job is to analyze the data deeply and provide actionable strategic recommendations AND a 30-day forecast.
 
 ## SYSTEM DATA SNAPSHOT (Real-time):
@@ -269,7 +421,13 @@ Your job is to analyze the data deeply and provide actionable strategic recommen
 
 ## YOUR TASK:
 Analyze the above data and return a JSON object containing:
-1. "recommendations": An array of 6-8 strategic recommendations covering fleet management, driver behavior, inventory optimization, legal doc expirations, and financial safety.
+1. "recommendations": An array of 6-8 strategic recommendations covering:
+   - Fleet utilization and problematic units (vehicles in maintenance, missing, or chronic breakdowns).
+   - Financial health, net cash flow, and operating expense containment.
+   - Driver Funds & Escrow reserve (pondo deposits, deductions for damages/maintenance, and driver balances).
+   - Driver incentives and attendance compliance (on-time remittances, voided shifts, and incentive releases).
+   - Driver safety incidents, outstanding debts, and defensive driving accountability.
+   - Spare parts inventory safety stock and franchise document expirations.
 2. "forecast": A 30-day prediction object for Revenue, Expenses, and Maintenance.
 3. "risks": A list of top 4 operational risks based on current trends.
 
@@ -299,8 +457,8 @@ The forecast object should look like this:
 }
 
 ## RULES:
-1. Use REAL numbers from the data.
-2. Prioritize financial impact.
+1. Use REAL numbers from the data snapshot.
+2. Prioritize financial impact, driver escrow protection, fleet uptime, and regulatory compliance.
 3. Return ONLY the JSON object, nothing else.
 PROMPT;
     }
@@ -461,6 +619,24 @@ PROMPT;
                 'Frequency'   => 'On-job update',
                 'Data Points' => 'Service costs, Breakdown frequency, Unit downtime',
                 'Description' => 'Alerts on high-cost units and predicts future repair needs.'
+            ],
+            'Driver Funds (Pondo)' => [
+                'Source'      => 'driver_funds & boundaries (driver_fund column)',
+                'Frequency'   => 'Per boundary turnover & fund disbursement',
+                'Data Points' => 'Daily deposits, Deductions for damages/maintenance, Cashout withdrawals, Net escrow reserve',
+                'Description' => 'Monitors driver escrow liabilities, cash reserves, and fund deductions to ensure liquidity.'
+            ],
+            'Problematic Fleet Units' => [
+                'Source'      => 'units (status) cross-referenced with maintenance',
+                'Frequency'   => 'Real-time & 90-day maintenance frequency',
+                'Data Points' => 'Units in maintenance, Missing/impounded units, Chronic breakdowns (>= 3 repairs in 90 days)',
+                'Description' => 'Pinpoints loss-making units, excessive repair costs, and downtime to recommend replacement or overhaul.'
+            ],
+            'Driver Incentives' => [
+                'Source'      => 'boundaries (has_incentive, incentive_released_at, shortage)',
+                'Frequency'   => 'Daily turnover & bi-monthly Sunday disbursement cycle',
+                'Data Points' => 'On-time remittances, Voided shifts (shortage/late/damage), Unreleased shifts awaiting payout',
+                'Description' => 'Evaluates driver attendance discipline, remittance timeliness, and prepares cash forecast for incentive releases.'
             ]
         ];
     }
@@ -642,6 +818,91 @@ PROMPT;
                 'metric'       => '₱' . number_format($totalDamage + $fines, 0),
                 'metric_label' => 'Incident Cost',
                 'confidence'   => 92,
+            ];
+        }
+
+        // 9. Problematic Units & Chronic Breakdowns
+        $problemUnits = $snapshot['problematic_units'] ?? [];
+        $totalProblematic = $problemUnits['total_problematic'] ?? 0;
+        $inMaintCount = count($problemUnits['in_maintenance'] ?? []);
+        $missingCount = count($problemUnits['missing'] ?? []);
+        $chronicList = $problemUnits['chronic_breakdowns'] ?? [];
+        $chronicCount = count($chronicList);
+
+        if ($totalProblematic > 0) {
+            $impactedPlates = collect($problemUnits['in_maintenance'] ?? [])
+                ->merge($problemUnits['missing'] ?? [])
+                ->merge($chronicList)
+                ->pluck('plate_number')
+                ->unique()
+                ->take(4)
+                ->implode(', ');
+
+            $insights[] = [
+                'category'     => 'fleet',
+                'priority'     => ($inMaintCount + $missingCount) > 2 ? 'critical' : 'high',
+                'icon'         => '🚨',
+                'title'        => 'Problematic Units & Chronic Breakdowns',
+                'insight'      => "Detected {$totalProblematic} problematic fleet condition(s): {$inMaintCount} in maintenance, {$missingCount} missing/impounded, and {$chronicCount} unit(s) with chronic breakdowns (>= 3 repairs in 90 days). Impacted units: {$impactedPlates}.",
+                'reasoning'    => "Vehicles idle in repair or suffering recurring component failures bleed company profits through direct maintenance bills and lost daily boundary earnings. Tracking chronic breakdown units allows management to identify aging components, mechanic quality issues, or units that have reached their economic retirement limit.",
+                'actions'      => [
+                    'Audit repair history of units with >= 3 breakdowns in the Maintenance module',
+                    'Expedite pending repairs on down units to restore daily boundary turnover',
+                    'Evaluate highest maintenance cost units for fleet phase-out or vehicle replacement'
+                ],
+                'metric'       => $totalProblematic . ' units',
+                'metric_label' => 'Problem Units',
+                'confidence'   => 92,
+            ];
+        }
+
+        // 10. Driver Funds Escrow (Pondo) Reserve Health
+        $funds = $snapshot['driver_funds'] ?? [];
+        $activeEscrow = (float)($funds['active_escrow_reserve'] ?? 0);
+        $totalDepPondo = (float)($funds['total_deposited'] ?? 0);
+        $totalDedPondo = (float)($funds['total_deducted'] ?? 0);
+        $fundedDrivers = (int)($funds['funded_drivers_count'] ?? 0);
+
+        $insights[] = [
+            'category'     => 'finance',
+            'priority'     => 'high',
+            'icon'         => '🏦',
+            'title'        => 'Driver Pondo Escrow Reserve Health',
+            'insight'      => "Active driver pondo escrow reserve stands at ₱" . number_format($activeEscrow, 2) . " across {$fundedDrivers} driver accounts (Total deposited: ₱" . number_format($totalDepPondo, 2) . ", Total deductions/cashouts: ₱" . number_format($totalDedPondo, 2) . ").",
+            'reasoning'    => "Driver pondo operates as a security escrow and emergency savings buffer for drivers. It protects the company from unpaid repair deductibles while ensuring drivers have accumulated savings. Maintaining accurate segregation of this escrow from operating capital prevents liquidity crunches during mass withdrawals.",
+            'actions'      => [
+                'Reconcile driver pondo ledger balances in Driver Management',
+                'Ensure company cash buffer covers 100% of outstanding driver escrow liabilities',
+                'Verify deductions made for maintenance shares and accident damages against approved repair tickets'
+            ],
+            'metric'       => '₱' . number_format($activeEscrow, 0),
+            'metric_label' => 'Active Escrow Reserve',
+            'confidence'   => 95,
+        ];
+
+        // 11. Driver Incentive Performance & Timeliness
+        $incentives = $snapshot['driver_incentives'] ?? [];
+        $compRate = (float)($incentives['compliance_rate_pct'] ?? 0);
+        $shiftsWithInc = (int)($incentives['shifts_with_incentive'] ?? 0);
+        $shiftsEvaluated = (int)($incentives['total_shifts_60d'] ?? 0);
+        $pendingPayoutShifts = (int)($incentives['shifts_pending_payout'] ?? 0);
+
+        if ($shiftsEvaluated > 0) {
+            $insights[] = [
+                'category'     => 'drivers',
+                'priority'     => $compRate < 70 ? 'high' : 'medium',
+                'icon'         => '🎯',
+                'title'        => 'Driver Incentive Compliance & Timely Remittance',
+                'insight'      => "Incentive compliance rate is {$compRate}% ({$shiftsWithInc} qualified out of {$shiftsEvaluated} shifts in the last 60 days). {$pendingPayoutShifts} qualified shifts await the next scheduled payout cycle.",
+                'reasoning'    => "The company incentive program rewards on-time boundary turnover (before 10:00 AM) with zero shortage and zero accidents. High compliance drives predictable cash flow and reduces vehicle wear. Tracking pending incentive shifts ensures payroll readiness for the 1st Sunday payout cycle.",
+                'actions'      => [
+                    'Review drivers with voided incentives to coach on remittance punctuality',
+                    'Verify incentive eligibility list before the 1st Sunday disbursement',
+                    'Recognize top-performing drivers maintaining 100% incentive streaks'
+                ],
+                'metric'       => $compRate . '%',
+                'metric_label' => 'Incentive Compliance',
+                'confidence'   => 90,
             ];
         }
 

@@ -183,6 +183,8 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::get('/driver-management/funds-ledger', [DriverManagementV2Controller::class, 'fundsLedgerPage'])->name('driver-management.funds-ledger');
     Route::get('/driver-management/funds-ledger/data', [DriverManagementV2Controller::class, 'getFundsLedgerData'])->name('driver-management.funds-ledger.data');
     Route::get('/driver-management/funds-ledger/print', [DriverManagementV2Controller::class, 'printFundsLedgerPdf'])->name('driver-management.funds-ledger.print');
+    Route::put('/driver-management/funds-ledger/{id}', [DriverManagementV2Controller::class, 'updateFundTransaction'])->name('driver-management.funds-ledger.update');
+    Route::delete('/driver-management/funds-ledger/{id}', [DriverManagementV2Controller::class, 'deleteFundTransaction'])->name('driver-management.funds-ledger.delete');
     Route::get('/driver-management/pending-debts', [DriverManagementV2Controller::class, 'getPendingDebts'])->name('driver-management.pending-debts');
     Route::get('/driver-management/debt-history', [DriverManagementV2Controller::class, 'getDebtHistory'])->name('driver-management.debt-history');
     Route::post('/driver-management/pay-debt', [DriverManagementV2Controller::class, 'payDebt'])->name('driver-management.pay-debt');
@@ -199,6 +201,7 @@ Route::middleware(['auth', 'page_access'])->group(function () {
     Route::post('/driver-management/auto-ban-settings', [DriverManagementV2Controller::class, 'updateAutoBanSettings'])->name('driver-management.update-auto-ban-settings');
     Route::get('/driver-management/{id}/lockout-details', [DriverManagementV2Controller::class, 'getDriverLockoutDetails'])->name('driver-management.lockout-details');
     Route::post('/driver-management/{id}/withdraw-fund', [DriverManagementV2Controller::class, 'withdrawFund'])->name('driver-management.withdraw-fund');
+    Route::post('/driver-management/{id}/deposit-fund', [DriverManagementV2Controller::class, 'depositFund'])->name('driver-management.deposit-fund');
 
 
     // Driver Management Resource Routes

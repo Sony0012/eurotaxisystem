@@ -1,0 +1,6 @@
+open 195.35.62.133
+u747826271
+@Admineuro2026
+cd domains/eurotaxisystem.site/public_html/app/Http/Controllers
+put c:\xampp\htdocs\eurotaxisystem\app\Http\Controllers\SuperAdminController.php SuperAdminController.php
+bye

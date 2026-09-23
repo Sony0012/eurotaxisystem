@@ -154,7 +154,7 @@ class DashboardController extends Controller
                     $join->on('u.id', '=', 'b.unit_id')->whereNull('b.deleted_at');
                 })
                 ->select('u.plate_number', DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_boundary'), 'u.boundary_rate')
-                ->where('u.status', 'active')
+                ->whereNotIn('u.status', ['retired'])
                 ->groupBy('u.id', 'u.plate_number', 'u.boundary_rate')
                 ->orderByDesc('total_boundary')
                 ->limit(10)
@@ -165,29 +165,64 @@ class DashboardController extends Controller
                     'target' => (float)$u->boundary_rate * 30
                 ])->toArray();
 
-            // 5. TOP DRIVERS (Copying Web Logic Exactly)
+            // 5. TOP DRIVERS (Matching Web Top 3 Logic Exactly)
+            $boundariesSub = DB::table('boundaries')
+                ->whereNull('deleted_at')
+                ->select(
+                    'driver_id',
+                    DB::raw('COUNT(DISTINCT CASE WHEN status IN ("paid", "excess", "shortage") THEN id END) as good_days'),
+                    DB::raw('COALESCE(SUM(actual_boundary), 0) as total_boundary')
+                )
+                ->groupBy('driver_id');
+
+            $violationSnippet = "(is_driver_fault = 1 OR incident_type IN ('" . implode("','", \App\Models\DriverBehavior::VIOLATION_TYPES) . "'))";
+
+            $behaviorSub = DB::table('driver_behavior')
+                ->whereNull('deleted_at')
+                ->select(
+                    'driver_id',
+                    DB::raw('COUNT(DISTINCT CASE WHEN ' . $violationSnippet . ' THEN id END) as violation_count')
+                )
+                ->groupBy('driver_id');
+
             $topDriversData = DB::table('drivers as d')
                 ->whereNull('d.deleted_at')
-                ->leftJoin('boundaries as b', function($join) {
-                    $join->on('d.id', '=', 'b.driver_id')->whereNull('b.deleted_at');
-                })
+                ->whereNotIn('d.driver_status', ['archived'])
+                ->leftJoinSub($boundariesSub, 'b', 'd.id', '=', 'b.driver_id')
+                ->leftJoinSub($behaviorSub, 'db', 'd.id', '=', 'db.driver_id')
                 ->select(
+                    'd.id',
+                    'd.profile_photo',
                     DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as name"),
-                    DB::raw('COUNT(CASE WHEN b.status IN ("paid", "excess", "shortage") THEN 1 END) as good_days'),
-                    DB::raw('SUM(b.actual_boundary) as total')
+                    DB::raw('COALESCE(b.good_days, 0) as good_days'),
+                    DB::raw('COALESCE(b.total_boundary, 0) as total'),
+                    DB::raw('COALESCE(db.violation_count, 0) as violation_count'),
+                    DB::raw("COALESCE(
+                        (SELECT plate_number FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id) AND deleted_at IS NULL LIMIT 1),
+                        (SELECT u.plate_number FROM boundaries b_sub JOIN units u ON b_sub.unit_id = u.id WHERE b_sub.driver_id = d.id AND b_sub.deleted_at IS NULL ORDER BY b_sub.date DESC, b_sub.id DESC LIMIT 1)
+                    ) as plate_number")
                 )
-                ->whereIn('d.driver_status', ['available', 'assigned'])
-                ->groupBy('d.id', 'd.first_name', 'd.last_name')
+                ->where('b.good_days', '>', 0)
+                ->orderBy('violation_count', 'asc')
                 ->orderByDesc('good_days')
                 ->orderByDesc('total')
-                ->limit(10)
+                ->limit(3)
                 ->get();
 
-            $topDrivers = $topDriversData->map(fn($d) => [
-                'name' => $d->name,
-                'total' => (float)$d->total,
-                'score' => (int)$d->good_days
-            ])->toArray();
+            $topDrivers = $topDriversData->map(function($d) {
+                $photo = $d->profile_photo ?? '';
+                $photoUrl = !empty($photo)
+                    ? (str_starts_with($photo, 'http') ? $photo : asset(ltrim($photo, '/')))
+                    : asset('image/avatars/driver.svg');
+                return [
+                    'id'           => $d->id,
+                    'name'         => $d->name,
+                    'photo'        => $photoUrl,
+                    'total'        => (float)$d->total,
+                    'score'        => (int)$d->good_days,
+                    'plate_number' => $d->plate_number ?? null,
+                ];
+            })->toArray();
 
 
             // 4. Weekly Financial Overview (Matching Web Exactly: Boundaries vs Expenses)
@@ -231,26 +266,17 @@ class DashboardController extends Controller
 
             // Drivers list (MATCHING WEB LOGIC EXACTLY)
             $driversList = DB::table('drivers as d')
-                ->leftJoin('units as u', function($join) {
-                    $join->on('d.id', '=', 'u.driver_id')
-                         ->orOn('d.id', '=', 'u.secondary_driver_id')
-                         ->whereNull('u.deleted_at');
-                })
-                ->leftJoin('boundaries as b', function($join) {
-                    $join->on('u.id', '=', 'b.unit_id')
-                         ->whereNull('b.deleted_at');
-                })
                 ->select(
                     'd.id', 'd.first_name', 'd.last_name',
                     'd.contact_number as phone', 'd.license_number', 'd.driver_status',
                     'd.hire_date', 'd.address',
-                    DB::raw('COUNT(DISTINCT u.id) as assigned_units'),
-                    DB::raw('GROUP_CONCAT(DISTINCT u.plate_number) as plate_numbers'),
-                    DB::raw('COALESCE(SUM(b.actual_boundary), 0) as total_collected'),
-                    DB::raw('COALESCE(AVG(b.actual_boundary), 0) as avg_boundary')
+                    DB::raw('(SELECT COUNT(id) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id)' . (Schema::hasColumn('units', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as assigned_units'),
+                    DB::raw('(SELECT GROUP_CONCAT(DISTINCT plate_number) FROM units WHERE (driver_id = d.id OR secondary_driver_id = d.id)' . (Schema::hasColumn('units', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as plate_numbers'),
+                    DB::raw('(SELECT COALESCE(SUM(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id' . (Schema::hasColumn('boundaries', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as total_collected'),
+                    DB::raw('(SELECT COALESCE(AVG(actual_boundary), 0) FROM boundaries WHERE driver_id = d.id' . (Schema::hasColumn('boundaries', 'deleted_at') ? ' AND deleted_at IS NULL' : '') . ') as avg_boundary')
                 )
                 ->whereNull('d.deleted_at')
-                ->groupBy('d.id', 'd.first_name', 'd.last_name', 'd.contact_number', 'd.license_number', 'd.driver_status', 'd.hire_date', 'd.address')
+                ->whereIn('d.driver_status', ['available', 'assigned', 'active'])
                 ->orderBy('d.first_name')
                 ->get()
                 ->map(function($driver) {
@@ -397,7 +423,7 @@ class DashboardController extends Controller
                     'boundaries'     => DB::table('boundaries as b')
                                         ->join('units as u', 'b.unit_id', '=', 'u.id')
                                         ->leftJoin('drivers as d', 'b.driver_id', '=', 'd.id')
-                                        ->select('b.id', 'b.uuid', 'b.actual_boundary', 'b.date', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
+                                        ->select('b.id', 'b.actual_boundary', 'b.date', 'u.plate_number', DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,'')) as driver_name"))
                                         ->whereNull('b.deleted_at')
                                         ->whereBetween('b.date', [$start, $end])
                                         ->orderByDesc('b.date')
@@ -405,7 +431,7 @@ class DashboardController extends Controller
                     // Maintenance: no limit — same structure as web renderExpensesReport
                     'maintenance'    => DB::table('maintenance as m')
                                         ->join('units as u', 'm.unit_id', '=', 'u.id')
-                                        ->select('m.id', 'm.uuid', 'm.maintenance_type as type', 'm.cost', 'm.description', 'm.date_started as date', 'u.plate_number')
+                                        ->select('m.id', 'm.maintenance_type as type', 'm.cost', 'm.description', 'm.date_started as date', 'u.plate_number')
                                         ->whereNull('m.deleted_at')
                                         ->whereBetween('m.date_started', [$start, $end])
                                         ->where('m.status', '!=', 'cancelled')

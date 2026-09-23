@@ -1077,31 +1077,48 @@ class AdditionalModulesController extends Controller
         $date_from = $request->input('date_from', date('Y-m-01'));
         $date_to = $request->input('date_to', date('Y-m-t'));
 
+        $boundariesSub = DB::table('boundaries')
+            ->whereNull('deleted_at')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(actual_boundary + COALESCE(damage_payment, 0)) as total_revenue'), DB::raw('COUNT(DISTINCT id) as active_days'))
+            ->groupBy('unit_id');
+
+        $maintSub = DB::table('maintenance')
+            ->whereNull('deleted_at')
+            ->where(function($q) {
+                $q->whereNull('status')->orWhereRaw('LOWER(status) != "cancelled"');
+            })
+            ->whereBetween('date_started', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(cost) as total_maintenance'))
+            ->groupBy('unit_id');
+
+        $expensesSub = DB::table('expenses')
+            ->whereNull('deleted_at')
+            ->where('status', 'approved')
+            ->where('category', '!=', 'Damage Recovery')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->select('unit_id', DB::raw('SUM(amount) as total_expenses'))
+            ->groupBy('unit_id');
+
         $stats = DB::table('units as u')
-            ->leftJoin('boundaries as b', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'b.unit_id')->whereBetween('b.date', [$date_from, $date_to])->whereNull('b.deleted_at');
-            })
-            ->leftJoin('maintenance as m', function($join) use ($date_from, $date_to) {
-                $join->on('u.id', '=', 'm.unit_id')
-                    ->whereBetween('m.date_started', [$date_from, $date_to])
-                    ->whereNull('m.deleted_at')
-                    ->where(function($q) {
-                        $q->whereNull('m.status')->orWhereRaw('LOWER(m.status) != "cancelled"');
-                    });
-            })
+            ->leftJoinSub($boundariesSub, 'b', 'u.id', '=', 'b.unit_id')
+            ->leftJoinSub($maintSub, 'm', 'u.id', '=', 'm.unit_id')
+            ->leftJoinSub($expensesSub, 'e', 'u.id', '=', 'e.unit_id')
             ->select(
                 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost',
-                DB::raw('COALESCE(SUM(b.actual_boundary + COALESCE(b.damage_payment, 0)), 0) as total_revenue'),
-                DB::raw('COALESCE(SUM(m.cost), 0) as total_maintenance'),
-                DB::raw('COUNT(DISTINCT b.id) as active_days')
+                DB::raw('COALESCE(b.total_revenue, 0) as total_revenue'),
+                DB::raw('COALESCE(m.total_maintenance, 0) as total_maintenance'),
+                DB::raw('COALESCE(e.total_expenses, 0) as total_expenses'),
+                DB::raw('COALESCE(b.active_days, 0) as active_days')
             )
             ->whereNull('u.deleted_at')
-            ->groupBy('u.id', 'u.plate_number', 'u.make', 'u.model', 'u.purchase_cost')
             ->get();
 
         $totalUnits = $stats->count();
         $totalRevenue = $stats->sum('total_revenue');
         $totalMaint = $stats->sum('total_maintenance');
+        $totalExp = $stats->sum('total_expenses');
+        $netFleetProfit = $totalRevenue - $totalMaint - $totalExp;
         
         if ($totalUnits === 0) {
             return response()->json(['success' => false, 'message' => 'No unit data available for the selected period.']);
@@ -1111,8 +1128,10 @@ class AdditionalModulesController extends Controller
         $worstPerformer = $stats->sortBy('total_revenue')->first();
 
         $prompt = "As a Taxi Fleet Financial Analyst AI, analyze this profitability data for $totalUnits units from $date_from to $date_to:
-        - Total Revenue: ₱" . number_format($totalRevenue, 2) . "
+        - Total Inflow (Boundary Collections): ₱" . number_format($totalRevenue, 2) . "
         - Total Maintenance Cost: ₱" . number_format($totalMaint, 2) . "
+        - Total Unit Operating Expenses: ₱" . number_format($totalExp, 2) . "
+        - Net Fleet Operating Profit: ₱" . number_format($netFleetProfit, 2) . "
         - Top Performer: " . ($topPerformer->plate_number ?? 'N/A') . " (₱" . number_format($topPerformer->total_revenue ?? 0, 2) . ")
         - Lowest Revenue: " . ($worstPerformer->plate_number ?? 'N/A') . " (₱" . number_format($worstPerformer->total_revenue ?? 0, 2) . ")
         

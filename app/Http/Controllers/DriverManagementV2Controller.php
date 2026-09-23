@@ -242,19 +242,18 @@ class DriverManagementV2Controller extends Controller
                 'creator.full_name as creator_name'
             );
 
-        if ($request->filled('search')) {
+        if ($request->filled('driver_id')) {
+            $query->where('df.driver_id', $request->input('driver_id'));
+        } elseif ($request->filled('search')) {
             $s = trim($request->input('search'));
             $query->where(function($q) use ($s) {
                 $q->where('d.first_name', 'like', "%{$s}%")
                   ->orWhere('d.last_name', 'like', "%{$s}%")
+                  ->orWhere(DB::raw("CONCAT(COALESCE(d.first_name,''), ' ', COALESCE(d.last_name,''))"), 'like', "%{$s}%")
                   ->orWhere('d.license_number', 'like', "%{$s}%")
                   ->orWhere('u.plate_number', 'like', "%{$s}%")
                   ->orWhere('df.description', 'like', "%{$s}%");
             });
-        }
-
-        if ($request->filled('driver_id')) {
-            $query->where('df.driver_id', $request->input('driver_id'));
         }
 
         if ($request->filled('type') && $request->input('type') !== 'all') {
@@ -961,6 +960,163 @@ class DriverManagementV2Controller extends Controller
             'new_balance' => $newBalance,
             'record'      => $record
         ]);
+    }
+
+    public function depositFund(Request $request, $id)
+    {
+        $request->validate([
+            'amount'      => 'required|numeric|min:1',
+            'description' => 'required|string|max:255',
+            'date'        => 'required|date',
+        ]);
+
+        $driver = Driver::findOrFail($id);
+        $amount = round((float) $request->input('amount'), 2);
+        $description = trim($request->input('description'));
+        $date = $request->input('date');
+
+        $currentBalance = (float) DB::table('driver_funds')
+            ->where('driver_id', $id)
+            ->whereNull('deleted_at')
+            ->selectRaw("SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) as balance")
+            ->value('balance');
+
+        $newBalance = $currentBalance + $amount;
+
+        $record = \App\Models\DriverFund::create([
+            'driver_id'     => $id,
+            'boundary_id'   => null,
+            'type'          => 'deposit',
+            'amount'        => $amount,
+            'balance_after' => $newBalance,
+            'description'   => $description,
+            'date'          => $date,
+            'created_by'    => \Illuminate\Support\Facades\Auth::id(),
+        ]);
+
+        if (class_exists('\App\Http\Controllers\ActivityLogController')) {
+            \App\Http\Controllers\ActivityLogController::log(
+                'Driver Fund Deposit',
+                "Driver: {$driver->full_name}\nType: Manual Pondo Deposit\nAmount: ₱" . number_format($amount, 2) . "\nPurpose: {$description}\nNew Balance: ₱" . number_format($newBalance, 2)
+            );
+        }
+
+        return response()->json([
+            'success'     => true,
+            'message'     => "Successfully deposited ₱" . number_format($amount, 2) . " to Driver Fund.",
+            'new_balance' => $newBalance,
+            'record'      => $record
+        ]);
+    }
+
+    public function updateFundTransaction(Request $request, $id)
+    {
+        $request->validate([
+            'amount'      => 'required|numeric|min:0.01',
+            'date'        => 'required|date',
+            'type'        => 'required|in:deposit,withdrawal,damage_deduction,maintenance_share,company_liability',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $fund = DB::table('driver_funds')->where('id', $id)->whereNull('deleted_at')->first();
+        if (!$fund) {
+            return response()->json(['success' => false, 'message' => 'Transaction not found.'], 404);
+        }
+
+        $amount = round((float) $request->input('amount'), 2);
+        $date = $request->input('date');
+        $type = $request->input('type');
+        $description = trim($request->input('description') ?? '');
+
+        // If linked to boundary, enforce type = deposit and sync boundary.driver_fund
+        if ($fund->boundary_id) {
+            $type = 'deposit';
+            DB::table('boundaries')->where('id', $fund->boundary_id)->update([
+                'driver_fund' => $amount,
+                'updated_at'  => now(),
+            ]);
+        }
+
+        DB::table('driver_funds')->where('id', $id)->update([
+            'amount'      => $amount,
+            'date'        => $date,
+            'type'        => $type,
+            'description' => $description,
+            'updated_at'  => now(),
+        ]);
+
+        // Rebalance running balances for this driver
+        self::recalculateDriverFundBalances($fund->driver_id);
+
+        if (class_exists('\App\Http\Controllers\ActivityLogController')) {
+            \App\Http\Controllers\ActivityLogController::log(
+                'Driver Fund Edit',
+                "Updated Fund Transaction #{$id} for Driver ID {$fund->driver_id}. Amount: ₱" . number_format($amount, 2) . ", Type: {$type}, Date: {$date}."
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Fund transaction successfully updated.'
+        ]);
+    }
+
+    public function deleteFundTransaction(Request $request, $id)
+    {
+        $fund = DB::table('driver_funds')->where('id', $id)->whereNull('deleted_at')->first();
+        if (!$fund) {
+            return response()->json(['success' => false, 'message' => 'Transaction not found.'], 404);
+        }
+
+        // If linked to boundary, reset boundary.driver_fund to 0
+        if ($fund->boundary_id) {
+            DB::table('boundaries')->where('id', $fund->boundary_id)->update([
+                'driver_fund' => 0,
+                'updated_at'  => now(),
+            ]);
+        }
+
+        DB::table('driver_funds')->where('id', $id)->update([
+            'deleted_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        self::recalculateDriverFundBalances($fund->driver_id);
+
+        if (class_exists('\App\Http\Controllers\ActivityLogController')) {
+            \App\Http\Controllers\ActivityLogController::log(
+                'Driver Fund Delete',
+                "Deleted Fund Transaction #{$id} for Driver ID {$fund->driver_id}."
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Fund transaction successfully deleted.'
+        ]);
+    }
+
+    public static function recalculateDriverFundBalances($driver_id)
+    {
+        $transactions = DB::table('driver_funds')
+            ->where('driver_id', $driver_id)
+            ->whereNull('deleted_at')
+            ->orderBy('date', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $runningBalance = 0;
+        foreach ($transactions as $tx) {
+            if ($tx->type === 'deposit') {
+                $runningBalance += (float)$tx->amount;
+            } else {
+                $runningBalance = max(0, $runningBalance - (float)$tx->amount);
+            }
+
+            DB::table('driver_funds')->where('id', $tx->id)->update([
+                'balance_after' => round($runningBalance, 2),
+            ]);
+        }
     }
 
     public function store(Request $request)

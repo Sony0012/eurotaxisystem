@@ -112,7 +112,6 @@ const Register: FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form');
   const [pendingPhone, setPendingPhone] = useState('');
@@ -121,9 +120,7 @@ const Register: FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    suffix: '',
+    name: '',
     email: '',
     phone: '',
     password: '',
@@ -136,7 +133,7 @@ const Register: FC = () => {
   }, []);
 
   const startResendTimer = () => {
-    setResendCountdown(180);
+    setResendCountdown(60);
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setResendCountdown(prev => {
@@ -158,43 +155,26 @@ const Register: FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newErrors: Record<string, string> = {};
-
     // Name validation
-    if (formData.first_name.trim() === '') newErrors.first_name = 'First name is required.';
-    else if (!formData.first_name.match(/^[a-zA-ZñÑ\s]*$/)) newErrors.first_name = 'First name must only contain letters.';
-
-    if (formData.last_name.trim() === '') newErrors.last_name = 'Last name is required.';
-    else if (!formData.last_name.match(/^[a-zA-ZñÑ\s]*$/)) newErrors.last_name = 'Last name must only contain letters.';
+    if (formData.name.trim() === '') { setError('Name cannot be just spaces.'); return; }
+    if (!formData.name.match(/^[a-zA-ZñÑ\s]*$/)) { setError('Name must only contain letters.'); return; }
     
     // Email validation
     const emailCheck = validateEmail(formData.email);
-    if (!emailCheck.valid) newErrors.email = emailCheck.message;
+    if (!emailCheck.valid) { setError(emailCheck.message); return; }
     
     // Phone validation
-    if (!formData.phone.startsWith('09')) newErrors.phone = 'Phone number must start with 09.';
-    else if (formData.phone.length !== 11) newErrors.phone = 'Phone number must be exactly 11 digits.';
+    if (!formData.phone.startsWith('09')) { setError('Phone number must start with 09.'); return; }
+    if (formData.phone.length !== 11) { setError('Phone number must be exactly 11 digits.'); return; }
     
     // Password validation
-    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters.';
-    else if (formData.password !== formData.password_confirmation) newErrors.password_confirmation = 'Passwords do not match.';
-
-    if (formData.plate_number.trim() === '') newErrors.plate_number = 'Plate number is required.';
-
-    if (Object.keys(newErrors).length > 0) {
-      setFieldErrors(newErrors);
-      return;
-    }
-    setFieldErrors({});
+    if (formData.password !== formData.password_confirmation) { setError('Passwords do not match.'); return; }
+    if (formData.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
 
     setIsLoading(true);
     setError(null);
     try {
-      const payload = {
-        ...formData,
-        name: `${formData.first_name} ${formData.last_name} ${formData.suffix}`.replace(/\s+/g, ' ').trim()
-      };
-      const response = await axios.post(endpoints.register, payload);
+      const response = await axios.post(endpoints.register, formData);
       if (response.data.success && response.data.otp_sent) {
         setPendingPhone(formData.phone);
         setStep('otp');
@@ -262,25 +242,23 @@ const Register: FC = () => {
     key: keyof typeof formData,
     placeholder: string,
     type: string = 'text',
-    maxLen: number = 50,
-    isRequired: boolean = true
+    maxLen: number = 50
   ) => (
-    <div style={{ marginBottom: '16px' }}>
+    <div>
       <label style={styles.label}>{label}</label>
-      <div style={{ ...styles.inputWrap, marginBottom: '4px', border: fieldErrors[key] ? '1px solid #ef4444' : styles.inputWrap.border }}>
+      <div style={styles.inputWrap}>
         <IonIcon icon={icon} style={styles.inputIcon} />
         <IonInput
           type={type === 'password' ? (showPassword ? 'text' : 'password') : (type as any)}
           value={formData[key]}
           onIonInput={(e) => {
             let val = e.detail.value!;
-            if (key === 'first_name' || key === 'last_name' || key === 'suffix') val = val.replace(/[^a-zA-ZñÑ.\s]/g, '');
+            if (key === 'name') val = val.replace(/[^a-zA-Z\s]/g, '');
             if (key === 'phone') val = val.replace(/[^0-9]/g, '');
             setFormData({ ...formData, [key]: val });
-            if (fieldErrors[key]) setFieldErrors({ ...fieldErrors, [key]: '' });
           }}
           placeholder={placeholder}
-          required={isRequired}
+          required
           maxlength={maxLen}
           style={inputStyle}
         />
@@ -292,11 +270,6 @@ const Register: FC = () => {
           />
         )}
       </div>
-      {fieldErrors[key] && (
-        <span style={{ color: '#ef4444', fontSize: '11px', fontWeight: '600', paddingLeft: '4px' }}>
-          {fieldErrors[key]}
-        </span>
-      )}
     </div>
   );
 
@@ -364,9 +337,7 @@ const Register: FC = () => {
                   <div style={styles.sectionDot}></div>
                   <span style={styles.sectionLabel}>Account</span>
                 </div>
-                {field(personOutline, 'First Name', 'first_name', 'e.g. Juan', 'text', 50)}
-                {field(personOutline, 'Last Name', 'last_name', 'e.g. Dela Cruz', 'text', 50)}
-                {field(personOutline, 'Suffix (Optional)', 'suffix', 'e.g. Jr., Sr., III', 'text', 10, false)}
+                {field(personOutline, 'Full Name', 'name', 'e.g. Juan Dela Cruz', 'text', 50)}
                 {field(mailOutline, 'Email', 'email', 'email@example.com', 'email', 50)}
                 {field(callOutline, 'Phone', 'phone', '09123456789', 'tel', 11)}
                 {field(lockClosedOutline, 'Password', 'password', '••••••••', 'password', 20)}
@@ -395,7 +366,9 @@ const Register: FC = () => {
                 {isLoading ? <IonSpinner name="crescent" /> : 'Send Verification Code'}
               </IonButton>
 
-
+              <p style={{ textAlign: 'center', color: '#475569', fontSize: '11px', margin: 0, padding: '0 16px', lineHeight: '1.5' }}>
+                By registering, you agree to EuroTaxi's Terms of Service and Privacy Policy.
+              </p>
             </form>
           )}
 

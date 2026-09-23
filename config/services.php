@@ -58,4 +58,9 @@ return [
         'api_key' => env('GEMINI_API_KEY', ''),
     ],
 
+    'turnstile' => [
+        'key'    => env('TURNSTILE_SITE_KEY', '0x4AAAAAAE-fpPCYahCfL3UL'),
+        'secret' => env('TURNSTILE_SECRET', '0x4AAAAAAE-fpDi4_Y2lwplwUtUOA9t_y4Q'),
+    ],
+
 ];

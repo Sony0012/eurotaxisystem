@@ -903,10 +903,10 @@
                     <h3 class="text-base font-bold text-slate-800 uppercase tracking-tight">Revenue Trend</h3>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
+                    <button onclick="updateRevenueTrend('7')" id="btn-7days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
                         7 Days
                     </button>
-                    <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
+                    <button onclick="updateRevenueTrend('30')" id="btn-30days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-slate-200/40">
                         30 Days
                     </button>
                     <button onclick="updateRevenueTrend('90')" id="btn-90days" class="px-3 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
@@ -935,30 +935,55 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-yellow-50 rounded-lg text-yellow-600">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-800">Weekly Financial Overview</h3>
+                </div>
+                <div class="flex gap-1.5">
+                    <button type="button" onclick="updateWeeklyView('days')" id="btn-weekly-days" class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
+                        7 Days
+                    </button>
+                    <button type="button" onclick="updateWeeklyView('weeks')" id="btn-weekly-weeks" class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200">
+                        4 Weeks
+                    </button>
+                </div>
             </div>
             <div class="p-4">
                 <canvas id="weeklyChart" width="400" height="200"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow flex flex-col">
             <div class="p-4 border-b">
                 <h3 class="text-base font-semibold text-slate-800">Unit Status Distribution</h3>
             </div>
-            <div class="p-4">
-                <canvas id="unitStatusChart" width="400" height="200"></canvas>
+            <div class="p-4 flex-1 flex items-center justify-center">
+                <div class="relative w-full h-[220px]">
+                    <canvas id="unitStatusChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-4 border-b">
-                <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
+        <div class="bg-white rounded-lg shadow overflow-hidden flex flex-col">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-amber-50 rounded-lg text-amber-600">
+                        <i data-lucide="trophy" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-800">Top Performing Drivers</h3>
+                </div>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+                    Leaderboard
+                </span>
             </div>
-            <div class="p-4">
-                <canvas id="topDriversChart" width="400" height="200"></canvas>
+            <div class="p-4 flex-1 flex flex-col justify-center">
+                <div id="topDriversLeaderboard" class="space-y-2.5">
+                    <!-- Dynamic Enhanced Leaderboard with driver profile, medals, and animated progress bars -->
+                </div>
             </div>
         </div>
     </div>
@@ -2404,31 +2429,35 @@
         }
         
         
-        // Weekly Financial Chart
+        // Weekly Financial Chart - Supporting 7 Days and 4 Weeks Month Overview
         try {
             const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-            const weeklyData = @json($weekly_data);
+            const weeklyDaysData = @json($weekly_data) || [];
+            const weeklyWeeksData = @json($weekly_weeks_data ?? []) || [];
+            window.currentWeeklyData = weeklyDaysData;
+
             const wGrad1 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad1.addColorStop(0, 'rgba(234,179,8,0.25)'); wGrad1.addColorStop(1, 'rgba(234,179,8,0.01)');
             const wGrad2 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad2.addColorStop(0, 'rgba(239,68,68,0.2)'); wGrad2.addColorStop(1, 'rgba(239,68,68,0.01)');
             const wGrad3 = weeklyCtx.createLinearGradient(0, 0, 0, 300);
             wGrad3.addColorStop(0, 'rgba(34,197,94,0.25)'); wGrad3.addColorStop(1, 'rgba(34,197,94,0.01)');
-            let isWeeklyChartInitialized = false;
-            function getWeeklyChartConfig() {
+
+            function getWeeklyChartConfig(initData) {
+                const dList = initData && initData.length > 0 ? initData : (window.currentWeeklyData || []);
                 return {
                     type: 'line',
                     data: {
-                        labels: weeklyData.map(d => d.day),
+                        labels: dList.map(d => d.day),
                         datasets: [
-                            { label: 'Boundary', data: weeklyData.map(d => 0), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
-                            { label: 'Expenses', data: weeklyData.map(d => 0), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
-                            { label: 'Net Income', data: weeklyData.map(d => 0), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
+                            { label: 'Boundary', data: dList.map(d => Number(d.boundary) || 0), borderColor: '#eab308', backgroundColor: wGrad1, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#eab308', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Expenses', data: dList.map(d => Number(d.expenses) || 0), borderColor: '#ef4444', backgroundColor: wGrad2, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#ef4444', pointRadius: 4, pointHoverRadius: 7 },
+                            { label: 'Net Income', data: dList.map(d => Number(d.net) || 0), borderColor: '#22c55e', backgroundColor: wGrad3, borderWidth: 2.5, tension: 0.45, fill: true, pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 7 }
                         ]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        animation: { duration: 1500, easing: 'easeOutQuart' },
+                        animation: { duration: 1200, easing: 'easeOutQuart' },
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
                             legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, font: { size: 12, weight: '600' }, padding: 18 } },
@@ -2442,28 +2471,32 @@
                 };
             }
 
-            const weeklyObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!isWeeklyChartInitialized) {
-                            window.weeklyChart = new Chart(weeklyCtx, getWeeklyChartConfig());
-                            isWeeklyChartInitialized = true;
-                        }
-                        window.weeklyChart.data.datasets[0].data = weeklyData.map(d => d.boundary);
-                        window.weeklyChart.data.datasets[1].data = weeklyData.map(d => d.expenses);
-                        window.weeklyChart.data.datasets[2].data = weeklyData.map(d => d.net);
-                        window.weeklyChart.update();
+            // Immediately instantiate chart with real data so it is never 0
+            window.weeklyChart = new Chart(weeklyCtx, getWeeklyChartConfig(window.currentWeeklyData));
+
+            window.updateWeeklyView = function(mode) {
+                const btnDays = document.getElementById('btn-weekly-days');
+                const btnWeeks = document.getElementById('btn-weekly-weeks');
+                const targetData = mode === 'weeks' ? weeklyWeeksData : (window.currentWeeklyData || weeklyDaysData);
+
+                if (btnDays && btnWeeks) {
+                    if (mode === 'days') {
+                        btnDays.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm';
+                        btnWeeks.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200';
                     } else {
-                        if (isWeeklyChartInitialized && window.weeklyChart) {
-                            window.weeklyChart.data.datasets[0].data = weeklyData.map(d => 0);
-                            window.weeklyChart.data.datasets[1].data = weeklyData.map(d => 0);
-                            window.weeklyChart.data.datasets[2].data = weeklyData.map(d => 0);
-                            window.weeklyChart.update('none');
-                        }
+                        btnWeeks.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm';
+                        btnDays.className = 'px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all border border-gray-200';
                     }
-                });
-            }, { threshold: 0.3 });
-            weeklyObserver.observe(document.getElementById('weeklyChart'));
+                }
+
+                if (window.weeklyChart && targetData) {
+                    window.weeklyChart.data.labels = targetData.map(d => d.day);
+                    window.weeklyChart.data.datasets[0].data = targetData.map(d => Number(d.boundary) || 0);
+                    window.weeklyChart.data.datasets[1].data = targetData.map(d => Number(d.expenses) || 0);
+                    window.weeklyChart.data.datasets[2].data = targetData.map(d => Number(d.net) || 0);
+                    window.weeklyChart.update();
+                }
+            };
         } catch (error) { console.error('Weekly Chart Error:', error); }
 
         // Unit Status Chart - (Handled by the premium donut chart below)
@@ -2524,14 +2557,10 @@
                         }
                         window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues;
                         window.revenueTrendChart.update();
-                    } else {
-                        if (isRevenueTrendChartInitialized && window.revenueTrendChart) {
-                            window.revenueTrendChart.data.datasets[0].data = window.currentRevenueTrendValues.map(d => 0);
-                            window.revenueTrendChart.update('none');
-                        }
+                        revenueTrendObserver.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             revenueTrendObserver.observe(document.getElementById('revenueTrendChart'));
         } catch (error) { console.error('Revenue Trend Chart Error:', error); }
 
@@ -2658,17 +2687,10 @@
                         window.unitPerformanceChart.data.datasets[0].data = unitPerformanceData.map(d => d.performance);
                         window.unitPerformanceChart.data.datasets[1].data = unitPerformanceData.map(d => d.target);
                         window.unitPerformanceChart.update();
-                        
-                    } else {
-                        // Reset bars to zero instantly when out of view
-                        if (isUnitChartInitialized && window.unitPerformanceChart) {
-                            window.unitPerformanceChart.data.datasets[0].data = unitPerformanceData.map(d => 0);
-                            window.unitPerformanceChart.data.datasets[1].data = unitPerformanceData.map(d => 0);
-                            window.unitPerformanceChart.update('none'); // Update instantly without animation
-                        }
+                        chartObserver.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.3 }); // Use 0.3 so it safely triggers on small screens too
+            }, { threshold: 0.1 });
             
             chartObserver.observe(document.getElementById('unitPerformanceChart'));
 
@@ -2773,84 +2795,139 @@
                         }
                         window.expenseBreakdownChart.data.datasets[0].data = expValues;
                         window.expenseBreakdownChart.update();
-                    } else {
-                        if (isExpenseChartInitialized && window.expenseBreakdownChart) {
-                            window.expenseBreakdownChart.data.datasets[0].data = expValues.map(d => 0);
-                            window.expenseBreakdownChart.update('none');
-                        }
+                        expenseObserver.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             expenseObserver.observe(document.getElementById('expenseBreakdownChart'));
         } catch (error) { console.error('Expense Chart Error:', error); }
 
-        // Top Drivers Chart - Premium Horizontal Bar
+        // Top Drivers - Enhanced Leaderboard & Progress Graph
         try {
-            const topDriversCtx = document.getElementById('topDriversChart').getContext('2d');
             const rawTopDriversData = @json($top_drivers) || [];
-            const hasTopDrivers = Array.isArray(rawTopDriversData) && rawTopDriversData.length > 0 && rawTopDriversData.some(d => (Number(d.score) || 0) > 0);
-            
-            const driverLabels = hasTopDrivers 
-                ? rawTopDriversData.map((d,i) => { const medals=['🥇','🥈','🥉']; return `${medals[i]||'  '} ${d.name}`; })
-                : ['No Shift Records Yet'];
-            const driverScores = hasTopDrivers ? rawTopDriversData.map(d => Number(d.score) || 0) : [0];
-            const barColors = hasTopDrivers 
-                ? rawTopDriversData.map((_, i) => i===0?'#2563eb':i===1?'#7c3aed':i===2?'#0891b2':'#64748b')
-                : ['#e2e8f0'];
-                
-            let isTopDriversChartInitialized = false;
-            function getTopDriversChartConfig() {
-                return {
-                    type: 'bar',
-                    data: {
-                        labels: driverLabels,
-                        datasets: [{ label: 'Reliability Score', data: driverScores.map(d => 0),
-                            backgroundColor: barColors, borderColor: barColors, borderWidth: 0,
-                            borderRadius: 10, borderSkipped: false, barThickness: 28 }]
-                    },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', padding: 14, cornerRadius: 12, displayColors: false,
-                                callbacks: {
-                                    label: ctx => hasTopDrivers ? ` ⭐ Reliability: ${ctx.parsed.x} clean service days` : ' No driver performance records yet',
-                                    footer: items => { 
-                                        if (!hasTopDrivers) return '';
-                                        const amt = rawTopDriversData[items[0].dataIndex]?.total || 0; 
-                                        return ` ₱ Total Revenue: ₱${amt.toLocaleString()}`; 
-                                    }
-                                }
-                            },
-                            datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', offset: 8, formatter: v => v>0?v:'' }
-                        },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94a3b8' } },
-                            y: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 13, weight: '600' }, color: '#1e293b' } }
-                        },
-                        animation: { duration: 1500, easing: 'easeOutQuart' }
-                    }
-                };
-            }
 
-            const topDriversObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!isTopDriversChartInitialized) {
-                            window.topDriversChart = new Chart(topDriversCtx, getTopDriversChartConfig());
-                            isTopDriversChartInitialized = true;
-                        }
-                        window.topDriversChart.data.datasets[0].data = driverScores;
-                        window.topDriversChart.update();
-                    } else {
-                        if (isTopDriversChartInitialized && window.topDriversChart) {
-                            window.topDriversChart.data.datasets[0].data = driverScores.map(d => 0);
-                            window.topDriversChart.update('none');
-                        }
-                    }
+            window.renderTopDriversLeaderboard = function(drivers) {
+                const container = document.getElementById('topDriversLeaderboard');
+                if (!container) return;
+
+                const list = Array.isArray(drivers) ? drivers.filter(d => (Number(d.score) || 0) > 0) : [];
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-8 text-center text-slate-400">
+                            <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-100">
+                                <i data-lucide="award" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-600">No Shift Records Yet</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Top performing drivers will appear here as shifts are completed.</p>
+                        </div>
+                    `;
+                    if (window.lucide) window.lucide.createIcons();
+                    return;
+                }
+
+                const maxScore = Math.max(...list.map(d => Number(d.score) || 1), 1);
+
+                const medalMeta = [
+                    { icon: '🥇', label: '1st Place', badgeBg: 'bg-amber-50 text-amber-700 border-amber-200/80 shadow-amber-100/50', barGrad: 'from-blue-600 to-indigo-600', ring: 'ring-amber-400/50' },
+                    { icon: '🥈', label: '2nd Place', badgeBg: 'bg-slate-100 text-slate-700 border-slate-200 shadow-slate-100', barGrad: 'from-indigo-500 to-purple-600', ring: 'ring-slate-300' },
+                    { icon: '🥉', label: '3rd Place', badgeBg: 'bg-orange-50 text-orange-700 border-orange-200 shadow-orange-100/50', barGrad: 'from-cyan-500 to-blue-600', ring: 'ring-orange-300/50' },
+                ];
+
+                let html = '';
+                list.slice(0, 3).forEach((d, idx) => {
+                    const meta = medalMeta[idx] || {
+                        icon: `<span class="text-xs font-bold text-slate-500">#${idx + 1}</span>`,
+                        label: `${idx + 1}th Place`,
+                        badgeBg: 'bg-slate-50 text-slate-600 border-slate-200',
+                        barGrad: 'from-slate-500 to-slate-600',
+                        ring: 'ring-slate-200'
+                    };
+
+                    const score = Number(d.score) || 0;
+                    const total = Number(d.total) || 0;
+                    const targetPct = Math.max(Math.round((score / maxScore) * 100), 12);
+                    const photo = d.photo || '{{ asset("image/avatars/driver.svg") }}';
+                    const shiftText = score === 1 ? 'Clean Shift' : 'Clean Shifts';
+
+                    html += `
+                        <div class="group p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/20 transition-all duration-200 bg-white">
+                            <div class="flex items-center gap-3">
+                                <!-- Medal & Rank Badge -->
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center border ${meta.badgeBg} shadow-sm text-base font-bold select-none" title="${meta.label}">
+                                    ${typeof meta.icon === 'string' && meta.icon.startsWith('<') ? meta.icon : meta.icon}
+                                </div>
+
+                                <!-- Driver Profile Photo with Ring & Active Indicator -->
+                                <div class="relative flex-shrink-0">
+                                    <img src="${photo}" 
+                                         alt="${d.name}" 
+                                         class="w-10 h-10 rounded-full object-cover ring-2 ${meta.ring} shadow-sm bg-slate-100 group-hover:scale-105 transition-transform"
+                                         onerror="this.onerror=null; this.src='{{ asset("image/avatars/driver.svg") }}';">
+                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                                </div>
+
+                                <!-- Driver Info & Horizontal Progress Bar Graph -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="flex items-center gap-1.5 truncate">
+                                            <span class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">${d.name}</span>
+                                            ${d.nickname ? `<span class="text-[11px] text-slate-400 font-normal truncate">("${d.nickname}")</span>` : ''}
+                                            ${d.plate_number ? `
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-amber-50 text-amber-800 border border-amber-200/90 flex-shrink-0 shadow-2xs" title="Regular / Assigned Unit: ${d.plate_number}">
+                                                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                                                    </svg>
+                                                    <span>${d.plate_number}</span>
+                                                </span>
+                                            ` : `
+                                                <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-semibold text-slate-400 bg-slate-50 border border-slate-200/60 rounded flex-shrink-0" title="Extra Driver">
+                                                    Extra
+                                                </span>
+                                            `}
+                                        </div>
+                                        <div class="flex items-center gap-2 flex-shrink-0">
+                                            <span class="text-xs font-semibold text-slate-500">₱${total.toLocaleString()}</span>
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                                                ${score} ${shiftText}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Graph Bar (Animated Horizontal Progress Meter) -->
+                                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden p-0.5 border border-slate-200/40">
+                                        <div class="driver-bar-fill h-full rounded-full bg-gradient-to-r ${meta.barGrad} shadow-sm transition-all duration-1000 ease-out" 
+                                             style="width: 0%" 
+                                             data-target-width="${targetPct}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
-            }, { threshold: 0.3 });
-            topDriversObserver.observe(document.getElementById('topDriversChart'));
+
+                container.innerHTML = html;
+
+                // Animate bars smoothly into view
+                requestAnimationFrame(() => {
+                    container.querySelectorAll('.driver-bar-fill').forEach(bar => {
+                        const target = bar.getAttribute('data-target-width');
+                        if (target) {
+                            setTimeout(() => { bar.style.width = target; }, 60);
+                        }
+                    });
+                });
+
+                if (window.lucide) window.lucide.createIcons();
+            };
+
+            window.updateTopDriversLeaderboard = window.renderTopDriversLeaderboard;
+
+            // Initial render
+            window.renderTopDriversLeaderboard(rawTopDriversData);
+            window.topDriversChart = null;
         } catch (error) { console.error('Top Drivers Chart Error:', error); }
 
         // Unit Status Distribution Chart - Premium Donut
@@ -2902,14 +2979,10 @@
                         }
                         window.unitStatusChart.data.datasets[0].data = distValues;
                         window.unitStatusChart.update();
-                    } else {
-                        if (isUnitStatusChartInitialized && window.unitStatusChart) {
-                            window.unitStatusChart.data.datasets[0].data = distValues.map(d => 0);
-                            window.unitStatusChart.update('none');
-                        }
+                        unitStatusObserver.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.1 });
             unitStatusObserver.observe(document.getElementById('unitStatusChart'));
         } catch (error) { console.error('Unit Status Distribution Chart Error:', error); }
 

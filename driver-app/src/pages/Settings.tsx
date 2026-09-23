@@ -11,7 +11,6 @@ import {
   useIonToast,
   useIonRouter
 } from '@ionic/react';
-import { useLocation } from 'react-router-dom';
 import {
   personOutline,
   callOutline,
@@ -26,30 +25,22 @@ import {
   arrowBackOutline,
   chevronForwardOutline,
   sunnyOutline,
-  moonOutline,
-  eyeOutline,
-  eyeOffOutline
+  moonOutline
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import type { FC } from 'react';
 import axios from 'axios';
 import { endpoints } from '../config/api';
-import { cachedGet } from '../utils/cachedGet';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { useTutorial } from '../context/TutorialContext';
-
 
 /* ── Shared Styles moved inside component ── */
-
 
 const Settings: FC = () => {
   const [presentToast] = useIonToast();
   const ionRouter = useIonRouter();
-  const location = useLocation<{ openView?: string }>();
   const { refreshUser, logout } = useAuth();
   const { t, isDark, toggleTheme } = useTheme();
-  const { startTutorial } = useTutorial();
 
   /* ── Dynamic Theme Styles ── */
   const styles = {
@@ -120,14 +111,6 @@ const Settings: FC = () => {
   
   const [view, setView] = useState<'main' | 'profile' | 'password'>('main');
 
-  // Auto-open profile view if navigated from the profile-incomplete banner
-  React.useEffect(() => {
-    const state = location.state as { openView?: string } | undefined;
-    if (state?.openView === 'profile') {
-      setView('profile');
-    }
-  }, [location.state]);
-
   // Profile State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -150,12 +133,11 @@ const Settings: FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
   React.useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await cachedGet(endpoints.getProfile);
+        const response = await axios.get(endpoints.getProfile);
         if (response.data.success) {
           const profile = response.data.data;
           setName(profile.name || '');
@@ -355,18 +337,13 @@ const Settings: FC = () => {
     placeholder: string,
     error?: string,
     type: string = 'text'
-  ) => {
-    const isPassword = type === 'password';
-    const show = isPassword && showPasswords[label];
-    const inputType = isPassword ? (show ? 'text' : 'password') : (type === 'date' ? 'date' : 'text');
-
-    return (
+  ) => (
     <div style={{ marginBottom: '16px' }}>
       <label style={styles.label}>{label}</label>
-      <div style={{ ...styles.inputWrap, border: error ? '1px solid #ef4444' : styles.inputWrap.border, marginBottom: '4px', position: 'relative' }}>
+      <div style={{ ...styles.inputWrap, border: error ? '1px solid #ef4444' : styles.inputWrap.border, marginBottom: '4px' }}>
         <IonIcon icon={icon} style={{ ...styles.inputIcon, color: error ? '#ef4444' : styles.inputIcon.color }} />
         <input
-          type={inputType}
+          type={type === 'password' ? 'password' : (type === 'date' ? 'date' : 'text')}
           value={value}
           maxLength={
             label.includes('Phone') ? 11 : 
@@ -390,19 +367,12 @@ const Settings: FC = () => {
             setter(sanitized); // React state update
           }}
           placeholder={placeholder}
-          style={{ ...inputStyle, paddingRight: isPassword ? '40px' : '0px' }}
+          style={inputStyle}
         />
-        {isPassword && (
-          <IonIcon 
-            icon={show ? eyeOffOutline : eyeOutline} 
-            style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: t.textMuted, fontSize: '20px', cursor: 'pointer' }}
-            onClick={() => setShowPasswords(prev => ({ ...prev, [label]: !prev[label] }))}
-          />
-        )}
       </div>
       {error && <div style={{ fontSize: '10px', color: '#ef4444', fontWeight: '800', paddingLeft: '4px' }}>{error}</div>}
     </div>
-  )};
+  );
 
   return (
     <IonPage>
@@ -440,7 +410,7 @@ const Settings: FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   
                   {/* Account Identity Card */}
-                  <div id="settings-profile" style={{ ...styles.sectionCard, background: t.sectionCardBg, border: t.border, boxShadow: t.cardShadow, textAlign: 'center', padding: '40px 20px' }}>
+                  <div style={{ ...styles.sectionCard, background: t.sectionCardBg, border: t.border, boxShadow: t.cardShadow, textAlign: 'center', padding: '40px 20px' }}>
                     <div style={{ 
                       width: '84px', height: '84px', borderRadius: '50%', 
                       background: t.goldGrad,
@@ -516,32 +486,6 @@ const Settings: FC = () => {
                         <IonIcon icon={chevronForwardOutline} style={{ fontSize: '18px', opacity: 0.4 }} />
                       </div>
                     </IonButton>
-
-                    <IonButton 
-                      expand="block" fill="clear"
-                      onClick={() => ionRouter.push('/terms')}
-                      style={{ ...menuItemStyle, '--background': t.menuBg, '--border-color': t.menuBorder } as any}
-                    >
-                      <div style={menuBtnInner}>
-                        <div style={{ ...menuBtnIconWrap, background: t.goldBg, color: t.gold }}><IonIcon icon={documentTextOutline} /></div>
-                        <span style={{ ...menuBtnText, color: t.textPrimary }}>Terms & Conditions</span>
-                        <IonIcon icon={chevronForwardOutline} style={{ fontSize: '18px', opacity: 0.4 }} />
-                      </div>
-                    </IonButton>
-
-                    <div id="settings-replay-tut" style={{ width: '100%' }}>
-                    <IonButton 
-                      expand="block" fill="clear"
-                      onClick={() => startTutorial()}
-                      style={{ ...menuItemStyle, '--background': t.menuBg, '--border-color': t.menuBorder } as any}
-                    >
-                      <div style={menuBtnInner}>
-                        <div style={{ ...menuBtnIconWrap, background: t.goldBg, color: t.gold }}>🎓</div>
-                        <span style={{ ...menuBtnText, color: t.textPrimary }}>Replay Tutorial</span>
-                        <IonIcon icon={chevronForwardOutline} style={{ fontSize: '18px', opacity: 0.4 }} />
-                      </div>
-                    </IonButton>
-                    </div>
 
                     <IonButton 
                       expand="block" fill="clear"

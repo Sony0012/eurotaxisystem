@@ -1,0 +1,594 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Euro Taxi Management System - Complete User & Operations Manual</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+    @page {
+        size: A4;
+        margin: 2.0cm 2.0cm 2.0cm 2.0cm;
+        mso-header-margin: 36.0pt;
+        mso-footer-margin: 36.0pt;
+        mso-paper-source: 0;
+    }
+    body {
+        font-family: 'Segoe UI', 'Calibri', 'Arial', sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.5;
+        color: #1E293B;
+        background-color: #FFFFFF;
+    }
+    
+    /* Cover & Headers */
+    .cover-box {
+        border: 2px solid #1E3A8A;
+        background-color: #F8FAFC;
+        padding: 30px;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    .cover-title {
+        color: #1E3A8A;
+        font-size: 24pt;
+        font-weight: bold;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .cover-subtitle {
+        color: #D97706;
+        font-size: 13pt;
+        font-weight: 600;
+        margin: 0 0 15px 0;
+    }
+    .cover-meta {
+        font-size: 9.5pt;
+        color: #64748B;
+        border-top: 1px solid #CBD5E1;
+        padding-top: 12px;
+        margin-top: 15px;
+    }
+    
+    /* Headings */
+    h1 {
+        color: #1E3A8A;
+        font-size: 16pt;
+        border-bottom: 2px solid #1E3A8A;
+        padding-bottom: 4px;
+        margin-top: 30px;
+        margin-bottom: 12px;
+        page-break-after: avoid;
+    }
+    h2 {
+        color: #0F172A;
+        font-size: 13pt;
+        border-bottom: 1px solid #E2E8F0;
+        padding-bottom: 3px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        page-break-after: avoid;
+    }
+    h3 {
+        color: #D97706;
+        font-size: 11pt;
+        margin-top: 14px;
+        margin-bottom: 6px;
+        page-break-after: avoid;
+    }
+
+    /* Tables */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 20px 0;
+        font-size: 9.5pt;
+    }
+    th {
+        background-color: #1E3A8A;
+        color: #FFFFFF;
+        padding: 8px 10px;
+        font-weight: bold;
+        text-align: left;
+        border: 1px solid #1E3A8A;
+    }
+    td {
+        border: 1px solid #CBD5E1;
+        padding: 7px 10px;
+        vertical-align: top;
+    }
+    tr:nth-child(even) td {
+        background-color: #F8FAFC;
+    }
+
+    /* Callout Alert Boxes */
+    .callout {
+        padding: 12px 16px;
+        margin: 14px 0;
+        border-left: 5px solid #1E3A8A;
+        background-color: #EFF6FF;
+        border-radius: 4px;
+    }
+    .callout-warning {
+        border-left-color: #D97706;
+        background-color: #FFFBEB;
+    }
+    .callout-danger {
+        border-left-color: #DC2626;
+        background-color: #FEF2F2;
+    }
+    .callout-success {
+        border-left-color: #059669;
+        background-color: #ECFDF5;
+    }
+
+    /* Visual Workflow Box */
+    .workflow-card {
+        border: 1px solid #94A3B8;
+        background-color: #F8FAFC;
+        padding: 12px 16px;
+        margin: 10px 0 16px 0;
+        border-radius: 6px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 9pt;
+        line-height: 1.4;
+    }
+
+    /* UI Badge Pill */
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 8pt;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .badge-blue { background-color: #DBEAFE; color: #1E40AF; }
+    .badge-green { background-color: #D1FAE5; color: #065F46; }
+    .badge-yellow { background-color: #FEF3C7; color: #92400E; }
+    .badge-red { background-color: #FEE2E2; color: #991B1B; }
+
+    /* SVG Icon Inline Styling */
+    .icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
+        width: 16px;
+        height: 16px;
+    }
+</style>
+</head>
+<body>
+
+<!-- COVER HEADER -->
+<div class="cover-box">
+    <div class="cover-title">Euro Taxi Management System</div>
+    <div class="cover-subtitle">Enterprise Operations, Administration & Technical User Manual</div>
+    <p style="margin: 5px 0; color: #334155; font-size: 11pt;">Official Operating Procedures for Super Admins, Fleet Managers, Dispatchers, Cashiers, Workshop Bay Mechanics & Drivers</p>
+    <div class="cover-meta">
+        <b>System URL:</b> https://eurotaxisystem.site &nbsp;|&nbsp; 
+        <b>Version:</b> 6.0.0 Enterprise &nbsp;|&nbsp; 
+        <b>Security Standard:</b> MFA / Semaphore SMS OTP &nbsp;|&nbsp; 
+        <b>Date:</b> Year 2026 Edition
+    </div>
+</div>
+
+<h1>Table of Contents</h1>
+<ol style="line-height: 1.7; font-weight: 600;">
+    <li><a href="#sec1" style="text-decoration:none; color:#1E3A8A;">System Architecture & Platform Overview</a></li>
+    <li><a href="#sec2" style="text-decoration:none; color:#1E3A8A;">User Roles & Granular Permission Matrix</a></li>
+    <li><a href="#sec3" style="text-decoration:none; color:#1E3A8A;">Authentication, Multi-Factor (MFA) & One-Time PIN (OTP) System</a></li>
+    <li><a href="#sec4" style="text-decoration:none; color:#1E3A8A;">My Account & Profile Management Flow</a></li>
+    <li><a href="#sec5" style="text-decoration:none; color:#1E3A8A;">Real-Time Notifications, Push Alerts & Audio Broadcasts</a></li>
+    <li><a href="#sec6" style="text-decoration:none; color:#1E3A8A;">Messaging Center: Support Desk & Internal Staff Chat</a></li>
+    <li><a href="#sec7" style="text-decoration:none; color:#1E3A8A;">Live Dashboard & Fleet Operations Center</a></li>
+    <li><a href="#sec8" style="text-decoration:none; color:#1E3A8A;">Fleet & Unit Management: Step-by-Step "Add Unit" & Lifecycle</a></li>
+    <li><a href="#sec9" style="text-decoration:none; color:#1E3A8A;">Boundary Collection & Financial Remittance Management</a></li>
+    <li><a href="#sec10" style="text-decoration:none; color:#1E3A8A;">Driver Management: Step-by-Step "Add Driver", KYC & Debts</a></li>
+    <li><a href="#sec11" style="text-decoration:none; color:#1E3A8A;">Vehicle Maintenance, Workshop Bay & Job Orders</a></li>
+    <li><a href="#sec12" style="text-decoration:none; color:#1E3A8A;">Inventory, Spare Parts, Purchase History & Suppliers</a></li>
+    <li><a href="#sec13" style="text-decoration:none; color:#1E3A8A;">Live GPS Fleet Telematics & Remote Engine Immobilizer</a></li>
+    <li><a href="#sec14" style="text-decoration:none; color:#1E3A8A;">Number Coding Management (UVVRP & Smart Rotation)</a></li>
+    <li><a href="#sec15" style="text-decoration:none; color:#1E3A8A;">Driver Behavior, Incident Lifecycle & Accident SOS</a></li>
+    <li><a href="#sec16" style="text-decoration:none; color:#1E3A8A;">Unit Profitability & AI Decision Support System (AI-DSS)</a></li>
+    <li><a href="#sec17" style="text-decoration:none; color:#1E3A8A;">Office Expenses, Utility Bills & Approval Pipeline</a></li>
+    <li><a href="#sec18" style="text-decoration:none; color:#1E3A8A;">Staff Records & Payroll / Salary Management</a></li>
+    <li><a href="#sec19" style="text-decoration:none; color:#1E3A8A;">Franchise Case & LTFRB Compliance Management</a></li>
+    <li><a href="#sec20" style="text-decoration:none; color:#1E3A8A;">Super Admin Control Center & Enterprise Security</a></li>
+    <li><a href="#sec21" style="text-decoration:none; color:#1E3A8A;">Archive Vault & Disaster Recovery Management</a></li>
+    <li><a href="#sec22" style="text-decoration:none; color:#1E3A8A;">Mobile Driver Application: Step-by-Step Operator Guide</a></li>
+    <li><a href="#sec23" style="text-decoration:none; color:#1E3A8A;">Server Optimization, CDN Settings & Troubleshooting FAQ</a></li>
+</ol>
+
+<hr style="border: 0; border-top: 1px solid #CBD5E1; margin: 30px 0;">
+
+<!-- SECTION 1 -->
+<h1 id="sec1">1. System Architecture & Platform Overview</h1>
+<p>The <b>Euro Taxi Management System (ETMS)</b> is a centralized, cloud-hosted Enterprise Resource Planning (ERP) and Fleet Telematics ecosystem connecting office operations with mobile drivers.</p>
+
+<div class="workflow-card">
++-----------------------------------------------------------------------------+
+|                      ETMS CLOUD INFRASTRUCTURE (VPS)                        |
++--------------------------------------+--------------------------------------+
+|        WEB MANAGEMENT PORTAL         |         DRIVER MOBILE APP            |
+|   (Desktop / Laptop / Operations)    |    (Android APK / PWA / Drivers)     |
++--------------------------------------+--------------------------------------+
+| * Executive Live Dashboard           | * On-Duty Shift Start & Checklist    |
+| * Fleet Inventory & Health Scores    | * Real-Time Boundary & Debt Status   |
+| * Boundary Remittance & Debt Ledger  | * 1-Tap Emergency SOS Alarm Button   |
+| * Workshop Bay & Spare Parts Stock   | * Roadside Breakdown Rescue Request  |
+| * GPS Telematics & Engine Cut-off    | * Photo Accident Incident Report     |
+| * Office Expenses & Utility Bills    | * Company Rules & Signed Contracts   |
+| * Staff Payroll & Payslip Generator  | * 24/7 Support Desk Chat Inbox       |
+| * AI-DSS Profitability Analytics     | * Clean Driving Performance Rating   |
+| * Super Admin Security & Page Matrix | * Audio Broadcasts & Push Advisories |
++--------------------------------------+--------------------------------------+
+</div>
+
+<!-- SECTION 2 -->
+<h1 id="sec2">2. User Roles & Granular Permission Matrix</h1>
+<table>
+    <tr>
+        <th width="22%">Role</th>
+        <th width="40%">Administrative Scope</th>
+        <th width="38%">Authorized Screens</th>
+    </tr>
+    <tr>
+        <td><b>Super Admin / Owner</b></td>
+        <td>Complete system authority. User approvals, role definition, page-access matrix, security master password, and audit monitoring.</td>
+        <td>All Modules + Super Admin Center + Security</td>
+    </tr>
+    <tr>
+        <td><b>Fleet Manager / Admin</b></td>
+        <td>Fleet operations, unit masterlist, maintenance approvals, office expense approvals, AI profitability analysis.</td>
+        <td>Dashboard, Units, Boundaries, Maintenance, Profitability, Expenses, Coding</td>
+    </tr>
+    <tr>
+        <td><b>Dispatcher / Ops</b></td>
+        <td>Real-time vehicle tracking, coding shift rotations, emergency SOS response, roadside rescue coordination.</td>
+        <td>Live Tracking, Driver Behavior, SOS Alerts, Rescue, Coding, Support Center</td>
+    </tr>
+    <tr>
+        <td><b>Cashier / Finance</b></td>
+        <td>Boundary remittance collection, driver debt recovery, office utility payment entry, employee salary computation.</td>
+        <td>Boundaries, Driver Debts, Office Expenses, Salary, Profitability</td>
+    </tr>
+    <tr>
+        <td><b>Workshop Mechanic</b></td>
+        <td>Vehicle servicing, Periodic Maintenance Service (PMS), spare parts stock consumption, health score reset.</td>
+        <td>Maintenance Bay, Spare Parts Inventory, Suppliers</td>
+    </tr>
+    <tr>
+        <td><b>Taxi Driver</b></td>
+        <td>Vehicle operation, boundary tracking, debt repayments, emergency SOS signaling, breakdown rescue requests.</td>
+        <td>Mobile Driver App exclusively</td>
+    </tr>
+</table>
+
+<!-- SECTION 3 -->
+<h1 id="sec3">3. Authentication, Multi-Factor (MFA) & One-Time PIN (OTP) System</h1>
+<p>ETMS incorporates a robust <b>One-Time PIN (OTP)</b> infrastructure powered by the <b>Semaphore SMS Gateway</b> and secure SMTP services.</p>
+
+<div class="workflow-card">
+[ USER INITIATES ACTION ] ---> [ SYSTEM GENERATES 6-DIGIT RANDOM PIN ]
+                                       |
+                 +---------------------+---------------------+
+                 v                                           v
+       [ SEMAPHORE SMS GATEWAY ]                       [ SMTP EMAIL ]
+     (Globe / Smart / DITO / TNT)                     (HTML Security Code)
+                 |                                           |
+                 +---------------------+---------------------+
+                                       v
+                        [ 5-MINUTE COUNTDOWN TIMER ]
+                        [ 60-SEC RESEND THROTTLING ]
+                                       v
+         [ USER ENTERS PIN ] ---> [ VERIFIED & SAVED TO TRUSTED BROWSERS ]
+</div>
+
+<h3>3.1 The Four (4) Core OTP Use Cases in ETMS</h3>
+<ul>
+    <li><b>Case 1: Device Verification OTP (MFA on Web Login)</b> — Triggered when logging in from a new computer, browser, or cleared cookies. Sends a 6-digit PIN via SMS/Email. Once verified, saves the browser token in <code>verified_browsers</code>.</li>
+    <li><b>Case 2: New User Self-Registration OTP (<code>/register</code>)</b> — Dispatches an SMS OTP to verify ownership of the 11-digit mobile number (<code>09XXXXXXXXX</code>) before the registration enters the Super Admin approval queue.</li>
+    <li><b>Case 3: Forgot Password & Account Recovery OTP (<code>/forgot-password</code>)</b> — Allows self-service password reset using verified SMS OTP or Email OTP.</li>
+    <li><b>Case 4: Mobile Driver App Onboarding & Device Pairing</b> — Pairs the driver's unique smartphone hardware UUID with their driver profile upon initial login to prevent account sharing.</li>
+</ul>
+
+<table>
+    <tr>
+        <th width="30%">OTP Security Parameter</th>
+        <th width="35%">Configuration</th>
+        <th width="35%">Operational Purpose</th>
+    </tr>
+    <tr>
+        <td><b>Token Format</b></td>
+        <td>6-Digit Numeric (000000 - 999999)</td>
+        <td>High entropy, quick typing on mobile phones.</td>
+    </tr>
+    <tr>
+        <td><b>Expiration Window</b></td>
+        <td>Exactly 5 Minutes (300 Seconds)</td>
+        <td>Prevents stale token replay attacks.</td>
+    </tr>
+    <tr>
+        <td><b>Resend Throttling Cooldown</b></td>
+        <td>60 Seconds</td>
+        <td>Prevents SMS gateway flooding and spam.</td>
+    </tr>
+    <tr>
+        <td><b>Max Failed Attempts</b></td>
+        <td>3 Consecutive Attempts</td>
+        <td>Locks session for 15 minutes against brute-force guessing.</td>
+    </tr>
+    <tr>
+        <td><b>SMS Carrier Provider</b></td>
+        <td>Semaphore SMS API (Philippines)</td>
+        <td>Tier-1 telco routing with 3-5 second delivery speed.</td>
+    </tr>
+</table>
+
+<!-- SECTION 4 -->
+<h1 id="sec4">4. My Account & Profile Management Flow (<code>/my-account</code>)</h1>
+<p>The <b>My Account</b> screen enables users to manage their identity, security credentials, and notifications.</p>
+
+<div class="callout callout-success">
+    <b>Profile Features:</b><br>
+    1. <b>Profile Information:</b> Edit official name, contact number, and home address.<br>
+    2. <b>Profile Photo:</b> Click camera icon on avatar to upload a headshot. Auto-converted to modern WebP format.<br>
+    3. <b>Password Change:</b> Input Current Password, New Password (min 8 chars), and Confirmation.<br>
+    4. <b>Email Change Protocol:</b> Input new email &gt; System dispatches cryptographic verification token &gt; Click link in inbox (<code>/my-account/verify-email/{token}</code>) to finalize change.<br>
+    5. <b>Push Notifications Diagnostic:</b> Subscribe to desktop push alerts and run test sound broadcasts.
+</div>
+
+<!-- SECTION 5 -->
+<h1 id="sec5">5. Real-Time Notifications, Push Alerts & Audio Broadcasts</h1>
+<p>ETMS incorporates a multi-tier alert engine combining In-App Bell Dropdowns, Audio Chime Broadcasts, and Background Web Push.</p>
+
+<h3>5.1 Notification Types & Priorities</h3>
+<ul>
+    <li><span class="badge badge-red">EMERGENCY SOS</span> — High-priority red notification broadcast when a driver triggers the emergency panic button.</li>
+    <li><span class="badge badge-yellow">CODING WARNING</span> — Automated 05:00 AM broadcast listing all vehicles restricted by the UVVRP scheme today.</li>
+    <li><span class="badge badge-blue">PMS DUE ALERT</span> — Reminds managers when a unit reaches its 5,000 km or 10,000 km maintenance milestone.</li>
+    <li><span class="badge badge-yellow">BOUNDARY SHORTAGE</span> — Notifies finance when a driver underpays on daily boundary remittance.</li>
+    <li><span class="badge badge-red">FRANCHISE EXPIRY</span> — Color-coded warning for LTFRB franchise renewals (60, 30, and 7 days before expiry).</li>
+</ul>
+
+<!-- SECTION 6 -->
+<h1 id="sec6">6. Messaging Center: Support Desk & Internal Staff Chat</h1>
+<div class="workflow-card">
++------------------------------------+---------------------------------------+
+|   DRIVER SUPPORT DESK (/support)   |      INTERNAL STAFF CHAT (/chat)      |
++------------------------------------+---------------------------------------+
+| * Driver Ticket Inbox              | * 1-on-1 Encrypted Staff Messaging    |
+| * Real-Time Conversation Stream    | * Department Channels (Dispatch/Bay)  |
+| * Photo Lightbox Inspection        | * Emoji Message Reactions (Like, Love)|
+| * Resolve & Close Ticket Workflow  | * Live Online/Offline Presence Dot    |
++------------------------------------+---------------------------------------+
+</div>
+
+<!-- SECTION 7 -->
+<h1 id="sec7">7. Live Dashboard & Operations Center (<code>/</code>)</h1>
+<p>The Dashboard serves as the real-time operational nerve center, updating continuously via asynchronous polling.</p>
+<ul>
+    <li><b>Fleet Counter Cards:</b> Total Fleet, Active On-Road, In Maintenance, Coding Today, Flagged Units.</li>
+    <li><b>Boundary Remittance Gauge:</b> Real-time progress bar comparing daily Target Boundary vs. Actual Remittances.</li>
+    <li><b>7-Day Net Profitability Sparklines:</b> Visual trend tracking daily income minus expenses.</li>
+    <li><b>Quick Action Dock:</b> One-click modals to Record Boundary, Add Maintenance, Flag Unit, or Broadcast Announcement.</li>
+</ul>
+
+<!-- SECTION 8 -->
+<h1 id="sec8">8. Fleet & Unit Management: Step-by-Step "Add Unit" & Lifecycle (<code>/units</code>)</h1>
+
+<h3>8.1 Step-by-Step: Adding a New Taxi Unit</h3>
+<ol>
+    <li>Navigate to <b>Units</b> (<code>/units</code>) &gt; Click <b>"+ Add New Unit"</b>.</li>
+    <li><b>Core Identifiers:</b>
+        <ul>
+            <li><b>Plate Number:</b> (e.g., <code>ABC-1234</code>) — Unique index.</li>
+            <li><b>Taxi Body Number:</b> (e.g., <code>TX-101</code>) — Fleet identification number.</li>
+            <li><b>Make & Model:</b> (e.g., <code>Toyota Vios 1.3 Dual VVT-i</code>).</li>
+            <li><b>Year Model:</b> (e.g., <code>2023</code>).</li>
+        </ul>
+    </li>
+    <li><b>Technical & Legal Data:</b>
+        <ul>
+            <li><b>Chassis (VIN) Number:</b> 17-digit number from LTO Certificate of Registration.</li>
+            <li><b>Engine Number:</b> Stamped engine block code.</li>
+            <li><b>LTFRB Franchise Case Number:</b> Registered CPC case reference.</li>
+            <li><b>Number Coding Day:</b> Monday through Friday.</li>
+        </ul>
+    </li>
+    <li><b>Telematics & Initial Status:</b>
+        <ul>
+            <li><b>GPS Tracker IMEI:</b> 15-digit tracker device serial number.</li>
+            <li><b>Initial Status:</b> Select <code>Active</code>, <code>In Maintenance</code>, or <code>Standby</code>.</li>
+        </ul>
+    </li>
+    <li>Click <b>"Save Vehicle Record"</b>.</li>
+</ol>
+
+<h3>8.2 Unit Health Score & Reset Procedure</h3>
+<div class="callout callout-success">
+    <b>Health Score (0% - 100%):</b> Calculated from PMS mileage intervals, breakdown ticket frequency, and accident involvement. After a major PMS overhaul, click <b>"Reset Health Score"</b> (<code>/units/{id}/reset-health</code>) to restore standing to 100%.
+</div>
+
+<!-- SECTION 9 -->
+<h1 id="sec9">9. Boundary Collection & Financial Remittance Management (<code>/boundaries</code>)</h1>
+<ol>
+    <li>Navigate to <b>Boundaries</b> &gt; Click <b>"+ Record Collection"</b>.</li>
+    <li><b>Select Taxi Body Number:</b> (e.g., <code>TX-105</code>). Assigned driver auto-populates.</li>
+    <li><b>Select Shift:</b> Choose <code>Day Shift (12h)</code>, <code>Night Shift (12h)</code>, or <code>24-Hour Shift</code>.</li>
+    <li><b>Expected Rate:</b> Auto-computed based on active <b>Boundary Rules</b> (e.g., Standard ₱1,200, Coding Discount ₱800).</li>
+    <li><b>Enter Actual Amount Paid:</b>
+        <ul>
+            <li><b>Exact Remittance (Paid ₱1,200):</b> Status marks as <code>Settled</code>.</li>
+            <li><b>Shortage (Paid ₱1,000):</b> System records ₱1,000 cash and writes a <b>₱200 Shortage Debt</b> to the driver's ledger.</li>
+            <li><b>Overpayment (Paid ₱1,500):</b> System credits ₱300 to amortize existing driver debts or records an advance credit balance.</li>
+        </ul>
+    </li>
+    <li>Click <b>"Save Collection & Issue Receipt"</b>.</li>
+</ol>
+
+<!-- SECTION 10 -->
+<h1 id="sec10">10. Driver Management: Step-by-Step "Add Driver", KYC & Debts (<code>/driver-management</code>)</h1>
+
+<h3>10.1 Step-by-Step: Registering a New Driver</h3>
+<ol>
+    <li>Go to <b>Driver Management</b> &gt; Click <b>"+ Register Driver"</b>.</li>
+    <li><b>Personal Profile:</b> First Name, Middle Name, Last Name, Nickname, Date of Birth, Gender, Civil Status, Mobile Phone (11-digit), Residential Address, Emergency Contact Name & Phone.</li>
+    <li><b>Professional License & Statutory:</b> Driver's License Number, Expiry Date, SSS, PhilHealth, Pag-IBIG, and TIN.</li>
+    <li><b>Digital KYC Uploads:</b> Upload clear photos/scans of Driver's License (Front & Back), NBI Clearance, Police Clearance, Barangay Clearance, Medical & Drug Test Certificate.</li>
+    <li>Click <b>"Save Driver Profile"</b>.</li>
+</ol>
+
+<h3>10.2 Terms & Debt Installment Recovery</h3>
+<ul>
+    <li><b>Terms & Conditions (<code>/driver-management/terms</code>):</b> Upload contract images. Drivers review and digitally sign in the mobile app.</li>
+    <li><b>Debt Payment (<code>/driver-management/pay-debt</code>):</b> Select driver &gt; Input amount &gt; Choose payment channel (<code>Cash</code>, <code>Boundary Deduction</code>, <code>Incentive Offset</code>) &gt; Submit.</li>
+    <li><b>Suspension & Banning:</b> Temporary suspension (1-30 days) or permanent blacklist for serious infractions.</li>
+</ul>
+
+<!-- SECTION 11 -->
+<h1 id="sec11">11. Vehicle Maintenance, Workshop Bay & Job Orders (<code>/maintenance</code>)</h1>
+<ol>
+    <li>Navigate to <b>Maintenance</b> &gt; Click <b>"+ New Job Order"</b>.</li>
+    <li><b>Select Unit:</b> Plate/Body Number (Safety lock blocks vehicles flagged as Missing/Stolen).</li>
+    <li><b>Maintenance Type:</b> <code>Preventive Maintenance (PMS)</code>, <code>Mechanical Repair</code>, <code>Electrical Repair</code>, <code>Tire & Wheel</code>, <code>Body & Paint</code>, or <code>Engine Overhaul</code>.</li>
+    <li><b>Odometer & Mechanics:</b> Enter current speedometer mileage and assign workshop mechanics.</li>
+    <li><b>Spare Parts Used:</b> Search spare part from inventory &gt; specify quantity (auto-calculates parts cost and checks stock).</li>
+    <li><b>Labor Cost & Description:</b> Enter labor fee and detailed repair diagnosis.</li>
+    <li><b>Bay Status Transitions:</b>
+        <ul>
+            <li><b>"Start Work / In Progress"</b> — Sets job order to <code>In Progress</code> and flags unit as <code>In Maintenance</code>.</li>
+            <li><b>"Mark Completed"</b> — Deducts spare parts from inventory, resets unit Health Score to 100%, and returns status to <code>Active</code>.</li>
+        </ul>
+    </li>
+</ol>
+
+<!-- SECTION 12 -->
+<h1 id="sec12">12. Inventory, Spare Parts, Purchase History & Suppliers (<code>/inventory-management</code>)</h1>
+<p>The Inventory module contains 3 sub-tabs:</p>
+<ol>
+    <li><b>Active Parts:</b> Current catalog with SKU, Part Name, Supplier, Unit Price (₱), In-Stock Quantity, and Low-Stock warnings.</li>
+    <li><b>Purchase History:</b> Chronological log of spare parts stock purchases linked directly to Office Expenses.</li>
+    <li><b>Archived Parts:</b> Deleted parts available for restoration or permanent purge.</li>
+</ol>
+
+<!-- SECTION 13 -->
+<h1 id="sec13">13. Live GPS Fleet Telematics & Remote Engine Immobilizer (<code>/live-tracking</code>)</h1>
+<ul>
+    <li><b>Map Marker Pins:</b> 🟢 Green (Moving), 🟡 Yellow (Idling), 🔴 Red (Parked), 🟣 Pulsing Purple (SOS Alert).</li>
+    <li><b>Telemetry Metrics:</b> Speed (km/h), Heading, Engine ACC Status, Mileage, GPS Timestamp.</li>
+    <li><b>Remote Engine Cut-off (<code>/live-tracking/engine-control</code>):</b> Sends digital relay command to cut ignition during theft or critical emergencies. Requires Admin authorization password.</li>
+</ul>
+
+<!-- SECTION 14 -->
+<h1 id="sec14">14. Number Coding Management (UVVRP & Smart Rotation) (<code>/coding</code>)</h1>
+<ul>
+    <li><b>Metro Manila UVVRP Scheme:</b> Mon (1-2), Tue (3-4), Wed (5-6), Thu (7-8), Fri (9-0).</li>
+    <li><b>05:00 AM Automation:</b> Cron job flags restricted vehicles as <code>Coding Today</code> and sends SMS push notices to drivers.</li>
+    <li><b>Smart Rotation (<code>/coding/suggestions</code>):</b> Suggests available standby vehicles to swap with coding drivers.</li>
+</ul>
+
+<!-- SECTION 15 -->
+<h1 id="sec15">15. Driver Behavior, Incident Lifecycle & Accident SOS (<code>/driver-behavior</code>)</h1>
+<ul>
+    <li><b>Log Incident:</b> Document infractions with date, location, classification, witness statements, and photos.</li>
+    <li><b>Accident Emergency SOS:</b> Real-time chime broadcast, emergency map pin, acknowledgment, and towing dispatch.</li>
+    <li><b>Clean Record Incentives (<code>/driver-behavior/incentives</code>):</b> Monthly bonus payouts for zero-accident drivers.</li>
+</ul>
+
+<!-- SECTION 16 -->
+<h1 id="sec16">16. Unit Profitability & AI Decision Support System (AI-DSS) (<code>/unit-profitability</code>)</h1>
+<div class="callout callout-success">
+    <b>Financial Formula:</b><br>
+    $$\text{Net Profit} = \text{Total Boundary} - (\text{Maintenance Costs} + \text{Spare Parts} + \text{Franchise Fees} + \text{Operating Expenses})$$
+</div>
+<p><b>Google Gemini AI-DSS Insights:</b> Identifies underperforming "lemon" vehicles, suggests optimal vehicle retirement/resale timing, and predicts component failures.</p>
+
+<!-- SECTION 17 -->
+<h1 id="sec17">17. Office Expenses, Utility Bills & Approval Pipeline (<code>/office-expenses</code>)</h1>
+
+<h3>17.1 Step-by-Step: Recording an Electric Bill (Meralco) or Utility Expense</h3>
+<ol>
+    <li>Navigate to <b>Office Expenses</b> &gt; Click <b>"+ Add Expense"</b>.</li>
+    <li><b>Expense Date & Amount (₱):</b> Input invoice date and billing amount.</li>
+    <li><b>Select Category:</b>
+        <ul>
+            <li><b>Utilities & Bills:</b> <code>Electricity (Meralco)</code>, <code>Water (Maynilad)</code>, <code>Internet & WiFi</code>, <code>Communications</code>.</li>
+            <li><b>Materials & Supplies:</b> <code>Office Supplies</code>, <code>Pantry & Cleaning</code>.</li>
+            <li><b>Facility & Infrastructure:</b> <code>Building Repairs</code>, <code>Construction Materials</code>, <code>Office Equipment</code>.</li>
+            <li><b>Fleet Inventory:</b> <code>Spare Parts Purchase</code> (Enables warehouse inventory sync).</li>
+            <li><b>Admin & Govt:</b> <code>Govt Permits & Fees</code>, <code>LTO Registration</code>, <code>Insurance</code>, <code>Franchise Renewal</code>.</li>
+        </ul>
+    </li>
+    <li><b>Description:</b> e.g., <i>Meralco Electric Bill for Garage Depot - Acct #1234567890 - Aug 2026</i>.</li>
+    <li><b>Payment Method & OR Upload:</b> Select <code>Cash</code>, <code>Bank Transfer / Check</code>, or <code>GCash</code> and attach Official Receipt (OR) image.</li>
+    <li><b>Approval:</b> Managers click <b>"Approve"</b> or <b>"Reject"</b> with remarks.</li>
+</ol>
+
+<!-- SECTION 18 -->
+<h1 id="sec18">18. Staff Records & Payroll / Salary Management (<code>/salary</code> & <code>/staff</code>)</h1>
+<p>Compute payroll factoring in: Base Pay + Overtime Hours + Performance Incentives - SSS / PhilHealth / Pag-IBIG / Cash Advance Deductions. Generates one-click printable payslips (<code>/salary/report</code>).</p>
+
+<!-- SECTION 19 -->
+<h1 id="sec19">19. Franchise Case & LTFRB Compliance Management (<code>/franchise</code>)</h1>
+<p>Tracks LTFRB Certificates of Public Convenience (CPC) and franchise validity dates. Displays color-coded expiration warnings at 60 days, 30 days, and 7 days.</p>
+
+<!-- SECTION 20 -->
+<h1 id="sec20">20. Super Admin Control Center & Enterprise Security (<code>/super-admin</code>)</h1>
+<p>Contains 7 dedicated sub-tabs:</p>
+<ol>
+    <li><b>Overview Tab:</b> System KPIs and recent login audit activity.</li>
+    <li><b>Create Staff Tab:</b> Provision new employee accounts with predefined roles.</li>
+    <li><b>All Users Tab:</b> Account management, instant disable toggle, password reset, and role adjustments.</li>
+    <li><b>Page Access Tab:</b> Granular checkbox matrix assigning individual screen permissions per user.</li>
+    <li><b>Login History Tab:</b> Full immutable audit trail recording User ID, Action, IP Address, Device Fingerprint, and Timestamp.</li>
+    <li><b>System Security Tab:</b> Configure Master Archive Password.</li>
+    <li><b>Client Activity Tab:</b> Real-time user heartbeat and active page tracking.</li>
+</ol>
+
+<!-- SECTION 21 -->
+<h1 id="sec21">21. Archive Vault & Disaster Recovery Management (<code>/archive</code>)</h1>
+<ul>
+    <li><b>Soft-Delete Recovery:</b> Deleted Units, Drivers, Maintenance, Expenses, and Spare Parts are held in the Archive Vault.</li>
+    <li><b>Restore (<code>/archive/restore/{type}/{id}</code>):</b> Instantly restores record to active table with zero data loss.</li>
+    <li><b>Permanent Purge (<code>/archive/force-delete/{type}/{id}</code>):</b> Permanently removes record from database. Requires Master Archive Password.</li>
+</ul>
+
+<!-- SECTION 22 -->
+<h1 id="sec22">22. Mobile Driver Application: Step-by-Step Operator Guide</h1>
+<ol>
+    <li><b>Start Shift:</b> Log in &gt; Enter Vehicle Body Number &gt; Complete pre-trip inspection checklist &gt; Tap <b>"Go On Duty"</b>.</li>
+    <li><b>Boundary & Balance:</b> Monitor live shift boundary due, cashier payments, and debt ledger.</li>
+    <li><b>Emergency SOS:</b> Press and hold the red <b>"EMERGENCY SOS"</b> button for 3 seconds during robbery or life-threatening danger.</li>
+    <li><b>Request Roadside Rescue:</b> Tap <b>"Request Rescue"</b> &gt; Select issue (Flat Tire, Overheat, Engine, Battery, Fuel) &gt; Transmit GPS.</li>
+    <li><b>Submit Accident Report:</b> Capture scene photos with smartphone camera &gt; Input description &gt; Submit.</li>
+</ol>
+
+<!-- SECTION 23 -->
+<h1 id="sec23">23. Server Optimization, CDN Settings & Troubleshooting FAQ</h1>
+<ul>
+    <li><b>WebP Image Compression:</b> <b>Keep ON</b> — Reduces image payload sizes by ~35%.</li>
+    <li><b>Smart Image Optimisation:</b> <b>Keep ON</b> — Auto-resizes desktop (1600px) and mobile (800px) uploads.</li>
+    <li><b>Development Mode:</b> <b>Keep OFF during normal operations</b> — Turn ON only during active coding/deployment.</li>
+    <li><b>Database Sync Route:</b> Visit <code>https://eurotaxisystem.site/force-sync-db-2026</code> to execute migrations and flush caches.</li>
+</ul>
+
+<div class="callout callout-warning">
+    <b>Support & Contact:</b> For system escalations or infrastructure inquiries, contact the Super Admin or visit the official Euro Taxi Management System portal at <code>https://eurotaxisystem.site</code>.
+</div>
+
+<p style="text-align:center; color:#64748B; font-size:9pt; margin-top:30px;">
+    <i>End of Operations Manual. Euro Taxi Management System (ETMS) &copy; 2026. All Rights Reserved.</i>
+</p>
+
+</body>
+</html>

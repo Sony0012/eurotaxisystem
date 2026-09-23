@@ -8,7 +8,7 @@ const config = {
     readyTimeout: 30000
 };
 
-const command = `cd /home/u747826271/domains/eurotaxisystem.site/public_html && git pull origin main 2>&1 && php artisan config:cache 2>&1 && php artisan route:cache 2>&1 && echo "---DEPLOY_SUCCESS---"`;
+const command = `cd /home/u747826271/domains/eurotaxisystem.site/public_html && git pull origin master 2>&1 && php artisan optimize:clear 2>&1 && php artisan view:cache 2>&1 && echo "---DEPLOY_SUCCESS---"`;
 
 console.log('--- DEPLOYING TO PRODUCTION ---');
 
