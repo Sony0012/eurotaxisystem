@@ -1588,6 +1588,13 @@ class DriverAppController extends Controller
                 ->whereNull('deleted_at')
                 ->first();
 
+            if (!$unit) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot trigger SOS alert. You do not have an assigned unit.'
+                ], 422);
+            }
+
             // Get GPS location from gps_tracking table
             $gps = null;
             if ($unit) {
