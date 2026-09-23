@@ -426,3 +426,14 @@ Route::get('/offline-fallback', function() {
     </body>
     </html>';
 });
+
+Route::get('/clear-opcache', function () {
+    if (function_exists('opcache_reset')) {
+        @opcache_reset();
+    }
+    try { \Illuminate\Support\Facades\Artisan::call('cache:clear'); } catch(\Throwable $e) {}
+    try { \Illuminate\Support\Facades\Artisan::call('view:clear'); } catch(\Throwable $e) {}
+    try { \Illuminate\Support\Facades\Artisan::call('config:clear'); } catch(\Throwable $e) {}
+    return response()->json(['success' => true, 'message' => 'OPcache and Laravel cache cleared successfully']);
+});
+
