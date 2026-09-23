@@ -1,9 +1,62 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { TutorialProvider } from './context/TutorialContext';
+import TutorialOverlay from './components/TutorialOverlay';
+
+// Global offline banner
+const OfflineBanner: React.FC = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showRestored, setShowRestored] = useState(false);
+
+  useEffect(() => {
+    const handleOffline = () => {
+      setIsOnline(false);
+      setShowRestored(false);
+    };
+    const handleOnline = () => {
+      setIsOnline(true);
+      setShowRestored(true);
+      setTimeout(() => setShowRestored(false), 3000);
+    };
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
+  if (isOnline && !showRestored) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 99999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      padding: '10px 16px',
+      background: isOnline ? '#16a34a' : '#dc2626',
+      color: '#fff',
+      fontSize: '13px',
+      fontWeight: 600,
+      letterSpacing: '0.3px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+      transition: 'background 0.3s ease',
+    }}>
+      <span style={{ fontSize: '16px' }}>{isOnline ? '✅' : '📵'}</span>
+      {isOnline ? 'Back online! Data is up to date.' : 'No Internet Connection — Showing cached data'}
+    </div>
+  );
+};
 
 // Lazy load pages for performance (Code Splitting)
 const Login = lazy(() => import('./pages/Login'));
@@ -13,12 +66,15 @@ const Vehicle = lazy(() => import('./pages/Vehicle'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const Tracking = lazy(() => import('./pages/Tracking'));
 const History = lazy(() => import('./pages/History'));
-const Charges = lazy(() => import('./pages/Charges'));
 const Support = lazy(() => import('./pages/Support'));
 const Performance = lazy(() => import('./pages/Performance'));
 const Settings = lazy(() => import('./pages/Settings'));
-const Incidents = lazy(() => import('./pages/Incidents'));
+const Violations = lazy(() => import('./pages/Violations'));
+const Accidents = lazy(() => import('./pages/Accidents'));
+const Debts = lazy(() => import('./pages/Debts'));
+const Incentives = lazy(() => import('./pages/Incentives'));
 const Announcements = lazy(() => import('./pages/Announcements'));
+const Terms = lazy(() => import('./pages/Terms'));
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -76,41 +132,50 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <ThemeProvider>
-      <AuthProvider>
-        <IonReactRouter>
-          <IonRouterOutlet>
-            <Suspense fallback={null}>
-              <Route exact path="/welcome">
-                <Welcome />
-              </Route>
-              <Route exact path="/login">
-                <Login />
-              </Route>
-              <Route exact path="/register">
-                <Register />
-              </Route>
-              <PrivateRoute exact path="/dashboard" component={Dashboard} />
+        <AuthProvider>
+          <TutorialProvider>
+            <IonReactRouter>
+              <IonRouterOutlet>
+                <Suspense fallback={null}>
+                  <Route exact path="/welcome">
+                    <Welcome />
+                  </Route>
+                  <Route exact path="/login">
+                    <Login />
+                  </Route>
+                  <Route exact path="/register">
+                    <Register />
+                  </Route>
+                  <PrivateRoute exact path="/dashboard" component={Dashboard} />
 
-              <PrivateRoute exact path="/vehicle" component={Vehicle} />
-              <PrivateRoute exact path="/notifications" component={Notifications} />
-              <PrivateRoute exact path="/tracking" component={Tracking} />
-              <PrivateRoute exact path="/history" component={History} />
-              <PrivateRoute exact path="/charges" component={Charges} />
-              <PrivateRoute exact path="/support" component={Support} />
-              <PrivateRoute exact path="/performance" component={Performance} />
-              <PrivateRoute exact path="/settings" component={Settings} />
-              <PrivateRoute exact path="/incidents" component={Incidents} />
-              <PrivateRoute exact path="/announcements" component={Announcements} />
-              <Route exact path="/">
-                <Redirect to="/welcome" />
-              </Route>
-            </Suspense>
-          </IonRouterOutlet>
-          <NavigationWrapper />
-      </IonReactRouter>
-    </AuthProvider>
+                  <PrivateRoute exact path="/vehicle" component={Vehicle} />
+                  <PrivateRoute exact path="/notifications" component={Notifications} />
+                  <PrivateRoute exact path="/tracking" component={Tracking} />
+                  <PrivateRoute exact path="/history" component={History} />
+                  <PrivateRoute exact path="/violations" component={Violations} />
+                  <PrivateRoute exact path="/accidents" component={Accidents} />
+                  <PrivateRoute exact path="/debts" component={Debts} />
+                  <PrivateRoute exact path="/incentives" component={Incentives} />
+                  <PrivateRoute exact path="/support" component={Support} />
+                  <PrivateRoute exact path="/performance" component={Performance} />
+                  <PrivateRoute exact path="/settings" component={Settings} />
+                  <PrivateRoute exact path="/announcements" component={Announcements} />
+                  <Route exact path="/terms">
+                    <Terms />
+                  </Route>
+                  <Route exact path="/">
+                    <Redirect to="/welcome" />
+                  </Route>
+                </Suspense>
+              </IonRouterOutlet>
+              <NavigationWrapper />
+              <TutorialOverlay />
+              <OfflineBanner />
+            </IonReactRouter>
+          </TutorialProvider>
+        </AuthProvider>
       </ThemeProvider>
-  </IonApp>
+    </IonApp>
   );
 };
 

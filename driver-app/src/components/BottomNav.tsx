@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
-import { homeOutline, home, locateOutline, locate, chatbubbleOutline, chatbubble, settingsOutline, settings } from 'ionicons/icons';
+import { homeOutline, home, locateOutline, locate, chatbubbleOutline, chatbubble, settingsOutline, settings, walletOutline, wallet } from 'ionicons/icons';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useState, useEffect } from 'react';
@@ -16,7 +16,8 @@ const BottomNav: React.FC = () => {
     { name: 'Home', path: '/dashboard', iconOutline: homeOutline, iconSolid: home },
     { name: 'Tracking', path: '/tracking', iconOutline: locateOutline, iconSolid: locate },
     { name: 'Messages', path: '/support', iconOutline: chatbubbleOutline, iconSolid: chatbubble },
-    { name: 'Settings', path: '/settings', iconOutline: settingsOutline, iconSolid: settings }
+    { name: 'Funds', path: '/funds', iconOutline: walletOutline, iconSolid: wallet },
+    { name: 'Settings', path: '/settings', iconOutline: settingsOutline, iconSolid: settings },
   ];
 
   const [unread, setUnread] = useState(0);

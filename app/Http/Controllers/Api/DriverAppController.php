@@ -1929,5 +1929,47 @@ class DriverAppController extends Controller
         return null;
     }
 
+    // ── Driver Fund Ledger (for mobile app) ─────────────────────────────────
+    public function driverFunds(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->driver_id) {
+            return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
+        }
+        $driverId = $user->driver_id;
+
+        $ledger = DB::table('driver_funds as df')
+            ->leftJoin('boundaries as b', 'df.boundary_id', '=', 'b.id')
+            ->leftJoin('units as u', 'b.unit_id', '=', 'u.id')
+            ->where('df.driver_id', $driverId)
+            ->whereNull('df.deleted_at')
+            ->select(
+                'df.id',
+                'df.type',
+                'df.amount',
+                'df.balance_after',
+                'df.description',
+                'df.date',
+                'df.created_at',
+                'u.plate_number'
+            )
+            ->orderByDesc('df.date')
+            ->orderByDesc('df.id')
+            ->get();
+
+        $totalDeposited = (float) $ledger->where('type', 'deposit')->sum('amount');
+        $totalWithdrawn = (float) $ledger->whereIn('type', ['withdrawal', 'maintenance_share', 'damage_deduction', 'company_liability'])->sum('amount');
+        $balance        = max(0, $totalDeposited - $totalWithdrawn);
+
+        return response()->json([
+            'success'         => true,
+            'balance'         => $balance,
+            'total_deposited' => $totalDeposited,
+            'total_withdrawn' => $totalWithdrawn,
+            'ledger'          => $ledger->values(),
+        ]);
+    }
+
 }
+
 

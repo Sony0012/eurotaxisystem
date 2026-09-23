@@ -249,6 +249,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
             Route::get('/latest', [\App\Http\Controllers\Api\AnnouncementController::class, 'latest']);
         });
+
+        // Driver Fund Ledger
+        Route::get('/funds', [\App\Http\Controllers\Api\DriverAppController::class, 'driverFunds']);
     });
 
 

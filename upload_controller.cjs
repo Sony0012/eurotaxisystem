@@ -16,10 +16,15 @@ const baseLocal = 'c:\\xampp\\htdocs\\eurotaxisystem-main\\';
 const baseRemote = '/home/u747826271/domains/eurotaxisystem.site/public_html/';
 
 const filesToUpload = [
+<<<<<<< Updated upstream
     'app/Http/Controllers/Api/DriverAppController.php',
     'app/Services/FirebasePushService.php',
     'app/Http/Controllers/DriverBehaviorController.php',
     'routes/api.php',
+=======
+    { local: 'app/Http/Controllers/Api/DriverAppController.php', remote: 'app/Http/Controllers/Api/DriverAppController.php' },
+    { local: 'routes/api.php', remote: 'routes/api.php' }
+>>>>>>> Stashed changes
 ];
 
 async function upload() {
