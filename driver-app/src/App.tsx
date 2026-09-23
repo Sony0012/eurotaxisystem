@@ -75,6 +75,7 @@ const Debts = lazy(() => import('./pages/Debts'));
 const Incentives = lazy(() => import('./pages/Incentives'));
 const Announcements = lazy(() => import('./pages/Announcements'));
 const Terms = lazy(() => import('./pages/Terms'));
+const Funds = lazy(() => import('./pages/Funds'));
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -160,6 +161,7 @@ const App: React.FC = () => {
                   <PrivateRoute exact path="/performance" component={Performance} />
                   <PrivateRoute exact path="/settings" component={Settings} />
                   <PrivateRoute exact path="/announcements" component={Announcements} />
+                  <PrivateRoute exact path="/funds" component={Funds} />
                   <Route exact path="/terms">
                     <Terms />
                   </Route>
